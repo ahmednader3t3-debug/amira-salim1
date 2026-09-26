@@ -1,40 +1,70 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>لوحة تحكم | DR AMIRA SALIM</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>
+    لوحة تحكم | DR AMIRA SALIM
+  </title>
+
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
+
 
 <body>
 
+
 <header class="site-header">
+
   <div class="container nav">
 
-    <a href="index.html?v=2" class="brand">
-      <span>DR AMIRA SALIM</span>
+    <a
+      href="index.html?v=2"
+      class="brand"
+    >
+      <span>
+        DR AMIRA SALIM
+      </span>
     </a>
+
 
     <div class="nav-actions">
 
-      <!-- الرئيسية -->
       <a
         href="index.html?v=2"
         class="btn secondary-btn"
       >
         الرئيسية
       </a>
+
 
       <button
         id="themeToggle"
@@ -43,6 +73,7 @@
       >
         🌙
       </button>
+
 
       <button
         id="logoutBtn"
@@ -55,12 +86,18 @@
     </div>
 
   </div>
+
 </header>
+
 
 
 <main class="container dashboard-page">
 
-  <!-- HEADER -->
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
   <section class="dashboard-hero">
 
     <div>
@@ -69,9 +106,11 @@
         ADMIN DASHBOARD
       </span>
 
+
       <h1>
         لوحة تحكم د. أميرة سليم
       </h1>
+
 
       <p>
         إدارة الكورسات والمحاضرات والامتحانات وصلاحيات الطلاب.
@@ -82,44 +121,87 @@
   </section>
 
 
-  <!-- STATS -->
+
+  <!-- =====================================================
+       STATS
+  ====================================================== -->
+
   <section class="stats-grid">
 
-    <div class="stat-card">
-      <span>الكورسات</span>
-      <strong id="coursesCount">0</strong>
-    </div>
 
     <div class="stat-card">
-      <span>المحاضرات</span>
-      <strong id="lecturesCount">0</strong>
+
+      <span>
+        الكورسات
+      </span>
+
+      <strong id="coursesCount">
+        0
+      </strong>
+
     </div>
 
-    <div class="stat-card">
-      <span>الامتحانات</span>
-      <strong id="examsCount">0</strong>
-    </div>
 
     <div class="stat-card">
-      <span>طلبات الاشتراك</span>
-      <strong id="requestsCount">0</strong>
+
+      <span>
+        المحاضرات
+      </span>
+
+      <strong id="lecturesCount">
+        0
+      </strong>
+
     </div>
+
+
+    <div class="stat-card">
+
+      <span>
+        الامتحانات
+      </span>
+
+      <strong id="examsCount">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <span>
+        طلبات الاشتراك
+      </span>
+
+      <strong id="requestsCount">
+        0
+      </strong>
+
+    </div>
+
 
   </section>
 
 
-  <!-- MESSAGE -->
+
+  <!-- =====================================================
+       ADMIN MESSAGE
+  ====================================================== -->
+
   <div
     id="adminMsg"
     class="msg"
   ></div>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        ADD COURSE
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -138,9 +220,12 @@
     </div>
 
 
+
     <form id="courseForm">
 
+
       <div class="form-grid">
+
 
         <div class="form-group">
 
@@ -156,6 +241,7 @@
           >
 
         </div>
+
 
 
         <div class="form-group">
@@ -190,6 +276,7 @@
         </div>
 
 
+
         <div class="form-group">
 
           <label for="coursePrice">
@@ -208,6 +295,7 @@
         </div>
 
 
+
         <div class="form-group">
 
           <label for="courseImage">
@@ -222,7 +310,9 @@
 
         </div>
 
+
       </div>
+
 
 
       <div class="form-group">
@@ -240,6 +330,7 @@
       </div>
 
 
+
       <label class="check-row">
 
         <input
@@ -255,6 +346,7 @@
       </label>
 
 
+
       <button
         class="btn primary-btn"
         type="submit"
@@ -262,16 +354,19 @@
         إضافة الكورس
       </button>
 
+
     </form>
 
   </section>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        ADD LECTURE
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -282,7 +377,7 @@
         </h2>
 
         <p>
-          المحاضرة تكون داخل كورس محدد ويمكن أن تحتوي على فيديو وPDF.
+          أضف المحاضرة داخل الكورس مع الفيديو وPDF.
         </p>
 
       </div>
@@ -290,9 +385,12 @@
     </div>
 
 
+
     <form id="lectureForm">
 
+
       <div class="form-grid">
+
 
         <div class="form-group">
 
@@ -314,6 +412,7 @@
         </div>
 
 
+
         <div class="form-group">
 
           <label for="lectureTitle">
@@ -328,6 +427,7 @@
           >
 
         </div>
+
 
 
         <div class="form-group">
@@ -347,6 +447,7 @@
         </div>
 
 
+
         <div class="form-group">
 
           <label for="lectureVideo">
@@ -360,6 +461,7 @@
           >
 
         </div>
+
 
 
         <div class="form-group">
@@ -376,7 +478,9 @@
 
         </div>
 
+
       </div>
+
 
 
       <div class="form-group">
@@ -394,6 +498,7 @@
       </div>
 
 
+
       <label class="check-row">
 
         <input
@@ -408,6 +513,7 @@
       </label>
 
 
+
       <button
         id="lectureSubmitBtn"
         class="btn primary-btn"
@@ -416,27 +522,30 @@
         إضافة المحاضرة
       </button>
 
+
     </form>
 
   </section>
 
 
-  <!-- =========================
-       EXAM
-  ========================== -->
+
+  <!-- =====================================================
+       FULL EXAM BUILDER
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
       <div>
 
         <h2>
-          📝 إنشاء امتحان
+          📝 إنشاء امتحان كامل
         </h2>
 
         <p>
-          اربط امتحان بمحاضرة محددة.
+          أضف الامتحان والأسئلة والاختيارات كلها مرة واحدة.
         </p>
 
       </div>
@@ -444,9 +553,14 @@
     </div>
 
 
-    <form id="examForm">
+
+    <form id="fullExamForm">
+
+
+      <!-- EXAM BASIC DATA -->
 
       <div class="form-grid">
+
 
         <div class="form-group">
 
@@ -468,6 +582,7 @@
         </div>
 
 
+
         <div class="form-group">
 
           <label for="examTitle">
@@ -482,6 +597,7 @@
           >
 
         </div>
+
 
 
         <div class="form-group">
@@ -500,7 +616,9 @@
 
         </div>
 
+
       </div>
+
 
 
       <div class="form-group">
@@ -512,228 +630,86 @@
         <textarea
           id="examDescription"
           rows="3"
+          placeholder="وصف اختياري للامتحان..."
         ></textarea>
 
       </div>
 
 
+
+      <!-- QUESTIONS BUILDER -->
+
+      <div class="exam-builder">
+
+
+        <div class="exam-builder-header">
+
+          <div>
+
+            <h3>
+              ❓ أسئلة الامتحان
+            </h3>
+
+            <p>
+              أضف كل الأسئلة والاختيارات من هنا.
+            </p>
+
+          </div>
+
+
+          <button
+            id="addQuestionBtn"
+            class="btn secondary-btn"
+            type="button"
+          >
+            + إضافة سؤال
+          </button>
+
+        </div>
+
+
+
+        <div
+          id="questionsBuilder"
+        ></div>
+
+
+      </div>
+
+
+
+      <!-- EXAM MESSAGE -->
+
+      <div
+        id="fullExamMsg"
+        class="msg"
+      ></div>
+
+
+
+      <!-- SUBMIT -->
+
       <button
+        id="fullExamSubmitBtn"
         class="btn primary-btn"
         type="submit"
       >
-        إنشاء الامتحان
+        📝 إنشاء الامتحان بالكامل
       </button>
+
 
     </form>
 
   </section>
 
 
-  <!-- =========================
-       QUESTIONS
-  ========================== -->
 
-  <section class="admin-panel">
-
-    <div class="panel-title">
-
-      <div>
-
-        <h2>
-          ❓ إضافة سؤال
-        </h2>
-
-        <p>
-          أضف السؤال إلى امتحان محدد.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <form id="questionForm">
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label for="questionExam">
-            الامتحان
-          </label>
-
-          <select
-            id="questionExam"
-            required
-          >
-
-            <option value="">
-              اختر الامتحان
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="questionOrder">
-            ترتيب السؤال
-          </label>
-
-          <input
-            id="questionOrder"
-            type="number"
-            min="1"
-            value="1"
-            required
-          >
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="questionText">
-          السؤال
-        </label>
-
-        <textarea
-          id="questionText"
-          rows="3"
-          required
-        ></textarea>
-
-      </div>
-
-
-      <button
-        class="btn primary-btn"
-        type="submit"
-      >
-        إضافة السؤال
-      </button>
-
-    </form>
-
-  </section>
-
-
-  <!-- =========================
-       OPTIONS
-  ========================== -->
-
-  <section class="admin-panel">
-
-    <div class="panel-title">
-
-      <div>
-
-        <h2>
-          🔘 إضافة اختيار
-        </h2>
-
-        <p>
-          أضف الاختيارات وحدد الإجابة الصحيحة.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <form id="optionForm">
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label for="optionQuestion">
-            السؤال
-          </label>
-
-          <select
-            id="optionQuestion"
-            required
-          >
-
-            <option value="">
-              اختر السؤال
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="optionOrder">
-            ترتيب الاختيار
-          </label>
-
-          <input
-            id="optionOrder"
-            type="number"
-            min="1"
-            value="1"
-            required
-          >
-
-        </div>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="optionText">
-          الاختيار
-        </label>
-
-        <input
-          id="optionText"
-          type="text"
-          required
-        >
-
-      </div>
-
-
-      <label class="check-row">
-
-        <input
-          id="optionCorrect"
-          type="checkbox"
-        >
-
-        <span>
-          هذه هي الإجابة الصحيحة
-        </span>
-
-      </label>
-
-
-      <button
-        class="btn primary-btn"
-        type="submit"
-      >
-        إضافة الاختيار
-      </button>
-
-    </form>
-
-  </section>
-
-
-  <!-- =========================
+  <!-- =====================================================
        STUDENT ACCESS
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -744,7 +720,7 @@
         </h2>
 
         <p>
-          بعد تأكيد التحويل يمكنك فتح كورس كامل أو محاضرة واحدة لطالب.
+          افتح كورس كامل أو محاضرة واحدة لطالب.
         </p>
 
       </div>
@@ -752,7 +728,9 @@
     </div>
 
 
+
     <div class="form-grid">
+
 
       <div class="form-group">
 
@@ -769,6 +747,7 @@
         </select>
 
       </div>
+
 
 
       <div class="form-group">
@@ -788,6 +767,7 @@
       </div>
 
 
+
       <div class="form-group">
 
         <label for="accessLecture">
@@ -804,10 +784,13 @@
 
       </div>
 
+
     </div>
 
 
+
     <div class="admin-actions">
+
 
       <button
         id="openCourseAccessBtn"
@@ -818,6 +801,7 @@
       </button>
 
 
+
       <button
         id="openLectureAccessBtn"
         class="btn success-btn"
@@ -826,7 +810,9 @@
         📖 فتح المحاضرة فقط
       </button>
 
+
     </div>
+
 
 
     <div
@@ -835,9 +821,12 @@
     ></div>
 
 
+
     <div class="table-wrap">
 
+
       <table class="admin-table">
+
 
         <thead>
 
@@ -868,6 +857,7 @@
         </thead>
 
 
+
         <tbody id="lectureAccessTable">
 
           <tr>
@@ -880,18 +870,23 @@
 
         </tbody>
 
+
       </table>
 
+
     </div>
+
 
   </section>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        REQUESTS
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -910,9 +905,12 @@
     </div>
 
 
+
     <div class="table-wrap">
 
+
       <table class="admin-table">
+
 
         <thead>
 
@@ -943,6 +941,7 @@
         </thead>
 
 
+
         <tbody id="requestsTable">
 
           <tr>
@@ -955,18 +954,23 @@
 
         </tbody>
 
+
       </table>
 
+
     </div>
+
 
   </section>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        COURSES
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -976,9 +980,14 @@
           📚 الكورسات الحالية
         </h2>
 
+        <p>
+          من هنا ستقدر على إدارة وحذف الكورسات.
+        </p>
+
       </div>
 
     </div>
+
 
 
     <div
@@ -988,14 +997,17 @@
       جاري التحميل...
     </div>
 
+
   </section>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        LECTURES
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -1005,9 +1017,14 @@
           🎬 المحاضرات الحالية
         </h2>
 
+        <p>
+          من هنا ستقدر على إدارة وحذف المحاضرات.
+        </p>
+
       </div>
 
     </div>
+
 
 
     <div
@@ -1017,14 +1034,17 @@
       جاري التحميل...
     </div>
 
+
   </section>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        EXAMS
-  ========================== -->
+  ====================================================== -->
 
   <section class="admin-panel">
+
 
     <div class="panel-title">
 
@@ -1034,9 +1054,14 @@
           📝 الامتحانات الحالية
         </h2>
 
+        <p>
+          الامتحانات المنشأة داخل المحاضرات.
+        </p>
+
       </div>
 
     </div>
+
 
 
     <div
@@ -1046,19 +1071,39 @@
       جاري التحميل...
     </div>
 
+
   </section>
+
 
 </main>
 
 
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- CONFIG -->
+<!-- =====================================================
+     SUPABASE
+====================================================== -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+
+<!-- =====================================================
+     CONFIG
+====================================================== -->
+
 <script src="config.js"></script>
 
-<!-- ADMIN LOGIC -->
+
+
+<!-- =====================================================
+     ADMIN LOGIC
+====================================================== -->
+
 <script src="admin.js"></script>
 
+
 </body>
+
 </html>
