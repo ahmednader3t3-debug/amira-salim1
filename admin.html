@@ -4,451 +4,834 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>لوحة الإدارة | DR AMIRA SALIM</title>
+  <title>لوحة تحكم | DR AMIRA SALIM</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
 
   <link rel="stylesheet" href="style.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js" defer></script>
-  <script src="admin.js" defer></script>
 </head>
 
 <body>
 
 <header class="site-header">
-  <div class="container nav-container">
+  <div class="container nav">
 
-    <a href="index.html" class="logo">
-      DR AMIRA SALIM
+    <a href="index.html" class="brand">
+      <span>DR AMIRA SALIM</span>
     </a>
 
     <div class="nav-actions">
-
-      <button id="themeBtn" class="icon-btn">
-        🌙
-      </button>
-
       <a href="index.html" class="btn secondary-btn">
         الرئيسية
       </a>
 
-      <button id="logoutBtn" class="btn danger-btn">
-        تسجيل الخروج
+      <button id="themeToggle" class="icon-btn" type="button">
+        🌙
       </button>
 
+      <button id="logoutBtn" class="btn danger-btn" type="button">
+        تسجيل الخروج
+      </button>
     </div>
 
   </div>
 </header>
 
 
-<main class="container">
+<main class="container dashboard-page">
 
-  <section class="dashboard">
+  <!-- HEADER -->
+  <section class="dashboard-hero">
+    <div>
+      <span class="eyebrow">ADMIN DASHBOARD</span>
+      <h1>لوحة تحكم د. أميرة سليم</h1>
+      <p>
+        إدارة الكورسات والمحاضرات والامتحانات وصلاحيات الطلاب.
+      </p>
+    </div>
+  </section>
 
-    <div class="dashboard-header">
 
+  <!-- STATS -->
+  <section class="stats-grid">
+
+    <div class="stat-card">
+      <span>الكورسات</span>
+      <strong id="coursesCount">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>المحاضرات</span>
+      <strong id="lecturesCount">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>الامتحانات</span>
+      <strong id="examsCount">0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>طلبات الاشتراك</span>
+      <strong id="requestsCount">0</strong>
+    </div>
+
+  </section>
+
+
+  <!-- MESSAGE -->
+  <div id="adminMsg" class="msg"></div>
+
+
+  <!-- =========================
+       ADD COURSE
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
       <div>
-        <span class="badge">ADMIN PANEL</span>
-
-        <h1>
-          لوحة الإدارة
-        </h1>
-
-        <p>
-          أهلاً <strong id="adminName">Admin</strong>
-        </p>
-
-        <small id="adminEmail"></small>
+        <h2>📚 إضافة كورس</h2>
+        <p>أنشئ كورس جديد وحدد السنة والسعر.</p>
       </div>
-
     </div>
 
+    <form id="courseForm">
 
-    <!-- الإحصائيات -->
+      <div class="form-grid">
 
-    <div class="stats-grid">
+        <div class="form-group">
+          <label for="courseTitle">اسم الكورس</label>
 
-      <div class="stat-card">
-        <strong id="statsCourses">0</strong>
-        <span>الكورسات</span>
+          <input
+            id="courseTitle"
+            type="text"
+            placeholder="مثال: Anatomy"
+            required
+          >
+        </div>
+
+
+        <div class="form-group">
+          <label for="courseYear">السنة الدراسية</label>
+
+          <select id="courseYear" required>
+            <option value="">اختر السنة</option>
+            <option value="1">الفرقة الأولى</option>
+            <option value="2">الفرقة الثانية</option>
+            <option value="3">الفرقة الثالثة</option>
+          </select>
+        </div>
+
+
+        <div class="form-group">
+          <label for="coursePrice">السعر</label>
+
+          <input
+            id="coursePrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="مثال: 500"
+            required
+          >
+        </div>
+
+
+        <div class="form-group">
+          <label for="courseImage">رابط صورة الكورس</label>
+
+          <input
+            id="courseImage"
+            type="url"
+            placeholder="https://..."
+          >
+        </div>
+
       </div>
 
-      <div class="stat-card">
-        <strong id="statsLectures">0</strong>
-        <span>المحاضرات</span>
-      </div>
 
-      <div class="stat-card">
-        <strong id="statsRequests">0</strong>
-        <span>طلبات الاشتراك</span>
-      </div>
-
-    </div>
-
-
-    <!-- إضافة كورس -->
-
-    <section class="admin-panel">
-
-      <h2>
-        إضافة كورس جديد
-      </h2>
-
-      <form id="courseForm" class="admin-form">
-
-        <input
-          id="courseTitle"
-          type="text"
-          placeholder="اسم الكورس"
-          required
-        >
+      <div class="form-group">
+        <label for="courseDescription">وصف الكورس</label>
 
         <textarea
           id="courseDescription"
-          placeholder="وصف الكورس"
+          rows="4"
+          placeholder="اكتب وصف الكورس..."
         ></textarea>
+      </div>
 
-        <select id="courseYear" required>
-          <option value="">السنة الدراسية</option>
-          <option value="1">الفرقة الأولى</option>
-          <option value="2">الفرقة الثانية</option>
-          <option value="3">الفرقة الثالثة</option>
-        </select>
 
+      <label class="check-row">
         <input
-          id="coursePrice"
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="السعر بالجنيه"
-          required
+          id="courseVisible"
+          type="checkbox"
+          checked
         >
 
-        <input
-          id="courseImage"
-          type="url"
-          placeholder="رابط صورة الكورس - اختياري"
-        >
+        <span>إظهار الكورس للطلاب</span>
+      </label>
 
-        <label class="checkbox-row">
+
+      <button class="btn primary-btn" type="submit">
+        إضافة الكورس
+      </button>
+
+    </form>
+
+  </section>
+
+
+  <!-- =========================
+       ADD LECTURE
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+      <div>
+        <h2>🎥 إضافة محاضرة</h2>
+        <p>
+          المحاضرة تكون داخل كورس محدد ويمكن أن تحتوي على فيديو وPDF.
+        </p>
+      </div>
+    </div>
+
+
+    <form id="lectureForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="lectureCourse">الكورس</label>
+
+          <select id="lectureCourse" required>
+            <option value="">اختر الكورس</option>
+          </select>
+        </div>
+
+
+        <div class="form-group">
+          <label for="lectureTitle">اسم المحاضرة</label>
 
           <input
-            id="courseVisible"
-            type="checkbox"
-            checked
+            id="lectureTitle"
+            type="text"
+            placeholder="مثال: Bones of the Skull"
+            required
           >
+        </div>
 
-          إظهار الكورس للطلاب
 
+        <div class="form-group">
+          <label for="lectureOrder">ترتيب المحاضرة</label>
+
+          <input
+            id="lectureOrder"
+            type="number"
+            min="1"
+            value="1"
+            required
+          >
+        </div>
+
+
+        <div class="form-group">
+          <label for="lectureVideo">فيديو المحاضرة</label>
+
+          <input
+            id="lectureVideo"
+            type="file"
+            accept="video/*"
+          >
+        </div>
+
+
+        <div class="form-group">
+          <label for="lecturePdf">PDF المحاضرة</label>
+
+          <input
+            id="lecturePdf"
+            type="file"
+            accept="application/pdf"
+          >
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+        <label for="lectureDescription">
+          وصف المحاضرة
         </label>
-
-        <button
-          type="submit"
-          class="btn primary-btn"
-        >
-          إضافة الكورس
-        </button>
-
-      </form>
-
-    </section>
-
-
-    <!-- إضافة محاضرة -->
-
-    <section class="admin-panel">
-
-      <h2>
-        إضافة محاضرة
-      </h2>
-
-      <form id="lectureForm" class="admin-form">
-
-        <select id="lectureCourse" required>
-          <option value="">
-            اختر الكورس
-          </option>
-        </select>
-
-        <input
-          id="lectureTitle"
-          type="text"
-          placeholder="عنوان المحاضرة"
-          required
-        >
 
         <textarea
           id="lectureDescription"
-          placeholder="وصف المحاضرة"
+          rows="3"
+          placeholder="وصف مختصر للمحاضرة..."
         ></textarea>
+      </div>
+
+
+      <label class="check-row">
 
         <input
-          id="lectureVideo"
-          type="url"
-          placeholder="رابط الفيديو - اختياري"
+          id="lectureFree"
+          type="checkbox"
         >
 
-        <input
-          id="lecturePdf"
-          type="url"
-          placeholder="رابط PDF - اختياري"
-        >
+        <span>
+          محاضرة مجانية / تجريبية
+        </span>
 
-        <input
-          id="lectureOrder"
-          type="number"
-          min="1"
-          value="1"
-          placeholder="ترتيب المحاضرة"
-          required
-        >
+      </label>
 
-        <label class="checkbox-row">
+
+      <button
+        id="lectureSubmitBtn"
+        class="btn primary-btn"
+        type="submit"
+      >
+        إضافة المحاضرة
+      </button>
+
+    </form>
+
+  </section>
+
+
+  <!-- =========================
+       EXAM
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+      <div>
+        <h2>📝 إنشاء امتحان</h2>
+        <p>اربط امتحان بمحاضرة محددة.</p>
+      </div>
+    </div>
+
+
+    <form id="examForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="examLecture">
+            المحاضرة
+          </label>
+
+          <select id="examLecture" required>
+            <option value="">
+              اختر المحاضرة
+            </option>
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="examTitle">
+            اسم الامتحان
+          </label>
 
           <input
-            id="lectureFree"
-            type="checkbox"
+            id="examTitle"
+            type="text"
+            value="اختبار المحاضرة"
+            required
           >
 
-          محاضرة مجانية
+        </div>
 
+
+        <div class="form-group">
+
+          <label for="examMaxScore">
+            الدرجة النهائية
+          </label>
+
+          <input
+            id="examMaxScore"
+            type="number"
+            min="1"
+            value="100"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="examDescription">
+          وصف الامتحان
         </label>
-
-        <button
-          type="submit"
-          class="btn primary-btn"
-        >
-          إضافة المحاضرة
-        </button>
-
-      </form>
-
-    </section>
-
-
-    <!-- إضافة اختبار -->
-
-    <section class="admin-panel">
-
-      <h2>
-        إنشاء اختبار لمحاضرة
-      </h2>
-
-      <form id="examForm" class="admin-form">
-
-        <select id="examLecture" required>
-          <option value="">
-            اختر المحاضرة
-          </option>
-        </select>
-
-        <input
-          id="examTitle"
-          type="text"
-          placeholder="اسم الاختبار"
-          required
-        >
 
         <textarea
           id="examDescription"
-          placeholder="وصف الاختبار"
+          rows="3"
         ></textarea>
 
-        <input
-          id="examMaxScore"
-          type="number"
-          min="1"
-          value="100"
-          placeholder="الدرجة النهائية"
-          required
-        >
-
-        <button
-          type="submit"
-          class="btn primary-btn"
-        >
-          إنشاء / تحديث الاختبار
-        </button>
-
-      </form>
-
-    </section>
+      </div>
 
 
-    <!-- إضافة سؤال -->
+      <button
+        class="btn primary-btn"
+        type="submit"
+      >
+        إنشاء الامتحان
+      </button>
 
-    <section class="admin-panel">
+    </form>
 
-      <h2>
-        إضافة سؤال للاختبار
-      </h2>
+  </section>
 
-      <form id="questionForm" class="admin-form">
 
-        <select id="questionExam" required>
-          <option value="">
-            اختر الاختبار
-          </option>
-        </select>
+  <!-- =========================
+       QUESTIONS
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+      <div>
+        <h2>❓ إضافة سؤال</h2>
+        <p>أضف السؤال إلى امتحان محدد.</p>
+      </div>
+    </div>
+
+
+    <form id="questionForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="questionExam">
+            الامتحان
+          </label>
+
+          <select id="questionExam" required>
+            <option value="">
+              اختر الامتحان
+            </option>
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="questionOrder">
+            ترتيب السؤال
+          </label>
+
+          <input
+            id="questionOrder"
+            type="number"
+            min="1"
+            value="1"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="questionText">
+          السؤال
+        </label>
 
         <textarea
           id="questionText"
-          placeholder="اكتب السؤال هنا"
+          rows="3"
           required
         ></textarea>
 
-        <input
-          id="questionOrder"
-          type="number"
-          min="1"
-          value="1"
-          placeholder="ترتيب السؤال"
-          required
-        >
-
-        <button
-          type="submit"
-          class="btn primary-btn"
-        >
-          إضافة السؤال
-        </button>
-
-      </form>
-
-    </section>
+      </div>
 
 
-    <!-- إضافة اختيار -->
+      <button
+        class="btn primary-btn"
+        type="submit"
+      >
+        إضافة السؤال
+      </button>
 
-    <section class="admin-panel">
+    </form>
 
-      <h2>
-        إضافة اختيار للسؤال
-      </h2>
+  </section>
 
-      <form id="optionForm" class="admin-form">
 
-        <select id="optionQuestion" required>
-          <option value="">
-            اختر السؤال
-          </option>
-        </select>
+  <!-- =========================
+       OPTIONS
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+      <div>
+        <h2>🔘 إضافة اختيار</h2>
+        <p>أضف الاختيارات وحدد الإجابة الصحيحة.</p>
+      </div>
+    </div>
+
+
+    <form id="optionForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="optionQuestion">
+            السؤال
+          </label>
+
+          <select id="optionQuestion" required>
+            <option value="">
+              اختر السؤال
+            </option>
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="optionOrder">
+            ترتيب الاختيار
+          </label>
+
+          <input
+            id="optionOrder"
+            type="number"
+            min="1"
+            value="1"
+            required
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="optionText">
+          الاختيار
+        </label>
 
         <input
           id="optionText"
           type="text"
-          placeholder="نص الاختيار"
           required
         >
+
+      </div>
+
+
+      <label class="check-row">
 
         <input
-          id="optionOrder"
-          type="number"
-          min="1"
-          value="1"
-          placeholder="ترتيب الاختيار"
-          required
+          id="optionCorrect"
+          type="checkbox"
         >
 
-        <label class="checkbox-row">
-
-          <input
-            id="optionCorrect"
-            type="checkbox"
-          >
-
+        <span>
           هذه هي الإجابة الصحيحة
+        </span>
 
+      </label>
+
+
+      <button
+        class="btn primary-btn"
+        type="submit"
+      >
+        إضافة الاختيار
+      </button>
+
+    </form>
+
+  </section>
+
+
+  <!-- =========================
+       STUDENT ACCESS
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+        <h2>🔐 إدارة وصول الطلاب</h2>
+
+        <p>
+          بعد تأكيد التحويل يمكنك فتح كورس كامل أو محاضرة واحدة لطالب.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label for="accessStudent">
+          الطالب
         </label>
 
-        <button
-          type="submit"
-          class="btn primary-btn"
-        >
-          إضافة الاختيار
-        </button>
+        <select id="accessStudent">
 
-      </form>
+          <option value="">
+            اختر الطالب
+          </option>
 
-    </section>
+        </select>
 
-
-    <!-- طلبات الاشتراك -->
-
-    <section class="admin-panel">
-
-      <h2>
-        طلبات الاشتراك
-      </h2>
-
-      <div id="requestsList">
-        جاري التحميل...
       </div>
 
-    </section>
 
+      <div class="form-group">
 
-    <!-- الكورسات -->
+        <label for="accessCourse">
+          الكورس
+        </label>
 
-    <section class="admin-panel">
+        <select id="accessCourse">
 
-      <h2>
-        إدارة الكورسات
-      </h2>
+          <option value="">
+            اختر الكورس
+          </option>
 
-      <div id="coursesList">
-        جاري التحميل...
+        </select>
+
       </div>
 
-    </section>
 
+      <div class="form-group">
 
-    <!-- المحاضرات -->
+        <label for="accessLecture">
+          المحاضرة
+        </label>
 
-    <section class="admin-panel">
+        <select id="accessLecture">
 
-      <h2>
-        إدارة المحاضرات
-      </h2>
+          <option value="">
+            اختر الكورس أولًا
+          </option>
 
-      <div id="lecturesList">
-        جاري التحميل...
+        </select>
+
       </div>
 
-    </section>
+    </div>
 
 
-    <!-- الاختبارات -->
+    <div class="admin-actions">
 
-    <section class="admin-panel">
+      <button
+        id="openCourseAccessBtn"
+        class="btn success-btn"
+        type="button"
+      >
+        🔓 فتح الكورس بالكامل
+      </button>
 
-      <h2>
-        الاختبارات والأسئلة
-      </h2>
 
-      <div id="examsList">
-        جاري التحميل...
+      <button
+        id="openLectureAccessBtn"
+        class="btn success-btn"
+        type="button"
+      >
+        📖 فتح المحاضرة فقط
+      </button>
+
+    </div>
+
+
+    <div id="accessMsg" class="msg"></div>
+
+
+    <div class="table-wrap">
+
+      <table class="admin-table">
+
+        <thead>
+
+          <tr>
+            <th>الطالب</th>
+            <th>المحاضرة</th>
+            <th>الكورس</th>
+            <th>التاريخ</th>
+            <th>إجراء</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="lectureAccessTable">
+
+          <tr>
+            <td colspan="5">
+              جاري تحميل الصلاحيات...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       REQUESTS
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+        <h2>💳 طلبات الاشتراك</h2>
+
+        <p>
+          راجع طلبات الطلاب ثم وافق أو ارفض.
+        </p>
       </div>
 
-    </section>
+    </div>
+
+
+    <div class="table-wrap">
+
+      <table class="admin-table">
+
+        <thead>
+
+          <tr>
+            <th>الطالب</th>
+            <th>الكورس</th>
+            <th>الحالة</th>
+            <th>التاريخ</th>
+            <th>الإجراء</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="requestsTable">
+
+          <tr>
+            <td colspan="5">
+              جاري التحميل...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       COURSES
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+        <h2>📚 الكورسات الحالية</h2>
+      </div>
+
+    </div>
+
+
+    <div id="coursesList" class="admin-list">
+
+      جاري التحميل...
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       LECTURES
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+        <h2>🎬 المحاضرات الحالية</h2>
+      </div>
+
+    </div>
+
+
+    <div id="lecturesList" class="admin-list">
+
+      جاري التحميل...
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       EXAMS
+  ========================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+        <h2>📝 الامتحانات الحالية</h2>
+      </div>
+
+    </div>
+
+
+    <div id="examsList" class="admin-list">
+
+      جاري التحميل...
+
+    </div>
 
   </section>
 
 </main>
 
 
-<footer class="site-footer">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <div class="container">
-
-    <p>
-      © 2026 DR AMIRA SALIM — Nursing Courses
-    </p>
-
-  </div>
-
-</footer>
+<script src="config.js"></script>
+<script src="admin.js"></script>
 
 </body>
 </html>
