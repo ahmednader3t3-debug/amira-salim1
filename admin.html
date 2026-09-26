@@ -299,13 +299,13 @@
         <div class="form-group">
 
           <label for="courseImage">
-            رابط صورة الكورس
+            صورة الكورس
           </label>
 
           <input
             id="courseImage"
-            type="url"
-            placeholder="https://..."
+            type="file"
+            accept="image/*"
           >
 
         </div>
@@ -611,6 +611,25 @@
             type="number"
             min="1"
             value="100"
+            required
+          >
+
+        </div>
+
+
+
+        <div class="form-group">
+
+          <label for="examDuration">
+            مدة الامتحان بالدقائق
+          </label>
+
+          <input
+            id="examDuration"
+            type="number"
+            min="1"
+            max="600"
+            value="30"
             required
           >
 
@@ -1088,13 +1107,11 @@
 ></script>
 
 
-
 <!-- =====================================================
      CONFIG
 ====================================================== -->
 
 <script src="config.js"></script>
-
 
 
 <!-- =====================================================
