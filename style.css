@@ -1046,3 +1046,297 @@ button {
     padding: 25px 20px;
   }
 }
+/* =====================================
+   Exam Questions
+===================================== */
+
+.exam-page {
+  max-width: 900px;
+  margin: 50px auto;
+}
+
+.exam-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.exam-header h1 {
+  margin: 12px 0;
+  font-size: 34px;
+}
+
+.exam-header p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.exam-info {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.exam-info span {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 12px;
+}
+
+
+/* السؤال */
+
+.question-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.09);
+}
+
+.question-number {
+  display: inline-block;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.question-card h3 {
+  margin: 0 0 20px;
+  line-height: 1.8;
+  font-size: 19px;
+}
+
+
+/* الاختيارات */
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exam-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 16px 18px;
+
+  border: 2px solid var(--border);
+  border-radius: 15px;
+
+  background: var(--bg);
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* نخفي الـ radio الأصلي */
+
+.exam-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* دائرة الاختيار */
+
+.exam-option::before {
+  content: "";
+
+  width: 20px;
+  height: 20px;
+
+  min-width: 20px;
+
+  border: 2px solid var(--muted);
+  border-radius: 50%;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* النص */
+
+.exam-option span {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+
+/* Hover */
+
+.exam-option:hover {
+  border-color: var(--primary);
+  transform: translateX(-3px);
+}
+
+
+/* الاختيار المحدد */
+
+.exam-option:has(input:checked) {
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.08);
+  box-shadow: 0 5px 18px rgba(37, 99, 235, 0.12);
+}
+
+
+/* الدائرة المحددة */
+
+.exam-option:has(input:checked)::before {
+  border-color: var(--primary);
+
+  background:
+    radial-gradient(
+      circle,
+      var(--primary) 0 45%,
+      transparent 48%
+    );
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+/* زر إرسال الاختبار */
+
+.exam-submit-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 15px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.exam-submit-btn:hover {
+  transform: translateY(-2px);
+}
+
+.exam-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* نتيجة الامتحان */
+
+.result-card {
+  max-width: 600px;
+  margin: 70px auto;
+  padding: 40px 25px;
+  text-align: center;
+
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.result-icon {
+  width: 70px;
+  height: 70px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+  color: white;
+
+  font-size: 35px;
+  font-weight: 800;
+}
+
+.result-card h2 {
+  margin: 18px 0;
+  font-size: 28px;
+}
+
+.result-score {
+  font-size: 42px;
+  font-weight: 800;
+  margin: 20px 0;
+}
+
+.result-score span {
+  color: var(--muted);
+}
+
+.result-percentage {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+  .exam-page {
+    margin: 30px auto;
+  }
+
+  .exam-header h1 {
+    font-size: 27px;
+  }
+
+  .question-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .question-card h3 {
+    font-size: 17px;
+  }
+
+  .exam-option {
+    padding: 14px;
+  }
+
+  .exam-option span {
+    font-size: 15px;
+  }
+
+  .exam-info {
+    flex-direction: column;
+  }
+
+}
