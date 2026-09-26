@@ -18,7 +18,8 @@
 
   <div class="container nav">
 
-    <a class="brand" href="index.html">
+    <!-- LOGO -->
+    <a id="brandLink" class="brand" href="index.html">
 
       <span class="logo">AS</span>
 
@@ -31,20 +32,16 @@
 
 
     <nav>
-
       <a href="#courses">الكورسات</a>
       <a href="#about">عن الأكاديمية</a>
       <a href="#contact">تواصل معنا</a>
-
     </nav>
 
 
-    <div id="authArea">
-
+    <div>
       <a id="loginBtn" class="btn small" href="login.html">
         تسجيل الدخول
       </a>
-
     </div>
 
   </div>
@@ -54,8 +51,7 @@
 
 <main>
 
-
-<!-- HERO -->
+<!-- ================= HERO ================= -->
 
 <section class="hero">
 
@@ -74,7 +70,7 @@
 
       <p>
         منصة أميرة سليم التعليمية لتطوير مهاراتك في مجال التمريض
-        من خلال الكورسات والمحاضرات والاختبارات والمتابعة المستمرة.
+        من خلال الكورسات والمحاضرات والواجبات والامتحانات.
       </p>
 
 
@@ -142,7 +138,7 @@
 </section>
 
 
-<!-- COURSES -->
+<!-- ================= COURSES ================= -->
 
 <section id="courses" class="section">
 
@@ -178,7 +174,7 @@
 </section>
 
 
-<!-- ABOUT -->
+<!-- ================= ABOUT ================= -->
 
 <section id="about" class="section muted">
 
@@ -205,7 +201,7 @@
 
       <p>
         بعد تسجيل الدخول يمكنك متابعة الكورسات والواجبات
-        والامتحانات والدرجات من خلال لوحة الطالب الخاصة بك.
+        والامتحانات والدرجات من خلال لوحة الطالب.
       </p>
 
     </div>
@@ -215,7 +211,7 @@
 </section>
 
 
-<!-- CONTACT -->
+<!-- ================= CONTACT ================= -->
 
 <section id="contact" class="section">
 
@@ -249,7 +245,6 @@
 
 </section>
 
-
 </main>
 
 
@@ -262,20 +257,21 @@
 </footer>
 
 
+<!-- ================= SUPABASE ================= -->
+
 <script src="config.js"></script>
 
 <script>
 
 async function initHome() {
 
-  /* =========================
-     CHECK LOGIN
-  ========================= */
-
   const {
     data: { user }
   } = await supabaseClient.auth.getUser();
 
+
+  const brandLink =
+    document.getElementById("brandLink");
 
   const loginBtn =
     document.getElementById("loginBtn");
@@ -287,18 +283,41 @@ async function initHome() {
     document.getElementById("contactBtn");
 
 
+  /*
+  ========================================
+  لو الطالب مسجل دخول
+  ========================================
+  */
+
   if (user) {
 
+    // اللوجو يروح للـ Dashboard
+    brandLink.href = "student.html";
+
+    // زر تسجيل الدخول يتحول للـ Dashboard
     loginBtn.textContent = "لوحة الطالب";
     loginBtn.href = "student.html";
 
+    // زر البداية
     heroBtn.textContent = "دخول لوحة الطالب";
     heroBtn.href = "student.html";
 
+    // زر التواصل
     contactBtn.textContent = "لوحة الطالب";
     contactBtn.href = "student.html";
 
-  } else {
+  }
+
+
+  /*
+  ========================================
+  لو مفيش Login
+  ========================================
+  */
+
+  else {
+
+    brandLink.href = "index.html";
 
     loginBtn.textContent = "تسجيل الدخول";
     loginBtn.href = "login.html";
@@ -312,9 +331,11 @@ async function initHome() {
   }
 
 
-  /* =========================
-     LOAD COURSES
-  ========================= */
+  /*
+  ========================================
+  تحميل الكورسات
+  ========================================
+  */
 
   const coursesGrid =
     document.getElementById("coursesGrid");
@@ -331,7 +352,7 @@ async function initHome() {
     });
 
 
-  if (error || !courses?.length) {
+  if (error || !courses || courses.length === 0) {
 
     coursesGrid.innerHTML = `
       <div class="empty">
@@ -343,8 +364,9 @@ async function initHome() {
   }
 
 
-  coursesGrid.innerHTML =
-    courses.map(course => `
+  coursesGrid.innerHTML = courses.map(course => {
+
+    return `
 
       <article class="course">
 
@@ -373,19 +395,24 @@ async function initHome() {
 
       </article>
 
-    `).join("");
+    `;
+
+  }).join("");
 
 }
 
 
-/* =========================
-   SECURITY
-========================= */
+/*
+========================================
+حماية النصوص
+========================================
+*/
 
 function safe(value) {
 
   return String(value).replace(
     /[&<>"']/g,
+
     char => ({
       "&": "&amp;",
       "<": "&lt;",
@@ -393,6 +420,7 @@ function safe(value) {
       '"': "&quot;",
       "'": "&#039;"
     }[char])
+
   );
 
 }
