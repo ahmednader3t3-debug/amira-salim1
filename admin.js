@@ -196,6 +196,7 @@ if (courseForm) {
         imageInput?.files?.[0] || null;
 
       if (imageFile) {
+
         if (!imageFile.type.startsWith("image/")) {
           showAdminMsg(
             "اختار ملف صورة فقط.",
@@ -263,12 +264,15 @@ if (courseForm) {
       }
 
       try {
+
         if (imageFile && insertedCourse?.id) {
-          const imageUrl = await uploadFile(
-            "course-images",
-            imageFile,
-            "courses"
-          );
+
+          const imageUrl =
+            await uploadFile(
+              "course-images",
+              imageFile,
+              "courses"
+            );
 
           const { error: imageUpdateError } =
             await supabaseClient
@@ -282,29 +286,35 @@ if (courseForm) {
               );
 
           if (imageUpdateError) {
+
             await supabaseClient
               .from("courses")
               .delete()
-              .eq("id", insertedCourse.id);
+              .eq(
+                "id",
+                insertedCourse.id
+              );
 
             throw imageUpdateError;
           }
         }
-      } catch (uploadError) {
-        console.error(uploadError);
 
         showAdminMsg(
-          "تم إلغاء إضافة الكورس لأن رفع الصورة فشل: " +
-            uploadError.message,
+          "✅ تم إضافة الكورس بنجاح."
+        );
+
+      } catch (imageError) {
+
+        console.error(imageError);
+
+        showAdminMsg(
+          "تم إنشاء الكورس لكن حصل خطأ أثناء رفع الصورة: " +
+            imageError.message,
           true
         );
 
         return;
       }
-
-      showAdminMsg(
-        "✅ تم إضافة الكورس بنجاح."
-      );
 
       courseForm.reset();
 
@@ -814,568 +824,6 @@ async function loadAccessLectures() {
     }
   );
 }
-
-
-/* =========================================================
-   LOAD EXAMS
-========================================================= */
-
-async function loadExams() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("lecture_exams")
-      .select(`
-        *,
-        lectures (
-          title,
-          course_id,
-          courses (
-            title
-          )
-        )
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return [];
-  }
-
-  if (examsCount) {
-    examsCount.textContent =
-      data?.length || 0;
-  }
-
-  renderExams(data || []);
-
-  return data || [];
-}
-
-
-/* =========================================================
-   FULL EXAM BUILDER
-========================================================= */
-
-const fullExamForm =
-  document.getElementById(
-    "fullExamForm"
-  );
-
-const questionsBuilder =
-  document.getElementById(
-    "questionsBuilder"
-  );
-
-const addQuestionBtn =
-  document.getElementById(
-    "addQuestionBtn"
-  );
-
-const fullExamMsg =
-  document.getElementById(
-    "fullExamMsg"
-  );
-
-
-function showFullExamMsg(
-  message,
-  error = false
-) {
-
-  if (!fullExamMsg) return;
-
-  fullExamMsg.textContent =
-    message;
-
-  fullExamMsg.className =
-    "msg " + (error ? "error" : "ok");
-}
-
-
-function getQuestionCards() {
-
-  if (!questionsBuilder) {
-    return [];
-  }
-
-  return Array.from(
-    questionsBuilder.querySelectorAll(
-      ".exam-question-card"
-    )
-  );
-}
-
-
-function createOptionElement(
-  questionIndex,
-  optionIndex
-) {
-
-  const option =
-    document.createElement("div");
-
-  option.className =
-    "exam-option-row";
-
-  option.dataset.optionIndex =
-    optionIndex;
-
-  option.innerHTML = `
-    <input
-      type="radio"
-      name="correct-question-${questionIndex}"
-      class="exam-option-correct"
-      title="الإجابة الصحيحة"
-    >
-
-    <input
-      type="text"
-      class="exam-option-text"
-      placeholder="اكتب الاختيار"
-      autocomplete="off"
-    >
-
-    <button
-      type="button"
-      class="btn danger-btn remove-option-btn"
-    >
-      حذف
-    </button>
-  `;
-
-  const radio =
-    option.querySelector(
-      ".exam-option-correct"
-    );
-
-  radio.addEventListener(
-    "change",
-    () => {
-      updateCorrectOption(
-        questionIndex,
-        optionIndex
-      );
-    }
-  );
-
-  const removeBtn =
-    option.querySelector(
-      ".remove-option-btn"
-    );
-
-  removeBtn.addEventListener(
-    "click",
-    () => {
-
-      const card =
-        getQuestionCards()
-          .find(
-            item =>
-              Number(
-                item.dataset.questionIndex
-              ) === questionIndex
-          );
-
-      if (!card) return;
-
-      const options =
-        card.querySelectorAll(
-          ".exam-option-row"
-        );
-
-      if (options.length <= 2) {
-
-        showFullExamMsg(
-          "كل سؤال لازم يكون فيه اختيارين على الأقل.",
-          true
-        );
-
-        return;
-      }
-
-      option.remove();
-
-      renumberOptions(card);
-    }
-  );
-
-  return option;
-}
-
-
-function updateCorrectOption(
-  questionIndex,
-  selectedOptionIndex
-) {
-
-  const card =
-    getQuestionCards()
-      .find(
-        item =>
-          Number(
-            item.dataset.questionIndex
-          ) === questionIndex
-      );
-
-  if (!card) return;
-
-  const radios =
-    card.querySelectorAll(
-      ".exam-option-correct"
-    );
-
-  radios.forEach(
-    (radio, index) => {
-      radio.checked =
-        index === selectedOptionIndex;
-    }
-  );
-}
-
-
-function renumberOptions(card) {
-
-  const questionIndex =
-    Number(
-      card.dataset.questionIndex
-    );
-
-  const options =
-    card.querySelectorAll(
-      ".exam-option-row"
-    );
-
-  options.forEach(
-    (option, index) => {
-
-      option.dataset.optionIndex =
-        index; 
-     }
-
-
-/* =========================================================
-   CREATE LECTURE
-========================================================= */
-
-const lectureForm =
-  document.getElementById("lectureForm");
-
-if (lectureForm) {
-
-  lectureForm.addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
-      const courseId =
-        document
-          .getElementById("lectureCourse")
-          .value;
-
-      const title =
-        document
-          .getElementById("lectureTitle")
-          .value
-          .trim();
-
-      const description =
-        document
-          .getElementById("lectureDescription")
-          .value
-          .trim();
-
-      const lectureOrder =
-        Number(
-          document
-            .getElementById("lectureOrder")
-            .value
-        );
-
-      const isFree =
-        document
-          .getElementById("lectureFree")
-          .checked;
-
-      const videoInput =
-        document.getElementById(
-          "lectureVideo"
-        );
-
-      const pdfInput =
-        document.getElementById(
-          "lecturePdf"
-        );
-
-      const videoFile =
-        videoInput?.files?.[0] || null;
-
-      const pdfFile =
-        pdfInput?.files?.[0] || null;
-
-      if (!courseId || !title) {
-
-        showAdminMsg(
-          "اختار الكورس واكتب اسم المحاضرة.",
-          true
-        );
-
-        return;
-      }
-
-      const button =
-        document.getElementById(
-          "lectureSubmitBtn"
-        );
-
-      if (button) {
-        button.disabled = true;
-        button.textContent =
-          "جاري رفع الملفات...";
-      }
-
-      try {
-
-        const videoUrl =
-          await uploadFile(
-            "lecture-videos",
-            videoFile,
-            courseId
-          );
-
-        const pdfUrl =
-          await uploadFile(
-            "lecture-pdfs",
-            pdfFile,
-            courseId
-          );
-
-        const { error } =
-          await supabaseClient
-            .from("lectures")
-            .insert({
-              course_id: courseId,
-              title,
-              description,
-              video_url: videoUrl,
-              pdf_url: pdfUrl,
-              is_free: isFree,
-              lecture_order:
-                Number.isFinite(lectureOrder)
-                  ? lectureOrder
-                  : 1
-            });
-
-        if (error) {
-          throw error;
-        }
-
-        showAdminMsg(
-          "✅ تم إضافة المحاضرة بنجاح."
-        );
-
-        lectureForm.reset();
-
-        const orderInput =
-          document.getElementById(
-            "lectureOrder"
-          );
-
-        if (orderInput) {
-          orderInput.value = 1;
-        }
-
-        await refreshAll();
-
-      } catch (error) {
-
-        console.error(error);
-
-        showAdminMsg(
-          "حصل خطأ: " + error.message,
-          true
-        );
-
-      } finally {
-
-        if (button) {
-          button.disabled = false;
-          button.textContent =
-            "إضافة المحاضرة";
-        }
-      }
-    }
-  );
-}
-
-
-/* =========================================================
-   LOAD LECTURES
-========================================================= */
-
-async function loadLectures() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("lectures")
-      .select(`
-        *,
-        courses (
-          title,
-          academic_year
-        )
-      `)
-      .order(
-        "lecture_order",
-        {
-          ascending: true
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return [];
-  }
-
-  if (lecturesCount) {
-    lecturesCount.textContent =
-      data?.length || 0;
-  }
-
-  renderLectures(data || []);
-
-  const examLecture =
-    document.getElementById(
-      "examLecture"
-    );
-
-  if (examLecture) {
-
-    examLecture.innerHTML =
-      `<option value="">
-        اختر المحاضرة
-      </option>`;
-
-    (data || []).forEach(
-      lecture => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          lecture.id;
-
-        option.textContent =
-          `${lecture.courses?.title || "كورس"} — ${lecture.title}`;
-
-        examLecture.appendChild(
-          option
-        );
-      }
-    );
-  }
-
-  return data || [];
-}
-
-
-/* =========================================================
-   ACCESS LECTURES
-========================================================= */
-
-const accessCourse =
-  document.getElementById(
-    "accessCourse"
-  );
-
-if (accessCourse) {
-
-  accessCourse.addEventListener(
-    "change",
-    loadAccessLectures
-  );
-}
-
-
-async function loadAccessLectures() {
-
-  if (!accessCourse) return;
-
-  const courseId =
-    accessCourse.value;
-
-  const select =
-    document.getElementById(
-      "accessLecture"
-    );
-
-  if (!select) return;
-
-  select.innerHTML =
-    `<option value="">
-      اختر المحاضرة
-    </option>`;
-
-  if (!courseId) return;
-
-  const { data, error } =
-    await supabaseClient
-      .from("lectures")
-      .select(
-        "id,title,lecture_order"
-      )
-      .eq(
-        "course_id",
-        courseId
-      )
-      .order(
-        "lecture_order",
-        {
-          ascending: true
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return;
-  }
-
-  (data || []).forEach(
-    lecture => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        lecture.id;
-
-      option.textContent =
-        `${lecture.lecture_order}. ${lecture.title}`;
-
-      select.appendChild(
-        option
-      );
-    }
-  );
-}
-
-
 /* =========================================================
    LOAD EXAMS
 ========================================================= */
@@ -1633,25 +1081,25 @@ function renumberOptions(card) {
 }
 
 
-function createQuestionCard(index) {
+function createQuestionCard(
+  questionIndex
+) {
 
   const card =
     document.createElement("div");
 
   card.className =
-    "exam-question-card";
+    "admin-item exam-question-card";
 
   card.dataset.questionIndex =
-    index;
+    questionIndex;
 
   card.innerHTML = `
-    <div class="question-card-header">
-      <h4>
-        السؤال
-        <span class="question-number">
-          ${index + 1}
-        </span>
-      </h4>
+    <div class="exam-question-header">
+
+      <h3>
+        السؤال ${questionIndex + 1}
+      </h3>
 
       <button
         type="button"
@@ -1659,77 +1107,69 @@ function createQuestionCard(index) {
       >
         حذف السؤال
       </button>
+
     </div>
 
-    <textarea
-      class="exam-question-text"
-      placeholder="اكتب نص السؤال"
-      rows="3"
-    ></textarea>
+    <div class="form-group">
 
-    <div class="exam-options-container"></div>
+      <label>
+        نص السؤال
+      </label>
 
-    <button
-      type="button"
-      class="btn secondary-btn add-option-btn"
-    >
-      إضافة اختيار
-    </button>
+      <textarea
+        class="exam-question-text"
+        rows="3"
+        placeholder="اكتب السؤال هنا..."
+        required
+      ></textarea>
+
+    </div>
+
+    <div class="exam-options-area">
+
+      <h4>
+        الاختيارات
+      </h4>
+
+      <p>
+        اختار دائرة واحدة فقط كإجابة صحيحة.
+      </p>
+
+      <div class="exam-options-list"></div>
+
+      <button
+        type="button"
+        class="btn secondary-btn add-option-btn"
+      >
+        + إضافة اختيار
+      </button>
+
+    </div>
   `;
 
-  const optionsContainer =
+  const optionsList =
     card.querySelector(
-      ".exam-options-container"
+      ".exam-options-list"
     );
 
-  const addOptionBtn =
-    card.querySelector(
-      ".add-option-btn"
-    );
+  optionsList.appendChild(
+    createOptionElement(
+      questionIndex,
+      0
+    )
+  );
+
+  optionsList.appendChild(
+    createOptionElement(
+      questionIndex,
+      1
+    )
+  );
 
   const removeQuestionBtn =
     card.querySelector(
       ".remove-question-btn"
     );
-
-  for (
-    let optionIndex = 0;
-    optionIndex < 2;
-    optionIndex++
-  ) {
-
-    optionsContainer.appendChild(
-      createOptionElement(
-        index,
-        optionIndex
-      )
-    );
-  }
-
-  addOptionBtn.addEventListener(
-    "click",
-    () => {
-
-      const currentOptions =
-        optionsContainer.querySelectorAll(
-          ".exam-option-row"
-        );
-
-      const newIndex =
-        currentOptions.length;
-
-      optionsContainer.appendChild(
-        createOptionElement(
-          Number(
-            card.dataset.questionIndex
-          ),
-          newIndex
-        )
-      );
-
-      renumberOptions(card);
-    }
-  );
 
   removeQuestionBtn.addEventListener(
     "click",
@@ -1741,7 +1181,7 @@ function createQuestionCard(index) {
       if (cards.length <= 1) {
 
         showFullExamMsg(
-          "لازم يكون فيه سؤال واحد على الأقل.",
+          "لازم الامتحان يحتوي على سؤال واحد على الأقل.",
           true
         );
 
@@ -1753,6 +1193,36 @@ function createQuestionCard(index) {
       renumberQuestions();
 
       showFullExamMsg("");
+    }
+  );
+
+  const addOptionButton =
+    card.querySelector(
+      ".add-option-btn"
+    );
+
+  addOptionButton.addEventListener(
+    "click",
+    () => {
+
+      const options =
+        card.querySelectorAll(
+          ".exam-option-row"
+        );
+
+      const optionIndex =
+        options.length;
+
+      optionsList.appendChild(
+        createOptionElement(
+          Number(
+            card.dataset.questionIndex
+          ),
+          optionIndex
+        )
+      );
+
+      renumberOptions(card);
     }
   );
 
@@ -1771,14 +1241,14 @@ function renumberQuestions() {
       card.dataset.questionIndex =
         index;
 
-      const number =
+      const heading =
         card.querySelector(
-          ".question-number"
+          "h3"
         );
 
-      if (number) {
-        number.textContent =
-          index + 1;
+      if (heading) {
+        heading.textContent =
+          `السؤال ${index + 1}`;
       }
 
       const radios =
@@ -1929,745 +1399,38 @@ if (addQuestionBtn) {
     }
   );
 }
-   /* =========================================================
-   CREATE LECTURE
-========================================================= */
 
-const lectureForm =
-  document.getElementById("lectureForm");
 
-if (lectureForm) {
+if (fullExamForm) {
 
-  lectureForm.addEventListener(
+  fullExamForm.addEventListener(
     "submit",
     async event => {
 
       event.preventDefault();
-
-      const courseId =
-        document
-          .getElementById("lectureCourse")
-          .value;
-
-      const title =
-        document
-          .getElementById("lectureTitle")
-          .value
-          .trim();
-
-      const description =
-        document
-          .getElementById("lectureDescription")
-          .value
-          .trim();
-
-      const lectureOrder =
-        Number(
-          document
-            .getElementById("lectureOrder")
-            .value
-        );
-
-      const isFree =
-        document
-          .getElementById("lectureFree")
-          .checked;
-
-      const videoInput =
-        document.getElementById(
-          "lectureVideo"
-        );
-
-      const pdfInput =
-        document.getElementById(
-          "lecturePdf"
-        );
-
-      const videoFile =
-        videoInput?.files?.[0] || null;
-
-      const pdfFile =
-        pdfInput?.files?.[0] || null;
-
-      if (!courseId || !title) {
-
-        showAdminMsg(
-          "اختار الكورس واكتب اسم المحاضرة.",
-          true
-        );
-
-        return;
-      }
-
-      const button =
-        document.getElementById(
-          "lectureSubmitBtn"
-        );
-
-      if (button) {
-        button.disabled = true;
-        button.textContent =
-          "جاري رفع الملفات...";
-      }
-
-      try {
-
-        const videoUrl =
-          await uploadFile(
-            "lecture-videos",
-            videoFile,
-            courseId
-          );
-
-        const pdfUrl =
-          await uploadFile(
-            "lecture-pdfs",
-            pdfFile,
-            courseId
-          );
-
-        const { error } =
-          await supabaseClient
-            .from("lectures")
-            .insert({
-              course_id: courseId,
-              title,
-              description,
-              video_url: videoUrl,
-              pdf_url: pdfUrl,
-              is_free: isFree,
-              lecture_order:
-                Number.isFinite(lectureOrder)
-                  ? lectureOrder
-                  : 1
-            });
-
-        if (error) {
-          throw error;
-        }
-
-        showAdminMsg(
-          "✅ تم إضافة المحاضرة بنجاح."
-        );
-
-        lectureForm.reset();
-
-        const orderInput =
-          document.getElementById(
-            "lectureOrder"
-          );
-
-        if (orderInput) {
-          orderInput.value = 1;
-        }
-
-        await refreshAll();
-
-      } catch (error) {
-
-        console.error(error);
-
-        showAdminMsg(
-          "حصل خطأ: " + error.message,
-          true
-        );
-
-      } finally {
-
-        if (button) {
-          button.disabled = false;
-          button.textContent =
-            "إضافة المحاضرة";
-        }
-      }
-    }
-  );
-}
-
-
-/* =========================================================
-   LOAD LECTURES
-========================================================= */
-
-async function loadLectures() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("lectures")
-      .select(`
-        *,
-        courses (
-          title,
-          academic_year
-        )
-      `)
-      .order(
-        "lecture_order",
-        {
-          ascending: true
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return [];
-  }
-
-  if (lecturesCount) {
-    lecturesCount.textContent =
-      data?.length || 0;
-  }
-
-  renderLectures(data || []);
-
-  const examLecture =
-    document.getElementById(
-      "examLecture"
-    );
-
-  if (examLecture) {
-
-    examLecture.innerHTML =
-      `<option value="">
-        اختر المحاضرة
-      </option>`;
-
-    (data || []).forEach(
-      lecture => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          lecture.id;
-
-        option.textContent =
-          `${lecture.courses?.title || "كورس"} — ${lecture.title}`;
-
-        examLecture.appendChild(
-          option
-        );
-      }
-    );
-  }
-
-  return data || [];
-}
-
-
-/* =========================================================
-   ACCESS LECTURES
-========================================================= */
-
-const accessCourse =
-  document.getElementById(
-    "accessCourse"
-  );
-
-if (accessCourse) {
-
-  accessCourse.addEventListener(
-    "change",
-    loadAccessLectures
-  );
-}
-  /* =========================================================
-   LOAD EXAMS
-========================================================= */
-
-async function loadExams() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("lecture_exams")
-      .select(`
-        *,
-        lectures (
-          title,
-          course_id,
-          courses (
-            title
-          )
-        )
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return [];
-  }
-
-  if (examsCount) {
-    examsCount.textContent =
-      data?.length || 0;
-  }
-
-  renderExams(data || []);
-
-  return data || [];
-}
-
-
-/* =========================================================
-   FULL EXAM BUILDER
-========================================================= */
-
-const fullExamForm =
-  document.getElementById(
-    "fullExamForm"
-  );
-
-const questionsBuilder =
-  document.getElementById(
-    "questionsBuilder"
-  );
-
-const addQuestionBtn =
-  document.getElementById(
-    "addQuestionBtn"
-  );
-
-const fullExamMsg =
-  document.getElementById(
-    "fullExamMsg"
-  );
-
-
-function showFullExamMsg(
-  message,
-  error = false
-) {
-
-  if (!fullExamMsg) return;
-
-  fullExamMsg.textContent =
-    message;
-
-  fullExamMsg.className =
-    "msg " + (error ? "error" : "ok");
-}
-
-
-function getQuestionCards() {
-
-  if (!questionsBuilder) {
-    return [];
-  }
-
-  return Array.from(
-    questionsBuilder.querySelectorAll(
-      ".exam-question-card"
-    )
-  );
-}
-
-
-function createOptionElement(
-  questionIndex,
-  optionIndex
-) {
-
-  const option =
-    document.createElement("div");
-
-  option.className =
-    "exam-option-row";
-
-  option.dataset.optionIndex =
-    optionIndex;
-
-  option.innerHTML = `
-    <input
-      type="radio"
-      name="correct-question-${questionIndex}"
-      class="exam-option-correct"
-      title="الإجابة الصحيحة"
-    >
-
-    <input
-      type="text"
-      class="exam-option-text"
-      placeholder="اكتب الاختيار"
-      autocomplete="off"
-    >
-
-    <button
-      type="button"
-      class="btn danger-btn remove-option-btn"
-    >
-      حذف
-    </button>
-  `;
-
-  const radio =
-    option.querySelector(
-      ".exam-option-correct"
-    );
-
-  radio.addEventListener(
-    "change",
-    () => {
-      updateCorrectOption(
-        questionIndex,
-        optionIndex
-      );
-    }
-  );
-
-  const removeBtn =
-    option.querySelector(
-      ".remove-option-btn"
-    );
-
-  removeBtn.addEventListener(
-    "click",
-    () => {
-
-      const card =
-        getQuestionCards()
-          .find(
-            item =>
-              Number(
-                item.dataset.questionIndex
-              ) === questionIndex
-          );
-
-      if (!card) return;
-
-      const options =
-        card.querySelectorAll(
-          ".exam-option-row"
-        );
-
-      if (options.length <= 2) {
-
-        showFullExamMsg(
-          "كل سؤال لازم يكون فيه اختيارين على الأقل.",
-          true
-        );
-
-        return;
-      }
-
-      option.remove();
-
-      renumberOptions(card);
-    }
-  );
-
-  return option;
-}
-
-
-function updateCorrectOption(
-  questionIndex,
-  selectedOptionIndex
-) {
-
-  const card =
-    getQuestionCards()
-      .find(
-        item =>
-          Number(
-            item.dataset.questionIndex
-          ) === questionIndex
-      );
-
-  if (!card) return;
-
-  const radios =
-    card.querySelectorAll(
-      ".exam-option-correct"
-    );
-
-  radios.forEach(
-    (radio, index) => {
-      radio.checked =
-        index === selectedOptionIndex;
-    }
-  );
-}
-
-
-function renumberOptions(card) {
-
-  const questionIndex =
-    Number(
-      card.dataset.questionIndex
-    );
-
-  const rows =
-    card.querySelectorAll(
-      ".exam-option-row"
-    );
-
-  rows.forEach(
-    (row, index) => {
-
-      row.dataset.optionIndex =
-        index;
-
-      const radio =
-        row.querySelector(
-          ".exam-option-correct"
-        );
-
-      if (radio) {
-
-        radio.name =
-          `correct-question-${questionIndex}`;
-      }
-    }
-  );
-}function createQuestionCard(
-  questionIndex
-) {
-
-  const card =
-    document.createElement("div");
-
-  card.className =
-    "admin-item exam-question-card";
-
-  card.dataset.questionIndex =
-    questionIndex;
-
-  card.innerHTML = `
-    <div class="exam-question-header">
-
-      <h3>
-        السؤال ${questionIndex + 1}
-      </h3>
-
-      <button
-        type="button"
-        class="btn danger-btn remove-question-btn"
-      >
-        حذف السؤال
-      </button>
-
-    </div>
-
-    <div class="form-group">
-
-      <label>
-        نص السؤال
-      </label>
-
-      <textarea
-        class="exam-question-text"
-        rows="3"
-        placeholder="اكتب السؤال هنا..."
-        required
-      ></textarea>
-
-    </div>
-
-    <div class="exam-options-area">
-
-      <h4>
-        الاختيارات
-      </h4>
-
-      <p>
-        اختار دائرة واحدة فقط كإجابة صحيحة.
-      </p>
-
-      <div class="exam-options-list"></div>
-
-      <button
-        type="button"
-        class="btn secondary-btn add-option-btn"
-      >
-        + إضافة اختيار
-      </button>
-
-    </div>
-  `;
-
-  const optionsList =
-    card.querySelector(
-      ".exam-options-list"
-    );
-
-  optionsList.appendChild(
-    createOptionElement(
-      questionIndex,
-      0
-    )
-  );
-
-  optionsList.appendChild(
-    createOptionElement(
-      questionIndex,
-      1
-    )
-  );
-
-  const removeQuestionBtn =
-    card.querySelector(
-      ".remove-question-btn"
-    );
-
-  removeQuestionBtn.addEventListener(
-    "click",
-    () => {
-
-      const cards =
-        getQuestionCards();
-
-      if (cards.length <= 1) {
-
-        showFullExamMsg(
-          "لازم الامتحان يحتوي على سؤال واحد على الأقل.",
-          true
-        );
-
-        return;
-      }
-
-      card.remove();
-
-      renumberQuestions();
-    }
-  );
-
-  const addOptionBtn =
-    card.querySelector(
-      ".add-option-btn"
-    );
-
-  addOptionBtn.addEventListener(
-    "click",
-    () => {
-
-      const options =
-        card.querySelectorAll(
-          ".exam-option-row"
-        );
-
-      const option =
-        createOptionElement(
-          questionIndex,
-          options.length
-        );
-
-      optionsList.appendChild(
-        option
-      );
-
-      renumberOptions(card);
-    }
-  );
-
-  return card;
-}
-
-
-function renumberQuestions() {
-
-  const cards =
-    getQuestionCards();
-
-  cards.forEach(
-    (card, index) => {
-
-      card.dataset.questionIndex =
-        index;
-
-      const heading =
-        card.querySelector(
-          ".exam-question-header h3"
-        );
-
-      if (heading) {
-        heading.textContent =
-          `السؤال ${index + 1}`;
-      }
-
-      const radios =
-        card.querySelectorAll(
-          ".exam-option-correct"
-        );
-
-      radios.forEach(
-        radio => {
-          radio.name =
-            `correct-question-${index}`;
-        }
-      );
-    }
-  );
-}
-
-
-if (addQuestionBtn) {
-
-  addQuestionBtn.addEventListener(
-    "click",
-    () => {
-
-      if (!questionsBuilder) {
-        return;
-      }
-
-      const questionIndex =
-        getQuestionCards().length;
-
-      const card =
-        createQuestionCard(
-          questionIndex
-        );
-
-      questionsBuilder.appendChild(
-        card
-      );
-    }
-  );
-}
-     fullExamForm.addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
-      showFullExamMsg(
-        "جاري إنشاء الامتحان..."
-      );
 
       const lectureId =
-        document
-          .getElementById("examLecture")
-          ?.value;
+        document.getElementById(
+          "examLecture"
+        )?.value;
 
       const title =
-        document
-          .getElementById("examTitle")
-          ?.value
+        document.getElementById(
+          "examTitle"
+        )?.value
           .trim();
 
       const description =
-        document
-          .getElementById("examDescription")
-          ?.value
+        document.getElementById(
+          "examDescription"
+        )?.value
           .trim();
 
       const maxScore =
         Number(
-          document
-            .getElementById("examMaxScore")
-            ?.value
+          document.getElementById(
+            "examMaxScore"
+          )?.value
         );
 
       const durationInput =
@@ -2680,10 +1443,33 @@ if (addQuestionBtn) {
           durationInput?.value
         );
 
-      if (!lectureId || !title) {
+      if (!lectureId) {
 
         showFullExamMsg(
-          "اختار المحاضرة واكتب اسم الامتحان.",
+          "اختار المحاضرة الأول.",
+          true
+        );
+
+        return;
+      }
+
+      if (!title) {
+
+        showFullExamMsg(
+          "اكتب اسم الامتحان.",
+          true
+        );
+
+        return;
+      }
+
+      if (
+        !Number.isFinite(maxScore) ||
+        maxScore <= 0
+      ) {
+
+        showFullExamMsg(
+          "اكتب درجة صحيحة أكبر من صفر.",
           true
         );
 
@@ -2704,142 +1490,44 @@ if (addQuestionBtn) {
         return;
       }
 
-      const cards =
-        getQuestionCards();
+      let questions;
 
-      if (!cards.length) {
+      try {
+
+        questions =
+          collectExamQuestions();
+
+      } catch (error) {
 
         showFullExamMsg(
-          "أضف سؤالًا واحدًا على الأقل.",
+          error.message,
           true
         );
 
         return;
       }
 
-      const questions = [];
-
-      for (
-        let questionIndex = 0;
-        questionIndex < cards.length;
-        questionIndex++
-      ) {
-
-        const card =
-          cards[questionIndex];
-
-        const questionText =
-          card
-            .querySelector(
-              ".exam-question-text"
-            )
-            ?.value
-            .trim();
-
-        if (!questionText) {
-
-          showFullExamMsg(
-            `اكتب نص السؤال رقم ${questionIndex + 1}.`,
-            true
-          );
-
-          return;
-        }
-
-        const optionRows =
-          Array.from(
-            card.querySelectorAll(
-              ".exam-option-row"
-            )
-          );
-
-        if (optionRows.length < 2) {
-
-          showFullExamMsg(
-            `السؤال رقم ${questionIndex + 1} لازم يحتوي على اختيارين على الأقل.`,
-            true
-          );
-
-          return;
-        }
-
-        const options = [];
-
-        let correctCount = 0;
-
-        optionRows.forEach(
-          row => {
-
-            const text =
-              row
-                .querySelector(
-                  ".exam-option-text"
-                )
-                ?.value
-                .trim();
-
-            const isCorrect =
-              row
-                .querySelector(
-                  ".exam-option-correct"
-                )
-                ?.checked === true;
-
-            if (isCorrect) {
-              correctCount++;
-            }
-
-            options.push({
-              text,
-              is_correct: isCorrect
-            });
-          }
+      const submitButton =
+        document.getElementById(
+          "fullExamSubmitBtn"
         );
 
-        if (
-          options.some(
-            option => !option.text
-          )
-        ) {
-
-          showFullExamMsg(
-            `كل الاختيارات في السؤال رقم ${questionIndex + 1} لازم تكون مكتوبة.`,
-            true
-          );
-
-          return;
-        }
-
-        if (correctCount !== 1) {
-
-          showFullExamMsg(
-            `السؤال رقم ${questionIndex + 1} لازم يكون له إجابة صحيحة واحدة فقط.`,
-            true
-          );
-
-          return;
-        }
-
-        questions.push({
-          question_text: questionText,
-          options
-        });
-      }
-
-      const button =
-        fullExamForm.querySelector(
-          'button[type="submit"]'
-        );
-
-      if (button) {
-        button.disabled = true;
-        button.textContent =
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent =
           "جاري إنشاء الامتحان...";
       }
 
+      showFullExamMsg(
+        "جاري إنشاء الامتحان بالأسئلة والاختيارات..."
+      );
+
       try {
 
-        const { data, error } =
+        const {
+          data,
+          error
+        } =
           await supabaseClient.rpc(
             "create_full_exam",
             {
@@ -2853,9 +1541,7 @@ if (addQuestionBtn) {
                 description || null,
 
               p_max_score:
-                Number.isFinite(maxScore)
-                  ? maxScore
-                  : 100,
+                maxScore,
 
               p_questions:
                 questions
@@ -2874,10 +1560,7 @@ if (addQuestionBtn) {
           data &&
           typeof data === "object"
         ) {
-
-          if (
-            typeof data.id === "string"
-          ) {
+          if (typeof data.id === "string") {
             examId = data.id;
           } else if (
             Array.isArray(data) &&
@@ -2904,9 +1587,7 @@ if (addQuestionBtn) {
               )
               .order(
                 "created_at",
-                {
-                  ascending: false
-                }
+                { ascending: false }
               )
               .limit(1)
               .maybeSingle();
@@ -2915,8 +1596,7 @@ if (addQuestionBtn) {
             throw latestError;
           }
 
-          examId =
-            latestExam?.id || null;
+          examId = latestExam?.id || null;
         }
 
         if (!examId) {
@@ -2929,8 +1609,7 @@ if (addQuestionBtn) {
           await supabaseClient
             .from("lecture_exams")
             .update({
-              duration_minutes:
-                durationMinutes
+              duration_minutes: durationMinutes
             })
             .eq(
               "id",
@@ -2941,52 +1620,1190 @@ if (addQuestionBtn) {
           throw durationError;
         }
 
+        console.log(
+          "Created exam:",
+          data
+        );
+
         showFullExamMsg(
           `✅ تم إنشاء الامتحان بنجاح — مدة الامتحان ${durationMinutes} دقيقة.`
         );
 
         fullExamForm.reset();
 
+        const scoreInput =
+          document.getElementById(
+            "examMaxScore"
+          );
+
+        if (scoreInput) {
+          scoreInput.value = 100;
+        }
+
         if (durationInput) {
           durationInput.value = 30;
         }
 
-        if (questionsBuilder) {
-          questionsBuilder.innerHTML = "";
-        }
+        resetExamBuilder();
 
-        const firstQuestion =
-          createQuestionCard(0);
-
-        if (questionsBuilder) {
-          questionsBuilder.appendChild(
-            firstQuestion
-          );
-        }
-
-        await refreshAll();
+        await loadExams();
 
       } catch (error) {
 
-        console.error(
-          "Create exam error:",
-          error
-        );
+        console.error(error);
 
         showFullExamMsg(
           "حصل خطأ أثناء إنشاء الامتحان: " +
-          error.message,
+            error.message,
           true
         );
 
       } finally {
 
-        if (button) {
-          button.disabled = false;
-          button.textContent =
-            "إنشاء الامتحان";
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent =
+            "إنشاء الامتحان كاملًا";
         }
       }
+    }
+  );
+
+}
+
+
+/* =========================================================
+   STUDENTS
+========================================================= */
+
+async function loadStudents() {
+
+  const select =
+    document.getElementById(
+      "accessStudent"
+    );
+
+  if (!select) return;
+
+  const { data, error } =
+    await supabaseClient
+      .from("profiles")
+      .select(
+        "id,full_name,email,role"
+      )
+      .eq(
+        "role",
+        "student"
+      )
+      .order(
+        "full_name",
+        {
+          ascending: true
+        }
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+  }
+
+  select.innerHTML =
+    `<option value="">
+      اختر الطالب
+    </option>`;
+
+  (data || []).forEach(
+    student => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        student.id;
+
+      option.textContent =
+        `${student.full_name || "بدون اسم"} — ${student.email || ""}`;
+
+      select.appendChild(
+        option
+      );
+    }
+  );
+}
+
+
+/* =========================================================
+   OPEN FULL COURSE
+========================================================= */
+
+const openCourseAccessBtn =
+  document.getElementById(
+    "openCourseAccessBtn"
+  );
+
+if (openCourseAccessBtn) {
+
+  openCourseAccessBtn.addEventListener(
+    "click",
+    openFullCourse
+  );
+}
+
+
+async function openFullCourse() {
+
+  const studentId =
+    document.getElementById(
+      "accessStudent"
+    )?.value;
+
+  const courseId =
+    document.getElementById(
+      "accessCourse"
+    )?.value;
+
+  if (!studentId || !courseId) {
+
+    showAccessMsg(
+      "اختار الطالب والكورس الأول.",
+      true
+    );
+
+    return;
+  }
+
+  showAccessMsg(
+    "جاري فتح الكورس..."
+  );
+
+  const { error } =
+    await supabaseClient
+      .from("enrollments")
+      .upsert(
+        {
+          student_id:
+            studentId,
+
+          course_id:
+            courseId
+        },
+        {
+          onConflict:
+            "student_id,course_id"
+        }
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    showAccessMsg(
+      error.message,
+      true
+    );
+
+    return;
+  }
+
+  showAccessMsg(
+    "✅ تم فتح الكورس بالكامل للطالب."
+  );
+}
+
+
+/* =========================================================
+   OPEN SINGLE LECTURE
+========================================================= */
+
+const openLectureAccessBtn =
+  document.getElementById(
+    "openLectureAccessBtn"
+  );
+
+if (openLectureAccessBtn) {
+
+  openLectureAccessBtn.addEventListener(
+    "click",
+    openSingleLecture
+  );
+}
+
+
+async function openSingleLecture() {
+
+  const studentId =
+    document.getElementById(
+      "accessStudent"
+    )?.value;
+
+  const lectureId =
+    document.getElementById(
+      "accessLecture"
+    )?.value;
+
+  if (!studentId || !lectureId) {
+
+    showAccessMsg(
+      "اختار الطالب والمحاضرة الأول.",
+      true
+    );
+
+    return;
+  }
+
+  showAccessMsg(
+    "جاري فتح المحاضرة..."
+  );
+
+  const { error } =
+    await supabaseClient
+      .from("lecture_access")
+      .upsert(
+        {
+          student_id:
+            studentId,
+
+          lecture_id:
+            lectureId
+        },
+        {
+          onConflict:
+            "student_id,lecture_id"
+        }
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    showAccessMsg(
+      error.message,
+      true
+    );
+
+    return;
+  }
+
+  showAccessMsg(
+    "✅ تم فتح المحاضرة فقط للطالب."
+  );
+
+  await loadLectureAccess();
+}
+
+
+/* =========================================================
+   ACCESS MESSAGE
+========================================================= */
+
+function showAccessMsg(
+  message,
+  error = false
+) {
+
+  const element =
+    document.getElementById(
+      "accessMsg"
+    );
+
+  if (!element) return;
+
+  element.textContent =
+    message;
+
+  element.className =
+    "msg " + (error ? "error" : "ok");
+}
+
+
+/* =========================================================
+   LOAD LECTURE ACCESS
+========================================================= */
+
+async function loadLectureAccess() {
+
+  const table =
+    document.getElementById(
+      "lectureAccessTable"
+    );
+
+  if (!table) return;
+
+  table.innerHTML =
+    `<tr>
+      <td colspan="5">
+        جاري التحميل...
+      </td>
+    </tr>`;
+
+  const { data, error } =
+    await supabaseClient
+      .from("lecture_access")
+      .select(`
+        id,
+        created_at,
+        student_id,
+        lecture_id,
+
+        profiles:student_id (
+          full_name,
+          email
+        ),
+
+        lectures:lecture_id (
+          title,
+          course_id,
+
+          courses:course_id (
+            title
+          )
+        )
+      `)
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    table.innerHTML =
+      `<tr>
+        <td colspan="5">
+          حصل خطأ أثناء تحميل الصلاحيات.
+        </td>
+      </tr>`;
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    table.innerHTML =
+      `<tr>
+        <td colspan="5">
+          لا توجد صلاحيات لمحاضرات حاليًا.
+        </td>
+      </tr>`;
+
+    return;
+  }
+
+  table.innerHTML = "";
+
+  data.forEach(
+    item => {
+
+      const tr =
+        document.createElement(
+          "tr"
+        );
+
+      const student =
+        item.profiles?.full_name ||
+        item.profiles?.email ||
+        "طالب";
+
+      const lecture =
+        item.lectures?.title ||
+        "محاضرة";
+
+      const course =
+        item.lectures?.courses?.title ||
+        "كورس";
+
+      const date =
+        new Date(
+          item.created_at
+        ).toLocaleDateString(
+          "ar-EG"
+        );
+
+      tr.innerHTML = `
+        <td>
+          ${escapeHtml(student)}
+        </td>
+
+        <td>
+          ${escapeHtml(lecture)}
+        </td>
+
+        <td>
+          ${escapeHtml(course)}
+        </td>
+
+        <td>
+          ${date}
+        </td>
+
+        <td>
+          <button
+            class="btn danger-btn"
+            type="button"
+            onclick="removeLectureAccess('${item.id}')"
+          >
+            سحب الوصول
+          </button>
+        </td>
+      `;
+
+      table.appendChild(tr);
+    }
+  );
+}
+
+
+/* =========================================================
+   REMOVE LECTURE ACCESS
+========================================================= */
+
+async function removeLectureAccess(id) {
+
+  const confirmed =
+    confirm(
+      "هل أنت متأكد من سحب صلاحية هذه المحاضرة؟"
+    );
+
+  if (!confirmed) return;
+
+  const { error } =
+    await supabaseClient
+      .from("lecture_access")
+      .delete()
+      .eq(
+        "id",
+        id
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    showAccessMsg(
+      error.message,
+      true
+    );
+
+    return;
+  }
+
+  showAccessMsg(
+    "✅ تم سحب صلاحية المحاضرة."
+  );
+
+  await loadLectureAccess();
+}
+
+
+/* =========================================================
+   REQUESTS
+========================================================= */
+
+async function loadRequests() {
+
+  const table =
+    document.getElementById(
+      "requestsTable"
+    );
+
+  if (!table) return;
+
+  const { data, error } =
+    await supabaseClient
+      .from("course_requests")
+      .select(`
+        id,
+        status,
+        created_at,
+        student_id,
+        course_id,
+
+        profiles:student_id (
+          full_name,
+          email
+        ),
+
+        courses:course_id (
+          title,
+          price
+        )
+      `)
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    table.innerHTML =
+      `<tr>
+        <td colspan="5">
+          حصل خطأ أثناء تحميل الطلبات.
+        </td>
+      </tr>`;
+
+    return;
+  }
+
+  if (requestsCount) {
+
+    requestsCount.textContent =
+      (data || []).filter(
+        request =>
+          request.status === "pending"
+      ).length;
+  }
+
+  if (!data?.length) {
+
+    table.innerHTML =
+      `<tr>
+        <td colspan="5">
+          لا توجد طلبات.
+        </td>
+      </tr>`;
+
+    return;
+  }
+
+  table.innerHTML = "";
+
+  data.forEach(
+    request => {
+
+      const tr =
+        document.createElement(
+          "tr"
+        );
+
+      let statusText =
+        "قيد الانتظار";
+
+      if (
+        request.status ===
+        "approved"
+      ) {
+        statusText =
+          "تمت الموافقة";
+      }
+
+      if (
+        request.status ===
+        "rejected"
+      ) {
+        statusText =
+          "مرفوض";
+      }
+
+      const date =
+        new Date(
+          request.created_at
+        ).toLocaleDateString(
+          "ar-EG"
+        );
+
+      tr.innerHTML = `
+        <td>
+          ${escapeHtml(
+            request.profiles?.full_name ||
+            request.profiles?.email ||
+            "طالب"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            request.courses?.title ||
+            "كورس"
+          )}
+        </td>
+
+        <td>
+          ${statusText}
+        </td>
+
+        <td>
+          ${date}
+        </td>
+
+        <td>
+          ${
+            request.status ===
+            "pending"
+
+              ? `
+                <button
+                  class="btn success-btn"
+                  type="button"
+                  onclick="approveRequest('${request.id}')"
+                >
+                  موافقة
+                </button>
+
+                <button
+                  class="btn danger-btn"
+                  type="button"
+                  onclick="rejectRequest('${request.id}')"
+                >
+                  رفض
+                </button>
+              `
+
+              : "—"
+          }
+        </td>
+      `;
+
+      table.appendChild(tr);
+    }
+  );
+}
+
+
+/* =========================================================
+   APPROVE REQUEST
+========================================================= */
+
+async function approveRequest(id) {
+
+  const {
+    data: request,
+    error
+  } =
+    await supabaseClient
+      .from("course_requests")
+      .select(
+        "id,student_id,course_id,status"
+      )
+      .eq(
+        "id",
+        id
+      )
+      .maybeSingle();
+
+  if (error || !request) {
+
+    showAdminMsg(
+      "لم يتم العثور على الطلب.",
+      true
+    );
+
+    return;
+  }
+
+  const {
+    error: enrollmentError
+  } =
+    await supabaseClient
+      .from("enrollments")
+      .upsert(
+        {
+          student_id:
+            request.student_id,
+
+          course_id:
+            request.course_id
+        },
+        {
+          onConflict:
+            "student_id,course_id"
+        }
+      );
+
+  if (enrollmentError) {
+
+    console.error(
+      enrollmentError
+    );
+
+    showAdminMsg(
+      enrollmentError.message,
+      true
+    );
+
+    return;
+  }
+
+  const {
+    error: updateError
+  } =
+    await supabaseClient
+      .from("course_requests")
+      .update({
+        status:
+          "approved",
+
+        updated_at:
+          new Date().toISOString()
+      })
+      .eq(
+        "id",
+        id
+      );
+
+  if (updateError) {
+
+    console.error(
+      updateError
+    );
+
+    showAdminMsg(
+      updateError.message,
+      true
+    );
+
+    return;
+  }
+
+  showAdminMsg(
+    "✅ تمت الموافقة وفتح الكورس للطالب."
+  );
+
+  await refreshAll();
+}
+/* =========================================================
+   REJECT REQUEST
+========================================================= */
+
+async function rejectRequest(id) {
+
+  const confirmed =
+    confirm(
+      "هل أنت متأكد من رفض الطلب؟"
+    );
+
+  if (!confirmed) return;
+
+  const { error } =
+    await supabaseClient
+      .from("course_requests")
+      .update({
+        status:
+          "rejected",
+
+        updated_at:
+          new Date().toISOString()
+      })
+      .eq(
+        "id",
+        id
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    showAdminMsg(
+      error.message,
+      true
+    );
+
+    return;
+  }
+
+  showAdminMsg(
+    "تم رفض الطلب."
+  );
+
+  await loadRequests();
+}
+
+
+/* =========================================================
+   DELETE COURSE
+========================================================= */
+
+async function deleteCourse(courseId) {
+
+  if (!courseId) return;
+
+  const confirmed =
+    confirm(
+      "⚠️ هل أنت متأكد من حذف الكورس؟\n\nسيتم حذف الكورس وكل المحاضرات والامتحانات والأسئلة والاختيارات والصلاحيات والطلبات المرتبطة به."
+    );
+
+  if (!confirmed) return;
+
+  showAdminMsg(
+    "جاري حذف الكورس..."
+  );
+
+  try {
+
+    const {
+      data: course,
+      error: courseError
+    } = await supabaseClient
+      .from("courses")
+      .select("id,image_url")
+      .eq("id", courseId)
+      .maybeSingle();
+
+    if (courseError) {
+      throw courseError;
+    }
+
+    if (course?.image_url) {
+      await removeStorageFile(
+        "course-images",
+        course.image_url
+      );
+    }
+
+    await removeStorageFolder(
+      "lecture-videos",
+      courseId
+    );
+
+    await removeStorageFolder(
+      "lecture-pdfs",
+      courseId
+    );
+
+    const { error } =
+      await supabaseClient
+        .from("courses")
+        .delete()
+        .eq(
+          "id",
+          courseId
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    showAdminMsg(
+      "✅ تم حذف الكورس وكل البيانات المرتبطة به."
+    );
+
+    await refreshAll();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showAdminMsg(
+      "حصل خطأ أثناء حذف الكورس: " +
+        error.message,
+      true
+    );
+  }
+}
+
+
+/* =========================================================
+   DELETE LECTURE
+========================================================= */
+
+async function deleteLecture(
+  lectureId
+) {
+
+  if (!lectureId) return;
+
+  const confirmed =
+    confirm(
+      "⚠️ هل أنت متأكد من حذف المحاضرة؟\n\nسيتم حذف المحاضرة والامتحانات والأسئلة والاختيارات والنتائج والصلاحيات المرتبطة بها."
+    );
+
+  if (!confirmed) return;
+
+  showAdminMsg(
+    "جاري حذف المحاضرة..."
+  );
+
+  try {
+
+    const {
+      data: lecture,
+      error: lectureError
+    } =
+      await supabaseClient
+        .from("lectures")
+        .select(
+          "id,video_url,pdf_url"
+        )
+        .eq(
+          "id",
+          lectureId
+        )
+        .maybeSingle();
+
+    if (lectureError) {
+      throw lectureError;
+    }
+
+    if (lecture) {
+
+      if (lecture.video_url) {
+
+        await removeStorageFile(
+          "lecture-videos",
+          lecture.video_url
+        );
+      }
+
+      if (lecture.pdf_url) {
+
+        await removeStorageFile(
+          "lecture-pdfs",
+          lecture.pdf_url
+        );
+      }
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("lectures")
+        .delete()
+        .eq(
+          "id",
+          lectureId
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    showAdminMsg(
+      "✅ تم حذف المحاضرة وكل البيانات المرتبطة بها."
+    );
+
+    await refreshAll();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showAdminMsg(
+      "حصل خطأ أثناء حذف المحاضرة: " +
+        error.message,
+      true
+    );
+  }
+}
+
+
+/* =========================================================
+   MAKE DELETE FUNCTIONS GLOBAL
+========================================================= */
+
+window.deleteCourse =
+  deleteCourse;
+
+window.deleteLecture =
+  deleteLecture;
+
+window.approveRequest =
+  approveRequest;
+
+window.rejectRequest =
+  rejectRequest;
+
+window.removeLectureAccess =
+  removeLectureAccess;
+
+
+/* =========================================================
+   RENDER COURSES
+========================================================= */
+
+function renderCourses(courses) {
+
+  const container =
+    document.getElementById(
+      "coursesList"
+    );
+
+  if (!container) return;
+
+  if (!courses.length) {
+
+    container.innerHTML =
+      "<p>لا توجد كورسات.</p>";
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  courses.forEach(
+    course => {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "admin-item";
+
+      card.innerHTML = `
+        <div>
+
+          <h3>
+            ${escapeHtml(
+              course.title
+            )}
+          </h3>
+
+          <p>
+            السنة الدراسية:
+            ${course.academic_year}
+          </p>
+
+          <p>
+            السعر:
+            ${course.price} جنيه
+          </p>
+
+          <p>
+            الحالة:
+            ${
+              course.is_visible
+                ? "ظاهر للطلاب"
+                : "مخفي"
+            }
+          </p>
+
+        </div>
+
+        <div class="admin-actions">
+
+          <button
+            class="btn danger-btn"
+            type="button"
+            onclick="deleteCourse('${course.id}')"
+          >
+            حذف الكورس
+          </button>
+
+        </div>
+      `;
+
+      container.appendChild(
+        card
+      );
+    }
+  );
+}
+
+
+/* =========================================================
+   RENDER LECTURES
+========================================================= */
+
+function renderLectures(
+  lectures
+) {
+
+  const container =
+    document.getElementById(
+      "lecturesList"
+    );
+
+  if (!container) return;
+
+  if (!lectures.length) {
+
+    container.innerHTML =
+      "<p>لا توجد محاضرات.</p>";
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  lectures.forEach(
+    lecture => {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "admin-item";
+
+      card.innerHTML = `
+        <div>
+
+          <h3>
+            ${escapeHtml(
+              lecture.title
+            )}
+          </h3>
+
+          <p>
+            الكورس:
+            ${escapeHtml(
+              lecture.courses?.title ||
+              "—"
+            )}
+          </p>
+
+          <p>
+            الترتيب:
+            ${lecture.lecture_order}
+          </p>
+
+          <p>
+            الحالة:
+            ${
+              lecture.is_free
+                ? "مجانية"
+                : "مدفوعة"
+            }
+          </p>
+
+          <p>
+            فيديو:
+            ${
+              lecture.video_url
+                ? "متوفر"
+                : "غير موجود"
+            }
+          </p>
+
+          <p>
+            PDF:
+            ${
+              lecture.pdf_url
+                ? "متوفر"
+                : "غير موجود"
+            }
+          </p>
+
+        </div>
+
+        <div class="admin-actions">
+
+          <button
+            class="btn danger-btn"
+            type="button"
+            onclick="deleteLecture('${lecture.id}')"
+          >
+            حذف المحاضرة
+          </button>
+
+        </div>
+      `;
+
+      container.appendChild(
+        card
+      );
     }
   );
 }
@@ -3007,11 +2824,8 @@ function renderExams(exams) {
 
   if (!exams.length) {
 
-    container.innerHTML = `
-      <div class="empty-state">
-        لا توجد امتحانات حتى الآن.
-      </div>
-    `;
+    container.innerHTML =
+      "<p>لا توجد امتحانات.</p>";
 
     return;
   }
@@ -3021,909 +2835,54 @@ function renderExams(exams) {
   exams.forEach(
     exam => {
 
-      const item =
+      const card =
         document.createElement(
           "div"
         );
 
-      item.className =
+      card.className =
         "admin-item";
 
-      const duration =
-        Number(
-          exam.duration_minutes
-        ) || 30;
-
-      item.innerHTML = `
-        <div class="admin-item-info">
+      card.innerHTML = `
+        <div>
 
           <h3>
             ${escapeHtml(
-              exam.title || "بدون عنوان"
+              exam.title
             )}
           </h3>
-
-          <p>
-            المحاضرة:
-            ${escapeHtml(
-              exam.lectures?.title ||
-              "غير محددة"
-            )}
-          </p>
 
           <p>
             الكورس:
             ${escapeHtml(
               exam.lectures?.courses?.title ||
-              "غير محدد"
+              "—"
             )}
           </p>
 
           <p>
-            الدرجة النهائية:
-            ${Number(
-              exam.max_score
-            ) || 0}
+            المحاضرة:
+            ${escapeHtml(
+              exam.lectures?.title ||
+              "—"
+            )}
+          </p>
+
+          <p>
+            الدرجة:
+            ${exam.max_score}
           </p>
 
           <p>
             مدة الامتحان:
-            ${duration} دقيقة
-          </p>
-
-        </div>
-
-        <div class="admin-item-actions">
-
-          <button
-            type="button"
-            class="btn danger-btn delete-exam-btn"
-            data-id="${exam.id}"
-          >
-            حذف الامتحان
-          </button>
-
-        </div>
-      `;
-
-      container.appendChild(
-        item
-      );
-    }
-  );
-
-  container
-    .querySelectorAll(
-      ".delete-exam-btn"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.id;
-
-            if (!id) return;
-
-            const confirmed =
-              confirm(
-                "هل أنت متأكد من حذف الامتحان؟ سيتم حذف الأسئلة والاختيارات والنتائج المرتبطة به."
-              );
-
-            if (!confirmed) {
-              return;
-            }
-
-            button.disabled = true;
-
-            try {
-
-              const { error } =
-                await supabaseClient
-                  .from(
-                    "lecture_exams"
-                  )
-                  .delete()
-                  .eq(
-                    "id",
-                    id
-                  );
-
-              if (error) {
-                throw error;
-              }
-
-              showAdminMsg(
-                "تم حذف الامتحان بنجاح."
-              );
-
-              await refreshAll();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showAdminMsg(
-                "تعذر حذف الامتحان: " +
-                error.message,
-                true
-              );
-
-              button.disabled = false;
-            }
-          }
-        );
-      }
-    );
-}
-
-
-/* =========================================================
-   RENDER LECTURES
-========================================================= */
-
-function renderLectures(lectures) {
-
-  const container =
-    document.getElementById(
-      "lecturesList"
-    );
-
-  if (!container) return;
-
-  if (!lectures.length) {
-
-    container.innerHTML = `
-      <div class="empty-state">
-        لا توجد محاضرات حتى الآن.
-      </div>
-    `;
-
-    return;
-  }
-
-  container.innerHTML = "";
-
-  lectures.forEach(
-    lecture => {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-      item.className =
-        "admin-item";
-
-      item.innerHTML = `
-        <div class="admin-item-info">
-
-          <h3>
-            ${escapeHtml(
-              lecture.title
-            )}
-          </h3>
-
-          <p>
-            الكورس:
-            ${escapeHtml(
-              lecture.courses?.title ||
-              "غير محدد"
-            )}
-          </p>
-
-          <p>
-            السنة الدراسية:
-            ${lecture.courses?.academic_year || "-"}
-          </p>
-
-          <p>
-            ترتيب المحاضرة:
-            ${lecture.lecture_order || 1}
-          </p>
-
-          <p>
-            ${lecture.is_free
-              ? "🆓 مجانية"
-              : "🔒 مدفوعة"}
-          </p>
-
-        </div>
-
-        <div class="admin-item-actions">
-
-          ${
-            lecture.video_url
-              ? `
-                <a
-                  class="btn secondary-btn"
-                  href="${lecture.video_url}"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  مشاهدة الفيديو
-                </a>
-              `
-              : ""
-          }
-
-          ${
-            lecture.pdf_url
-              ? `
-                <a
-                  class="btn secondary-btn"
-                  href="${lecture.pdf_url}"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  فتح PDF
-                </a>
-              `
-              : ""
-          }
-
-          <button
-            type="button"
-            class="btn danger-btn delete-lecture-btn"
-            data-id="${lecture.id}"
-          >
-            حذف
-          </button>
-
-        </div>
-      `;
-
-      container.appendChild(
-        item
-      );
-    }
-  );
-
-  container
-    .querySelectorAll(
-      ".delete-lecture-btn"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.id;
-
-            if (!id) return;
-
-            const confirmed =
-              confirm(
-                "هل أنت متأكد من حذف المحاضرة؟"
-              );
-
-            if (!confirmed) {
-              return;
-            }
-
-            button.disabled = true;
-
-            try {
-
-              const {
-                data: lecture,
-                error: lectureError
-              } =
-                await supabaseClient
-                  .from("lectures")
-                  .select(
-                    "video_url,pdf_url"
-                  )
-                  .eq(
-                    "id",
-                    id
-                  )
-                  .maybeSingle();
-
-              if (lectureError) {
-                throw lectureError;
-              }
-
-              if (lecture?.video_url) {
-
-                await removeStorageFile(
-                  "lecture-videos",
-                  lecture.video_url
-                );
-              }
-
-              if (lecture?.pdf_url) {
-
-                await removeStorageFile(
-                  "lecture-pdfs",
-                  lecture.pdf_url
-                );
-              }
-
-              const { error } =
-                await supabaseClient
-                  .from("lectures")
-                  .delete()
-                  .eq(
-                    "id",
-                    id
-                  );
-
-              if (error) {
-                throw error;
-              }
-
-              showAdminMsg(
-                "تم حذف المحاضرة."
-              );
-
-              await refreshAll();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showAdminMsg(
-                "تعذر حذف المحاضرة: " +
-                error.message,
-                true
-              );
-
-              button.disabled = false;
-            }
-          }
-        );
-      }
-    );
-}
-
-
-/* =========================================================
-   LOAD COURSES
-========================================================= */
-
-async function loadCourses() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("courses")
-      .select("*")
-      .order(
-        "academic_year",
-        {
-          ascending: true
-        }
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return [];
-  }
-
-  if (coursesCount) {
-    coursesCount.textContent =
-      data?.length || 0;
-  }
-
-  renderCourses(
-    data || []
-  );
-
-  populateCourseSelects(
-    data || []
-  );
-
-  return data || [];
-}
-
-
-/* =========================================================
-   RENDER COURSES
-========================================================= */
-
-function renderCourses(
-  courses
-) {
-
-  const container =
-    document.getElementById(
-      "coursesList"
-    );
-
-  if (!container) return;
-
-  if (!courses.length) {
-
-    container.innerHTML = `
-      <div class="empty-state">
-        لا توجد كورسات حتى الآن.
-      </div>
-    `;
-
-    return;
-  }
-
-  container.innerHTML = "";
-
-  courses.forEach(
-    course => {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-      item.className =
-        "admin-item";
-
-      const image =
-        course.image_url
-          ? `
-            <img
-              src="${course.image_url}"
-              alt=""
-              class="course-admin-image"
-            >
-          `
-          : "";
-
-      item.innerHTML = `
-        <div class="admin-item-info">
-
-          ${image}
-
-          <h3>
-            ${escapeHtml(
-              course.title
-            )}
-          </h3>
-
-          <p>
-            السنة الدراسية:
-            ${course.academic_year}
-          </p>
-
-          <p>
-            الحالة:
-            ${
-              course.is_visible
-                ? "ظاهر"
-                : "مخفي"
-            }
-          </p>
-
-        </div>
-
-        <div class="admin-item-actions">
-
-          <button
-            type="button"
-            class="btn secondary-btn toggle-course-btn"
-            data-id="${course.id}"
-            data-visible="${course.is_visible}"
-          >
-            ${
-              course.is_visible
-                ? "إخفاء"
-                : "إظهار"
-            }
-          </button>
-
-          <button
-            type="button"
-            class="btn danger-btn delete-course-btn"
-            data-id="${course.id}"
-          >
-            حذف
-          </button>
-
-        </div>
-      `;
-
-      container.appendChild(
-        item
-      );
-    }
-  );
-
-  container
-    .querySelectorAll(
-      ".toggle-course-btn"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.id;
-
-            const visible =
-              button.dataset.visible ===
-              "true";
-
-            button.disabled = true;
-
-            try {
-
-              const { error } =
-                await supabaseClient
-                  .from("courses")
-                  .update({
-                    is_visible:
-                      !visible
-                  })
-                  .eq(
-                    "id",
-                    id
-                  );
-
-              if (error) {
-                throw error;
-              }
-
-              await refreshAll();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showAdminMsg(
-                "تعذر تعديل حالة الكورس: " +
-                error.message,
-                true
-              );
-
-              button.disabled = false;
-            }
-          }
-        );
-      }
-    );
-
-  container
-    .querySelectorAll(
-      ".delete-course-btn"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.id;
-
-            if (!id) return;
-
-            const confirmed =
-              confirm(
-                "هل أنت متأكد من حذف الكورس؟ سيتم حذف المحاضرات والامتحانات المرتبطة به."
-              );
-
-            if (!confirmed) {
-              return;
-            }
-
-            button.disabled = true;
-
-            try {
-
-              const {
-                data: course,
-                error: courseError
-              } =
-                await supabaseClient
-                  .from("courses")
-                  .select(
-                    "image_url"
-                  )
-                  .eq(
-                    "id",
-                    id
-                  )
-                  .maybeSingle();
-
-              if (courseError) {
-                throw courseError;
-              }
-
-              if (course?.image_url) {
-
-                await removeStorageFile(
-                  "course-images",
-                  course.image_url
-                );
-              }
-
-              await removeStorageFolder(
-                "lecture-videos",
-                id
-              );
-
-              const { error } =
-                await supabaseClient
-                  .from("courses")
-                  .delete()
-                  .eq(
-                    "id",
-                    id
-                  );
-
-              if (error) {
-                throw error;
-              }
-
-              showAdminMsg(
-                "تم حذف الكورس بنجاح."
-              );
-
-              await refreshAll();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showAdminMsg(
-                "تعذر حذف الكورس: " +
-                error.message,
-                true
-              );
-
-              button.disabled = false;
-            }
-          }
-        );
-      }
-    );
-}
-
-
-/* =========================================================
-   COURSE SELECTS
-========================================================= */
-
-function populateCourseSelects(
-  courses
-) {
-
-  const selects = [
-    document.getElementById(
-      "lectureCourse"
-    ),
-    document.getElementById(
-      "accessCourse"
-    )
-  ];
-
-  selects.forEach(
-    select => {
-
-      if (!select) return;
-
-      const currentValue =
-        select.value;
-
-      select.innerHTML = `
-        <option value="">
-          اختر الكورس
-        </option>
-      `;
-
-      courses.forEach(
-        course => {
-
-          const option =
-            document.createElement(
-              "option"
-            );
-
-          option.value =
-            course.id;
-
-          option.textContent =
-            `${course.title} — السنة ${course.academic_year}`;
-
-          select.appendChild(
-            option
-          );
-        }
-      );
-
-      if (
-        currentValue &&
-        courses.some(
-          course =>
-            course.id ===
-            currentValue
-        )
-      ) {
-        select.value =
-          currentValue;
-      }
-    }
-  );
-}
-
-
-/* =========================================================
-   ACCESS MANAGEMENT
-========================================================= */
-
-async function loadAccessLectures() {
-
-  const courseId =
-    document.getElementById(
-      "accessCourse"
-    )?.value;
-
-  const lectureSelect =
-    document.getElementById(
-      "accessLecture"
-    );
-
-  if (!lectureSelect) {
-    return;
-  }
-
-  lectureSelect.innerHTML = `
-    <option value="">
-      اختر المحاضرة
-    </option>
-  `;
-
-  if (!courseId) {
-    return;
-  }
-
-  const { data, error } =
-    await supabaseClient
-      .from("lectures")
-      .select(
-        "id,title,lecture_order"
-      )
-      .eq(
-        "course_id",
-        courseId
-      )
-      .order(
-        "lecture_order",
-        {
-          ascending: true
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return;
-  }
-
-  (data || []).forEach(
-    lecture => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value =
-        lecture.id;
-
-      option.textContent =
-        `${lecture.lecture_order || 1}. ${lecture.title}`;
-
-      lectureSelect.appendChild(
-        option
-      );
-    }
-  );
-}
-
-
-async function loadStudents() {
-
-  const container =
-    document.getElementById(
-      "studentsList"
-    );
-
-  if (!container) {
-    return;
-  }
-
-  const { data, error } =
-    await supabaseClient
-      .from("profiles")
-      .select(
-        "id,full_name,academic_year,role,created_at"
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return;
-  }
-
-  if (studentsCount) {
-    studentsCount.textContent =
-      data?.length || 0;
-  }
-
-  if (!data?.length) {
-
-    container.innerHTML = `
-      <div class="empty-state">
-        لا يوجد طلاب حتى الآن.
-      </div>
-    `;
-
-    return;
-  }
-
-  container.innerHTML = "";
-
-  data.forEach(
-    student => {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-      item.className =
-        "admin-item";
-
-      item.innerHTML = `
-        <div class="admin-item-info">
-
-          <h3>
-            ${escapeHtml(
-              student.full_name ||
-              "بدون اسم"
-            )}
-          </h3>
-
-          <p>
-            السنة:
-            ${student.academic_year || "-"}
-          </p>
-
-          <p>
-            النوع:
-            ${student.role || "student"}
+            ${exam.duration_minutes || 30} دقيقة
           </p>
 
         </div>
       `;
 
       container.appendChild(
-        item
+        card
       );
     }
   );
@@ -3931,372 +2890,111 @@ async function loadStudents() {
 
 
 /* =========================================================
-   COURSE REQUESTS
+   HTML SECURITY
 ========================================================= */
 
-async function loadCourseRequests() {
-
-  const container =
-    document.getElementById(
-      "requestsList"
-    );
-
-  if (!container) {
-    return;
-  }
-
-  const { data, error } =
-    await supabaseClient
-      .from("course_requests")
-      .select(`
-        *,
-        profiles (
-          full_name,
-          academic_year
-        ),
-        courses (
-          title
-        )
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(error);
-
-    return;
-  }
-
-  if (!data?.length) {
-
-    container.innerHTML = `
-      <div class="empty-state">
-        لا توجد طلبات كورسات.
-      </div>
-    `;
-
-    return;
-  }
-
-  container.innerHTML = "";
-
-  data.forEach(
-    request => {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-      item.className =
-        "admin-item";
-
-      item.innerHTML = `
-        <div class="admin-item-info">
-
-          <h3>
-            ${escapeHtml(
-              request.profiles?.full_name ||
-              "طالب"
-            )}
-          </h3>
-
-          <p>
-            الكورس:
-            ${escapeHtml(
-              request.courses?.title ||
-              "غير محدد"
-            )}
-          </p>
-
-          <p>
-            الحالة:
-            ${escapeHtml(
-              request.status ||
-              "pending"
-            )}
-          </p>
-
-        </div>
-
-        <div class="admin-item-actions">
-
-          ${
-            request.status === "pending"
-              ? `
-                <button
-                  type="button"
-                  class="btn approve-request-btn"
-                  data-id="${request.id}"
-                >
-                  قبول
-                </button>
-
-                <button
-                  type="button"
-                  class="btn danger-btn reject-request-btn"
-                  data-id="${request.id}"
-                >
-                  رفض
-                </button>
-              `
-              : ""
-          }
-
-        </div>
-      `;
-
-      container.appendChild(
-        item
-      );
-    }
-  );
-
-  container
-    .querySelectorAll(
-      ".approve-request-btn"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.id;
-
-            try {
-
-              const {
-                data: request,
-                error: requestError
-              } =
-                await supabaseClient
-                  .from(
-                    "course_requests"
-                  )
-                  .select(
-                    "student_id,course_id"
-                  )
-                  .eq(
-                    "id",
-                    id
-                  )
-                  .maybeSingle();
-
-              if (requestError) {
-                throw requestError;
-              }
-
-              if (!request) {
-                throw new Error(
-                  "الطلب غير موجود."
-                );
-              }
-
-              const {
-                error: enrollmentError
-              } =
-                await supabaseClient
-                  .from(
-                    "enrollments"
-                  )
-                  .upsert(
-                    {
-                      student_id:
-                        request.student_id,
-
-                      course_id:
-                        request.course_id
-                    },
-                    {
-                      onConflict:
-                        "student_id,course_id"
-                    }
-                  );
-
-              if (
-                enrollmentError
-              ) {
-                throw enrollmentError;
-              }
-
-              const {
-                error: statusError
-              } =
-                await supabaseClient
-                  .from(
-                    "course_requests"
-                  )
-                  .update({
-                    status:
-                      "approved"
-                  })
-                  .eq(
-                    "id",
-                    id
-                  );
-
-              if (statusError) {
-                throw statusError;
-              }
-
-              showAdminMsg(
-                "تم قبول الطلب."
-              );
-
-              await refreshAll();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showAdminMsg(
-                "تعذر قبول الطلب: " +
-                error.message,
-                true
-              );
-            }
-          }
-        );
-      }
-    );
-
-  container
-    .querySelectorAll(
-      ".reject-request-btn"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.id;
-
-            try {
-
-              const { error } =
-                await supabaseClient
-                  .from(
-                    "course_requests"
-                  )
-                  .update({
-                    status:
-                      "rejected"
-                  })
-                  .eq(
-                    "id",
-                    id
-                  );
-
-              if (error) {
-                throw error;
-              }
-
-              showAdminMsg(
-                "تم رفض الطلب."
-              );
-
-              await refreshAll();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showAdminMsg(
-                "تعذر رفض الطلب: " +
-                error.message,
-                true
-              );
-            }
-          }
-        );
-      }
-    );
-}
-
-
-/* =========================================================
-   GENERAL REFRESH
-========================================================= */
-
-async function refreshAll() {
-
-  try {
-
-    await Promise.all([
-      loadCourses(),
-      loadLectures(),
-      loadExams(),
-      loadStudents(),
-      loadCourseRequests()
-    ]);
-
-  } catch (error) {
-
-    console.error(
-      "Refresh error:",
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   AUTH CHECK
-========================================================= */
-
-async function checkAdmin() {
-
-  const {
-    data: {
-      session
-    }
-  } =
-    await supabaseClient.auth.getSession();
-
-  if (!session?.user) {
-
-    location.href =
-      "index.html";
-
-    return false;
-  }
-
-  const {
-    data: profile,
-    error
-  } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq(
-        "id",
-        session.user.id
-      )
-      .maybeSingle();
+function escapeHtml(value) {
 
   if (
-    error ||
-    profile?.role !== "admin"
+    value === null ||
+    value === undefined
   ) {
-
-    location.href =
-      "student.html";
-
-    return false;
+    return "";
   }
 
-  return true;
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+}
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+const themeToggle =
+  document.getElementById(
+    "themeToggle"
+  );
+
+
+function applyTheme() {
+
+  const saved =
+    localStorage.getItem(
+      "amira_theme"
+    );
+
+  if (saved === "dark") {
+
+    document.body.classList.add(
+      "dark"
+    );
+
+    if (themeToggle) {
+      themeToggle.textContent =
+        "☀️";
+    }
+
+  } else {
+
+    document.body.classList.remove(
+      "dark"
+    );
+
+    if (themeToggle) {
+      themeToggle.textContent =
+        "🌙";
+    }
+  }
+}
+
+
+applyTheme();
+
+
+if (themeToggle) {
+
+  themeToggle.addEventListener(
+    "click",
+    () => {
+
+      const dark =
+        document.body.classList.toggle(
+          "dark"
+        );
+
+      localStorage.setItem(
+        "amira_theme",
+        dark
+          ? "dark"
+          : "light"
+      );
+
+      themeToggle.textContent =
+        dark
+          ? "☀️"
+          : "🌙";
+    }
+  );
 }
 
 
@@ -4318,51 +3016,50 @@ if (logoutBtn) {
       await supabaseClient.auth.signOut();
 
       location.href =
-        "index.html";
+        "login.html";
     }
   );
 }
 
 
 /* =========================================================
-   INITIALIZE
+   REFRESH EVERYTHING
+========================================================= */
+
+async function refreshAll() {
+
+  await loadCourses();
+
+  await loadLectures();
+
+  await loadExams();
+
+  await loadRequests();
+
+  await loadStudents();
+
+  await loadLectureAccess();
+}
+
+
+/* =========================================================
+   START
 ========================================================= */
 
 (async function initAdmin() {
 
-  const isAdmin =
+  const user =
     await checkAdmin();
 
-  if (!isAdmin) {
-    return;
+  if (!user) return;
+
+  if (
+    questionsBuilder &&
+    !questionsBuilder.children.length
+  ) {
+    addExamQuestion();
   }
 
   await refreshAll();
 
-  const durationInput =
-    document.getElementById(
-      "examDuration"
-    );
-
-  if (
-    durationInput &&
-    !durationInput.value
-  ) {
-    durationInput.value = 30;
-  }
-
-  if (
-    questionsBuilder &&
-    !getQuestionCards().length
-  ) {
-
-    questionsBuilder.innerHTML =
-      "";
-
-    questionsBuilder.appendChild(
-      createQuestionCard(0)
-    );
-  }
-
 })();
-   
