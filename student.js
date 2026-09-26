@@ -1,10 +1,37 @@
-const CONTACT_NUMBER = "01068980363";
-const WHATSAPP_NUMBER = "201068980363";
-
 let currentUser = null;
+let currentProfile = null;
+let currentCourse = null;
+let currentEnrollments = [];
+let currentRequests = [];
+
+const coursesGrid = document.getElementById("coursesGrid");
+const courseContent = document.getElementById("courseContent");
+const lecturesList = document.getElementById("lecturesList");
+
+const themeBtn = document.getElementById("themeBtn");
+const whatsappBtn = document.getElementById("whatsappBtn");
+
+const accountBtn = document.getElementById("accountBtn");
+const accountDropdown = document.getElementById("accountDropdown");
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+const academicYearSelect =
+  document.getElementById("academicYear");
+
+
+// =========================
+// START
+// =========================
+
+document.addEventListener("DOMContentLoaded", init);
 
 
 async function init() {
+
+  setupTheme();
+  setupAccountMenu();
+  setupButtons();
 
   const {
     data: { user }
@@ -17,427 +44,888 @@ async function init() {
 
   currentUser = user;
 
+
+  // =========================
+  // GET PROFILE
+  // =========================
+
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+  if (error) {
+    console.error(error);
+  }
+
+  currentProfile = profile;
+
+
+  // لو Admin يدخل صفحة الإدارة
+  if (profile?.role === "admin") {
+    location.href = "admin.html";
+    return;
+  }
+
+
+  // =========================
+  // PROFILE UI
+  // =========================
+
   const name =
+    profile?.full_name ||
     user.user_metadata?.full_name ||
-    user.email;
+    "الطالب";
 
-  document.getElementById("welcome").textContent =
-    "أهلاً بك، " + name;
-
-  document.getElementById("profileName").textContent =
-    name;
+  document.getElementById("profileName").textContent = name;
 
   document.getElementById("profileEmail").textContent =
-    user.email;
+    user.email || "";
 
-  await loadCourses();
+  document.getElementById("welcomeName").textContent =
+    name;
 
+  const firstLetter =
+    name.trim().charAt(0).toUpperCase() || "A";
+
+  accountBtn.textContent = firstLetter;
+
+
+  // =========================
+  // YEAR
+  // =========================
+
+  const year = Number(profile?.academic_year) || 1;
+
+  academicYearSelect.value = year;
+
+  updateYearText(year);
+
+
+  // =========================
+  // LOAD DATA
+  // =========================
+
+  await loadEnrollments();
+  await loadRequests();
+  await loadCourses(year);
 }
 
 
-/* =========================
-   COURSES
-========================= */
+// =========================
+// THEME
+// =========================
 
-async function loadCourses() {
+function setupTheme() {
 
-  const box =
-    document.getElementById("studentCourses");
+  const savedTheme =
+    localStorage.getItem("theme");
 
-  const {
-    data: courses,
-    error
-  } = await supabaseClient
-    .from("courses")
-    .select("*")
-    .eq("is_visible", true)
-    .order("created_at", {
-      ascending: false
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+
+    themeBtn.textContent = "☀️";
+  }
+
+  themeBtn.addEventListener("click", () => {
+
+    document.body.classList.toggle("dark");
+
+    const isDark =
+      document.body.classList.contains("dark");
+
+    localStorage.setItem(
+      "theme",
+      isDark ? "dark" : "light"
+    );
+
+    themeBtn.textContent =
+      isDark ? "☀️" : "🌙";
+  });
+}
+
+
+// =========================
+// ACCOUNT MENU
+// =========================
+
+function setupAccountMenu() {
+
+  accountBtn.addEventListener("click", (e) => {
+
+    e.stopPropagation();
+
+    accountDropdown.classList.toggle("show");
+
+  });
+
+
+  document.addEventListener("click", () => {
+
+    accountDropdown.classList.remove("show");
+
+  });
+
+
+  accountDropdown.addEventListener(
+    "click",
+    (e) => e.stopPropagation()
+  );
+}
+
+
+// =========================
+// BUTTONS
+// =========================
+
+function setupButtons() {
+
+  whatsappBtn.href = whatsappUrl();
+
+
+  logoutBtn.addEventListener(
+    "click",
+    logout
+  );
+
+
+  academicYearSelect.addEventListener(
+    "change",
+    async () => {
+
+      const year =
+        Number(academicYearSelect.value);
+
+      if (![1, 2, 3].includes(year)) {
+        return;
+      }
+
+
+      updateYearText(year);
+
+
+      const { error } =
+        await supabaseClient
+          .from("profiles")
+          .update({
+            academic_year: year
+          })
+          .eq("id", currentUser.id);
+
+
+      if (error) {
+
+        alert(
+          "حصل خطأ أثناء حفظ السنة الدراسية."
+        );
+
+        return;
+      }
+
+
+      await loadCourses(year);
+
+      courseContent.style.display = "none";
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    }
+  );
+
+
+  document
+    .getElementById("backCoursesBtn")
+    .addEventListener("click", () => {
+
+      courseContent.style.display = "none";
+
+      currentCourse = null;
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
     });
+}
+
+
+// =========================
+// LOAD ENROLLMENTS
+// =========================
+
+async function loadEnrollments() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("enrollments")
+      .select("course_id")
+      .eq("student_id", currentUser.id);
+
+  if (error) {
+    console.error(error);
+
+    currentEnrollments = [];
+
+    return;
+  }
+
+  currentEnrollments = data || [];
+}
+
+
+// =========================
+// LOAD REQUESTS
+// =========================
+
+async function loadRequests() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("course_requests")
+      .select("course_id,status")
+      .eq("student_id", currentUser.id);
+
+  if (error) {
+    console.error(error);
+
+    currentRequests = [];
+
+    return;
+  }
+
+  currentRequests = data || [];
+}
+
+
+// =========================
+// LOAD COURSES
+// =========================
+
+async function loadCourses(year) {
+
+  coursesGrid.innerHTML = `
+    <div class="loading-card">
+
+      <div class="loader"></div>
+
+      <p>
+        جاري تحميل الكورسات...
+      </p>
+
+    </div>
+  `;
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("courses")
+      .select("*")
+      .eq("academic_year", year)
+      .eq("is_visible", true)
+      .order("created_at", {
+        ascending: false
+      });
+
 
   if (error) {
 
-    box.innerHTML =
-      `<div class="empty">
-        حصلت مشكلة في تحميل الكورسات.
-      </div>`;
+    console.error(error);
+
+    coursesGrid.innerHTML = `
+      <div class="empty-card">
+
+        <h3>
+          حصل خطأ
+        </h3>
+
+        <p>
+          مش قادرين نحمل الكورسات دلوقتي.
+        </p>
+
+      </div>
+    `;
 
     return;
   }
 
-  if (!courses?.length) {
 
-    box.innerHTML =
-      `<div class="empty">
-        لا توجد كورسات متاحة حاليًا.
-      </div>`;
-
-    return;
-  }
-
-
-  const {
-    data: enrollments
-  } = await supabaseClient
-    .from("enrollments")
-    .select("course_id")
-    .eq("student_id", currentUser.id);
-
-
-  const {
-    data: requests
-  } = await supabaseClient
-    .from("course_requests")
-    .select("course_id,status")
-    .eq("student_id", currentUser.id);
-
-
-  const enrolled =
-    new Set(
-      (enrollments || [])
-        .map(x => x.course_id)
-    );
-
-
-  const requested =
-    new Map(
-      (requests || [])
-        .map(x => [
-          x.course_id,
-          x.status
-        ])
-    );
-
-
-  box.innerHTML =
-    courses.map(course => {
-
-      const isEnrolled =
-        enrolled.has(course.id);
-
-      const status =
-        requested.get(course.id);
-
-
-      let action = "";
-
-
-      if (isEnrolled) {
-
-        action = `
-          <button
-            class="course-btn"
-            onclick="openCourse('${course.id}')">
-            فتح الكورس
-          </button>
-        `;
-
-      }
-
-      else if (status === "pending") {
-
-        action = `
-          <div class="pending">
-            طلب الاشتراك قيد المراجعة.
-          </div>
-        `;
-
-      }
-
-      else {
-
-        action = `
-          <button
-            class="course-btn"
-            onclick="requestCourse('${course.id}')">
-            الاشتراك في الكورس
-          </button>
-        `;
-
-      }
-
-
-      return `
-
-        <article class="course">
-
-          <div class="course-icon">
-            🩺
-          </div>
-
-          <span class="tag">
-            دورة تدريبية
-          </span>
-
-          <h3>
-            ${safe(course.title)}
-          </h3>
-
-          <p>
-            ${safe(course.description || "")}
-          </p>
-
-          ${
-            Number(course.price) > 0
-            ? `
-              <strong>
-                السعر:
-                ${safe(course.price)} جنيه
-              </strong>
-            `
-            : ""
-          }
-
-          <div style="margin-top:15px">
-            ${action}
-          </div>
-
-        </article>
-
-      `;
-
-    }).join("");
-
-}
-
-
-/* =========================
-   OPEN COURSE
-========================= */
-
-async function openCourse(courseId) {
-
-  const {
-    data: course
-  } = await supabaseClient
-    .from("courses")
-    .select("id,title")
-    .eq("id", courseId)
-    .single();
-
-
-  if (!course) return;
+  const courses = data || [];
 
 
   document.getElementById(
-    "lecturesSection"
-  ).style.display = "block";
+    "coursesCount"
+  ).textContent = courses.length;
+
+
+  if (courses.length === 0) {
+
+    coursesGrid.innerHTML = `
+      <div class="empty-card">
+
+        <h3>
+          مفيش كورسات للسنة دي حالياً
+        </h3>
+
+        <p>
+          لما يتم إضافة كورسات هتظهر هنا.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  coursesGrid.innerHTML =
+    courses.map(renderCourseCard).join("");
+}
+
+
+// =========================
+// COURSE CARD
+// =========================
+
+function renderCourseCard(course) {
+
+  const enrolled =
+    currentEnrollments.some(
+      e => e.course_id === course.id
+    );
+
+
+  const request =
+    currentRequests.find(
+      r => r.course_id === course.id
+    );
+
+
+  const price =
+    Number(course.price) === 0
+      ? "مجاني"
+      : `${Number(course.price).toLocaleString("ar-EG")} جنيه`;
+
+
+  const image = course.image_url
+
+    ? `
+      <img
+        src="${escapeHtml(course.image_url)}"
+        alt="${escapeHtml(course.title)}"
+        class="course-image"
+      >
+    `
+
+    : `
+      <div class="course-image-placeholder">
+        🩺
+      </div>
+    `;
+
+
+  let action = "";
+
+
+  // FREE
+  if (Number(course.price) === 0) {
+
+    action = `
+      <button
+        class="btn btn-primary full-btn"
+        onclick="openCourse('${course.id}')"
+      >
+        فتح الكورس
+      </button>
+    `;
+
+  }
+
+
+  // ENROLLED
+  else if (enrolled) {
+
+    action = `
+      <button
+        class="btn btn-primary full-btn"
+        onclick="openCourse('${course.id}')"
+      >
+        🔓 فتح الكورس
+      </button>
+    `;
+
+  }
+
+
+  // PENDING
+  else if (request?.status === "pending") {
+
+    action = `
+      <button
+        class="btn btn-outline full-btn"
+        disabled
+        style="cursor:not-allowed;opacity:.7;"
+      >
+        ⏳ طلب الاشتراك قيد المراجعة
+      </button>
+    `;
+
+  }
+
+
+  // REJECTED
+  else if (request?.status === "rejected") {
+
+    action = `
+      <button
+        class="btn btn-primary full-btn"
+        onclick="requestCourse('${course.id}')"
+      >
+        🔄 طلب الاشتراك مرة أخرى
+      </button>
+    `;
+
+  }
+
+
+  // PAID
+  else {
+
+    action = `
+      <button
+        class="btn btn-primary full-btn"
+        onclick="requestCourse('${course.id}')"
+      >
+        💳 الاشتراك في الكورس
+      </button>
+    `;
+
+  }
+
+
+  return `
+    <article class="course-card">
+
+      ${image}
+
+      <div class="course-card-body">
+
+        <div class="course-top">
+
+          <span class="year-badge">
+            السنة ${course.academic_year}
+          </span>
+
+          <span class="price-badge">
+            ${price}
+          </span>
+
+        </div>
+
+
+        <h3>
+          ${escapeHtml(course.title)}
+        </h3>
+
+
+        <p>
+          ${escapeHtml(
+            course.description ||
+            "كورس تعليمي لطلاب التمريض."
+          )}
+        </p>
+
+
+        ${action}
+
+      </div>
+
+    </article>
+  `;
+}
+
+
+// =========================
+// OPEN COURSE
+// =========================
+
+async function openCourse(courseId) {
+
+  const { data: course, error } =
+    await supabaseClient
+      .from("courses")
+      .select("*")
+      .eq("id", courseId)
+      .maybeSingle();
+
+
+  if (error || !course) {
+
+    alert("الكورس غير موجود.");
+
+    return;
+  }
+
+
+  const enrolled =
+    currentEnrollments.some(
+      e => e.course_id === courseId
+    );
+
+
+  // الكورس المدفوع لازم يكون الطالب مشترك فيه
+  if (
+    Number(course.price) > 0 &&
+    !enrolled
+  ) {
+
+    alert(
+      "لازم تشترك في الكورس الأول علشان تقدر تفتحه."
+    );
+
+    return;
+  }
+
+
+  currentCourse = course;
 
 
   document.getElementById(
     "selectedCourseTitle"
+  ).textContent = course.title;
+
+
+  document.getElementById(
+    "selectedCourseYear"
   ).textContent =
-    course.title;
+    `الفرقة ${course.academic_year}`;
 
 
-  const {
-    data: lectures,
-    error
-  } = await supabaseClient
-    .from("lectures")
-    .select("*")
-    .eq("course_id", courseId)
-    .order("lecture_order", {
-      ascending: true
-    });
+  document.getElementById(
+    "selectedCourseDescription"
+  ).textContent =
+    course.description || "";
 
 
-  const box =
-    document.getElementById(
-      "lecturesList"
-    );
+  courseContent.style.display = "block";
+
+
+  lecturesList.innerHTML = `
+    <div class="loading-card">
+
+      <div class="loader"></div>
+
+      <p>
+        جاري تحميل المحاضرات...
+      </p>
+
+    </div>
+  `;
+
+
+  const { data: lectures, error } =
+    await supabaseClient
+      .from("lectures")
+      .select("*")
+      .eq("course_id", courseId)
+      .order("lecture_order", {
+        ascending: true
+      });
 
 
   if (error) {
 
-    box.innerHTML =
-      `<div class="empty">
-        حصلت مشكلة في تحميل المحاضرات.
-      </div>`;
+    console.error(error);
+
+    lecturesList.innerHTML = `
+      <div class="empty-card">
+        <h3>حصل خطأ</h3>
+        <p>تعذر تحميل المحاضرات.</p>
+      </div>
+    `;
 
     return;
   }
 
 
-  if (!lectures?.length) {
+  if (!lectures || lectures.length === 0) {
 
-    box.innerHTML =
-      `<div class="empty">
-        لا توجد محاضرات مضافة للكورس حاليًا.
-      </div>`;
+    lecturesList.innerHTML = `
+      <div class="empty-card">
+
+        <h3>
+          لسه مفيش محاضرات
+        </h3>
+
+        <p>
+          المحاضرات هتظهر هنا لما الإدارة تضيفها.
+        </p>
+
+      </div>
+    `;
 
     return;
   }
 
 
-  box.innerHTML =
-    lectures.map((lecture, index) => {
+  const examIds =
+    await getExamIds(
+      lectures.map(l => l.id)
+    );
 
-      return `
 
-        <div class="course"
-             style="margin-bottom:20px">
+  document.getElementById(
+    "examsCount"
+  ).textContent = examIds.length;
 
-          <span class="tag">
-            المحاضرة ${index + 1}
-          </span>
 
-          ${
-            lecture.is_free
-            ? `
-              <span class="tag">
-                🆓 مجانية
-              </span>
-            `
-            : ""
-          }
+  lecturesList.innerHTML =
+    lectures.map(
+      lecture =>
+        renderLecture(
+          lecture,
+          examIds
+        )
+    ).join("");
+
+
+  courseContent.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+
+// =========================
+// EXAM IDS
+// =========================
+
+async function getExamIds(lectureIds) {
+
+  if (!lectureIds.length) {
+    return [];
+  }
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("lecture_exams")
+      .select("id,lecture_id")
+      .in("lecture_id", lectureIds);
+
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+  }
+
+
+  return data || [];
+}
+
+
+// =========================
+// RENDER LECTURE
+// =========================
+
+function renderLecture(lecture, examIds) {
+
+  const isFree =
+    lecture.is_free === true;
+
+
+  const exam =
+    examIds.find(
+      e => e.lecture_id === lecture.id
+    );
+
+
+  const badge = isFree
+
+    ? `
+      <span class="free-badge">
+        🆓 مجانية
+      </span>
+    `
+
+    : `
+      <span class="lock-badge">
+        🔒 ضمن الكورس
+      </span>
+    `;
+
+
+  const videoButton =
+    lecture.video_url
+
+      ? `
+        <a
+          href="${escapeHtml(lecture.video_url)}"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary small-btn"
+        >
+          ▶ الفيديو
+        </a>
+      `
+
+      : "";
+
+
+  const pdfButton =
+    lecture.pdf_url
+
+      ? `
+        <a
+          href="${escapeHtml(lecture.pdf_url)}"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-outline small-btn"
+        >
+          📄 PDF
+        </a>
+      `
+
+      : "";
+
+
+  const examButton =
+    exam
+
+      ? `
+        <a
+          href="${escapeHtml(
+            `exam.html?id=${exam.id}`
+          )}"
+          class="btn btn-outline small-btn"
+        >
+          📝 الاختبار
+        </a>
+      `
+
+      : "";
+
+
+  return `
+    <article class="lecture-item">
+
+      <div class="lecture-info">
+
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:8px;
+          flex-wrap:wrap;
+          margin-bottom:5px;
+        ">
 
           <h3>
-            ${safe(lecture.title)}
+            ${escapeHtml(lecture.title)}
           </h3>
 
-          <p>
-            ${safe(lecture.description || "")}
-          </p>
-
-
-          <div
-            style="
-              display:flex;
-              flex-wrap:wrap;
-              gap:10px;
-              margin-top:15px;
-            ">
-
-            ${
-              lecture.video_url
-              ? `
-                <a
-                  class="course-btn"
-                  href="${safeAttr(lecture.video_url)}"
-                  target="_blank"
-                  rel="noopener">
-                  ▶ مشاهدة المحاضرة
-                </a>
-              `
-              : ""
-            }
-
-
-            ${
-              lecture.pdf_url
-              ? `
-                <a
-                  class="course-btn"
-                  href="${safeAttr(lecture.pdf_url)}"
-                  target="_blank"
-                  rel="noopener">
-                  📄 فتح PDF
-                </a>
-              `
-              : ""
-            }
-
-
-            <button
-              class="course-btn"
-              onclick="openExam('${lecture.id}')">
-              📝 امتحان المحاضرة
-            </button>
-
-          </div>
+          ${badge}
 
         </div>
 
-      `;
 
-    }).join("");
+        <p>
+          ${escapeHtml(
+            lecture.description || ""
+          )}
+        </p>
 
+      </div>
+
+
+      <div class="lecture-actions">
+
+        ${videoButton}
+
+        ${pdfButton}
+
+        ${examButton}
+
+      </div>
+
+    </article>
+  `;
 }
 
 
-/* =========================
-   EXAM
-========================= */
-
-async function openExam(lectureId) {
-
-  const {
-    data: exam,
-    error
-  } = await supabaseClient
-    .from("lecture_exams")
-    .select("*")
-    .eq("lecture_id", lectureId)
-    .maybeSingle();
-
-
-  if (error || !exam) {
-
-    alert(
-      "لسه امتحان المحاضرة دي مش مضاف."
-    );
-
-    return;
-  }
-
-
-  if (!exam.exam_url) {
-
-    alert(
-      "الامتحان موجود لكن رابط الامتحان لسه مش مضاف."
-    );
-
-    return;
-  }
-
-
-  window.open(
-    exam.exam_url,
-    "_blank",
-    "noopener"
-  );
-
-}
-
-
-/* =========================
-   COURSE REQUEST
-========================= */
+// =========================
+// REQUEST COURSE
+// =========================
 
 async function requestCourse(courseId) {
 
-  const {
-    data: course
-  } = await supabaseClient
-    .from("courses")
-    .select("title,price")
-    .eq("id", courseId)
-    .single();
+  const { data: course, error } =
+    await supabaseClient
+      .from("courses")
+      .select("id,title,price")
+      .eq("id", courseId)
+      .maybeSingle();
 
 
-  const {
-    error
-  } = await supabaseClient
-    .from("course_requests")
-    .upsert(
-      {
-        student_id: currentUser.id,
-        course_id: courseId,
-        status: "pending"
-      },
-      {
-        onConflict:
-          "student_id,course_id"
-      }
+  if (error || !course) {
+
+    alert("الكورس غير موجود.");
+
+    return;
+  }
+
+
+  if (Number(course.price) === 0) {
+
+    await openCourse(courseId);
+
+    return;
+  }
+
+
+  const existing =
+    currentRequests.find(
+      r => r.course_id === courseId
     );
 
 
-  if (error) {
+  if (existing?.status === "pending") {
 
     alert(
-      "حصلت مشكلة: " +
-      error.message
+      "أنت بالفعل قدمت طلب اشتراك في الكورس."
+    );
+
+    return;
+  }
+
+
+  const { error: insertError } =
+    await supabaseClient
+      .from("course_requests")
+      .upsert(
+        {
+          student_id: currentUser.id,
+          course_id: courseId,
+          status: "pending"
+        },
+        {
+          onConflict: "student_id,course_id"
+        }
+      );
+
+
+  if (insertError) {
+
+    console.error(insertError);
+
+    alert(
+      "حصل خطأ أثناء إرسال طلب الاشتراك."
     );
 
     return;
@@ -445,117 +933,71 @@ async function requestCourse(courseId) {
 
 
   const message =
-    encodeURIComponent(
-      `مرحباً، أنا ${
-        currentUser.user_metadata?.full_name ||
-        currentUser.email
-      } وأريد الاشتراك في كورس: ${
-        course?.title || ""
-      }.
-      
-السعر: ${
-        course?.price || 0
-      } جنيه.
-
-حسابي في المنصة:
-${currentUser.email}`
-    );
+    `السلام عليكم د. أميرة سليم، أريد الاشتراك في كورس: ${course.title}`;
 
 
   window.open(
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`,
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
     "_blank"
   );
 
 
+  await loadRequests();
+
+  const year =
+    Number(academicYearSelect.value);
+
+  await loadCourses(year);
+
+
   alert(
-    "تم تسجيل طلب الاشتراك. سيتم تفعيل الكورس بعد مراجعة التحويل."
+    "تم إرسال طلب الاشتراك. تواصل مع الإدارة على واتساب لإتمام الاشتراك."
   );
-
-
-  await loadCourses();
-
 }
 
 
-/* =========================
-   PROFILE
-========================= */
+// =========================
+// YEAR TEXT
+// =========================
 
-document
-  .getElementById("profileBtn")
-  .addEventListener("click", () => {
+function updateYearText(year) {
 
-    const panel =
-      document.getElementById(
-        "profilePanel"
-      );
-
-    panel.style.display =
-      panel.style.display === "none"
-      ? "block"
-      : "none";
-
-    if (panel.style.display === "block") {
-
-      panel.scrollIntoView({
-        behavior: "smooth"
-      });
-
-    }
-
-  });
+  const names = {
+    1: "الفرقة الأولى",
+    2: "الفرقة الثانية",
+    3: "الفرقة الثالثة"
+  };
 
 
-/* =========================
-   LOGOUT
-========================= */
-
-document
-  .getElementById("logout")
-  .addEventListener(
-    "click",
-    async () => {
-
-      await supabaseClient.auth.signOut();
-
-      location.href =
-        "index.html";
-
-    }
-  );
-
-
-/* =========================
-   SECURITY HELPERS
-========================= */
-
-function safe(value) {
-
-  return String(value)
-    .replace(
-      /[&<>"']/g,
-      char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      })[char]
-    );
-
+  document.getElementById(
+    "yearText"
+  ).textContent =
+    names[year] || "-";
 }
 
 
-function safeAttr(value) {
+// =========================
+// LOGOUT
+// =========================
 
-  return safe(value)
-    .replace(
-      /javascript:/gi,
-      ""
-    );
+async function logout() {
 
+  await supabaseClient.auth.signOut();
+
+  location.href = "index.html";
 }
 
 
-init();
+// =========================
+// ESCAPE HTML
+// =========================
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
