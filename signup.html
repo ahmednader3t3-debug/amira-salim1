@@ -1,2 +1,157 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>إنشاء حساب | أميرة سليم</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
-<body class="auth-page"><div class="auth-card"><a class="brand" href="index.html"><span class="logo">AS</span><span><b>أميرة سليم</b><small>NURSING ACADEMY</small></span></a><h1>إنشاء حساب طالب</h1><p>أنشئ حسابك، وبعدها يمكن للإدارة تفعيل الكورسات المناسبة لك.</p><form id="signupForm"><label>الاسم<input id="name" required></label><label>البريد الإلكتروني<input id="email" type="email" required></label><label>كلمة المرور<input id="password" type="password" minlength="6" required></label><button class="btn full">إنشاء الحساب</button><div id="msg" class="msg"></div></form><a href="login.html">عندي حساب بالفعل</a></div><script src="config.js"></script><script src="auth.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>إنشاء حساب | DR AMIRA SALIM</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+
+<body>
+
+  <main class="auth-page">
+
+    <div class="auth-wrapper">
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <a href="index.html" class="brand">
+          <span class="brand-main">DR AMIRA SALIM</span>
+          <span class="brand-sub">NURSING COURSES</span>
+        </a>
+      </div>
+
+
+      <div class="auth-card">
+
+        <h1>إنشاء حساب</h1>
+
+        <p>
+          أنشئ حسابك وحدد السنة الدراسية.
+        </p>
+
+
+        <div id="msg" class="msg"></div>
+
+
+        <form id="signupForm">
+
+          <div class="form-group">
+
+            <label for="name">
+              الاسم بالكامل
+            </label>
+
+            <input
+              type="text"
+              id="name"
+              placeholder="اكتب اسمك"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="email">
+              البريد الإلكتروني
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              placeholder="example@email.com"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="password">
+              كلمة المرور
+            </label>
+
+            <input
+              type="password"
+              id="password"
+              placeholder="6 أحرف على الأقل"
+              minlength="6"
+              required
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="academicYear">
+              السنة الدراسية
+            </label>
+
+            <select id="academicYear" required>
+
+              <option value="">
+                اختر السنة الدراسية
+              </option>
+
+              <option value="1">
+                الفرقة الأولى
+              </option>
+
+              <option value="2">
+                الفرقة الثانية
+              </option>
+
+              <option value="3">
+                الفرقة الثالثة
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary auth-submit"
+          >
+            إنشاء الحساب
+          </button>
+
+        </form>
+
+
+        <div class="auth-footer">
+
+          عندك حساب بالفعل؟
+
+          <a href="login.html">
+            تسجيل الدخول
+          </a>
+
+          <br><br>
+
+          <a href="index.html">
+            ← الرجوع للرئيسية
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <script src="auth.js"></script>
+
+</body>
+</html>
