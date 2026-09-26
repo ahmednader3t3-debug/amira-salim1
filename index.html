@@ -8,7 +8,11 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
 
   <link rel="stylesheet" href="style.css">
 
@@ -18,8 +22,12 @@
 
 <body>
 
-  <!-- HEADER -->
+  <!-- =========================
+       HEADER
+  ========================== -->
+
   <header class="header">
+
     <div class="container nav">
 
       <a href="index.html" class="brand">
@@ -35,21 +43,34 @@
 
       <div class="nav-actions">
 
-        <button id="themeBtn" class="icon-btn" type="button" title="تغيير المظهر">
+        <button
+          id="themeBtn"
+          class="icon-btn"
+          type="button"
+          title="تغيير المظهر"
+        >
           🌙
         </button>
 
-        <a href="login.html" class="btn btn-primary">
+        <a
+          id="accountBtn"
+          href="login.html"
+          class="btn btn-primary"
+        >
           تسجيل الدخول
         </a>
 
       </div>
 
     </div>
+
   </header>
 
 
-  <!-- HERO -->
+  <!-- =========================
+       HERO
+  ========================== -->
+
   <main>
 
     <section class="hero">
@@ -73,13 +94,18 @@
 
           <div class="hero-buttons">
 
-            <a href="#courses" class="btn btn-primary">
+            <a
+              href="#courses"
+              class="btn btn-primary"
+            >
               استعرض الكورسات
             </a>
 
             <a
-              href="https://wa.me/201065461397?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%20%D8%AF.%20%D8%A3%D9%85%D9%8A%D8%B1%D8%A9%20%D8%B3%D9%84%D9%8A%D9%85%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D9%83%D9%88%D8%B1%D8%B3%D8%A7%D8%AA."
+              id="heroWhatsappBtn"
+              href="#"
               target="_blank"
+              rel="noopener"
               class="btn btn-outline"
             >
               تواصل معنا
@@ -121,7 +147,10 @@
     </section>
 
 
-    <!-- COURSES -->
+    <!-- =========================
+         COURSES
+    ========================== -->
+
     <section id="courses" class="section">
 
       <div class="container">
@@ -129,6 +158,7 @@
         <div class="section-heading">
 
           <div>
+
             <span class="section-kicker">
               COURSES
             </span>
@@ -140,20 +170,33 @@
             <p>
               اختار الكورس المناسب لسنتك الدراسية.
             </p>
+
           </div>
 
-          <a href="login.html" class="btn btn-outline">
+          <a
+            id="studentBtn"
+            href="login.html"
+            class="btn btn-outline"
+          >
             دخول الطالب
           </a>
 
         </div>
 
 
-        <div id="coursesGrid" class="cards-grid">
+        <div
+          id="coursesGrid"
+          class="cards-grid"
+        >
 
           <div class="loading-card">
+
             <div class="loader"></div>
-            <p>جاري تحميل الكورسات...</p>
+
+            <p>
+              جاري تحميل الكورسات...
+            </p>
+
           </div>
 
         </div>
@@ -163,8 +206,14 @@
     </section>
 
 
-    <!-- ABOUT -->
-    <section id="about" class="section section-soft">
+    <!-- =========================
+         ABOUT
+    ========================== -->
+
+    <section
+      id="about"
+      class="section section-soft"
+    >
 
       <div class="container about-grid">
 
@@ -211,8 +260,14 @@
     </section>
 
 
-    <!-- CONTACT -->
-    <section id="contact" class="section contact-section">
+    <!-- =========================
+         CONTACT
+    ========================== -->
+
+    <section
+      id="contact"
+      class="section contact-section"
+    >
 
       <div class="container contact-card">
 
@@ -237,6 +292,7 @@
           id="whatsappBtn"
           href="#"
           target="_blank"
+          rel="noopener"
           class="btn btn-whatsapp"
         >
           💬 تواصل عبر واتساب
@@ -249,18 +305,31 @@
   </main>
 
 
-  <!-- FOOTER -->
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
   <footer class="footer">
 
     <div class="container footer-inner">
 
       <div>
-        <strong>DR AMIRA SALIM</strong>
-        <p>تعليم التمريض بطريقة منظمة.</p>
+
+        <strong>
+          DR AMIRA SALIM
+        </strong>
+
+        <p>
+          تعليم التمريض بطريقة منظمة.
+        </p>
+
       </div>
 
       <div>
-        © <span id="year"></span> DR AMIRA SALIM
+
+        © <span id="year"></span>
+        DR AMIRA SALIM
+
       </div>
 
     </div>
@@ -268,24 +337,57 @@
   </footer>
 
 
-  <script>
-    const coursesGrid = document.getElementById("coursesGrid");
-    const themeBtn = document.getElementById("themeBtn");
-    const whatsappBtn = document.getElementById("whatsappBtn");
-    const yearEl = document.getElementById("year");
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
 
-    yearEl.textContent = new Date().getFullYear();
+  <script>
+
+    const coursesGrid =
+      document.getElementById("coursesGrid");
+
+    const themeBtn =
+      document.getElementById("themeBtn");
+
+    const whatsappBtn =
+      document.getElementById("whatsappBtn");
+
+    const heroWhatsappBtn =
+      document.getElementById("heroWhatsappBtn");
+
+    const accountBtn =
+      document.getElementById("accountBtn");
+
+    const studentBtn =
+      document.getElementById("studentBtn");
+
+    const yearEl =
+      document.getElementById("year");
+
+
+    // =========================
+    // YEAR
+    // =========================
+
+    yearEl.textContent =
+      new Date().getFullYear();
+
 
     // =========================
     // THEME
     // =========================
 
-    const savedTheme = localStorage.getItem("theme");
+    const savedTheme =
+      localStorage.getItem("theme");
 
     if (savedTheme === "dark") {
+
       document.body.classList.add("dark");
+
       themeBtn.textContent = "☀️";
+
     }
+
 
     themeBtn.addEventListener("click", () => {
 
@@ -301,6 +403,7 @@
 
       themeBtn.textContent =
         isDark ? "☀️" : "🌙";
+
     });
 
 
@@ -308,7 +411,117 @@
     // WHATSAPP
     // =========================
 
-    whatsappBtn.href = whatsappUrl();
+    const whatsappLink =
+      whatsappUrl();
+
+    whatsappBtn.href =
+      whatsappLink;
+
+    heroWhatsappBtn.href =
+      whatsappLink;
+
+
+    // =========================
+    // ACCOUNT STATUS
+    // =========================
+
+    async function updateAccountButtons() {
+
+      try {
+
+        const {
+          data: { user }
+        } =
+          await supabaseClient.auth.getUser();
+
+
+        // -------------------------
+        // NOT LOGGED IN
+        // -------------------------
+
+        if (!user) {
+
+          accountBtn.href =
+            "login.html";
+
+          accountBtn.textContent =
+            "تسجيل الدخول";
+
+          studentBtn.href =
+            "login.html";
+
+          studentBtn.textContent =
+            "دخول الطالب";
+
+          return;
+
+        }
+
+
+        // -------------------------
+        // GET PROFILE
+        // -------------------------
+
+        const { data: profile } =
+          await supabaseClient
+            .from("profiles")
+            .select("role, full_name")
+            .eq("id", user.id)
+            .maybeSingle();
+
+
+        // -------------------------
+        // ADMIN
+        // -------------------------
+
+        if (profile?.role === "admin") {
+
+          accountBtn.href =
+            "admin.html";
+
+          accountBtn.textContent =
+            "لوحة التحكم";
+
+          studentBtn.href =
+            "admin.html";
+
+          studentBtn.textContent =
+            "لوحة التحكم";
+
+          return;
+
+        }
+
+
+        // -------------------------
+        // STUDENT
+        // -------------------------
+
+        accountBtn.href =
+          "student.html";
+
+        accountBtn.textContent =
+          "لوحة الطالب";
+
+        studentBtn.href =
+          "student.html";
+
+        studentBtn.textContent =
+          "لوحة الطالب";
+
+      } catch (error) {
+
+        console.error(
+          "Account check error:",
+          error
+        );
+
+        // الصفحة تفضل شغالة عادي
+        // ومفيش أي redirect للـ login
+
+      }
+
+    }
 
 
     // =========================
@@ -317,126 +530,289 @@
 
     async function loadCourses() {
 
-      const { data, error } = await supabaseClient
-        .from("courses")
-        .select("*")
-        .eq("is_visible", true)
-        .order("academic_year", {
-          ascending: true
-        })
-        .order("created_at", {
-          ascending: false
-        });
+      const { data, error } =
+        await supabaseClient
+          .from("courses")
+          .select("*")
+          .eq("is_visible", true)
+          .order("academic_year", {
+            ascending: true
+          })
+          .order("created_at", {
+            ascending: false
+          });
+
 
       if (error) {
 
+        console.error(
+          "Courses error:",
+          error
+        );
+
         coursesGrid.innerHTML = `
+
           <div class="empty-card">
-            <h3>حدث خطأ</h3>
-            <p>تعذر تحميل الكورسات حالياً.</p>
+
+            <h3>
+              حدث خطأ
+            </h3>
+
+            <p>
+              تعذر تحميل الكورسات حالياً.
+            </p>
+
           </div>
+
         `;
 
         return;
+
       }
 
 
       if (!data || data.length === 0) {
 
         coursesGrid.innerHTML = `
+
           <div class="empty-card">
-            <h3>لسه مفيش كورسات</h3>
+
+            <h3>
+              لسه مفيش كورسات
+            </h3>
+
             <p>
               سيتم إضافة الكورسات قريباً.
             </p>
+
           </div>
+
         `;
 
         return;
+
       }
 
 
-      coursesGrid.innerHTML = data.map(course => {
+      coursesGrid.innerHTML =
+        data.map(course => {
 
-        const price =
-          Number(course.price) === 0
-            ? "مجاني"
-            : `${Number(course.price).toLocaleString("ar-EG")} جنيه`;
+          const price =
+            Number(course.price) === 0
+              ? "مجاني"
+              : `${Number(course.price).toLocaleString("ar-EG")} جنيه`;
 
-        const image = course.image_url
-          ? `
-            <img
-              src="${escapeHtml(course.image_url)}"
-              alt="${escapeHtml(course.title)}"
-              class="course-image"
-            >
-          `
-          : `
-            <div class="course-image-placeholder">
-              🩺
-            </div>
-          `;
 
-        return `
-          <article class="course-card">
+          const image =
+            course.image_url
 
-            ${image}
+              ? `
+                <img
+                  src="${escapeHtml(course.image_url)}"
+                  alt="${escapeHtml(course.title)}"
+                  class="course-image"
+                >
+              `
 
-            <div class="course-card-body">
+              : `
+                <div class="course-image-placeholder">
+                  🩺
+                </div>
+              `;
 
-              <div class="course-top">
 
-                <span class="year-badge">
-                  السنة ${course.academic_year}
-                </span>
+          return `
 
-                <span class="price-badge">
-                  ${price}
-                </span>
+            <article class="course-card">
+
+              ${image}
+
+              <div class="course-card-body">
+
+                <div class="course-top">
+
+                  <span class="year-badge">
+                    السنة ${course.academic_year}
+                  </span>
+
+                  <span class="price-badge">
+                    ${price}
+                  </span>
+
+                </div>
+
+
+                <h3>
+                  ${escapeHtml(course.title)}
+                </h3>
+
+
+                <p>
+                  ${escapeHtml(
+                    course.description ||
+                    "كورس تعليمي شامل لطلاب التمريض."
+                  )}
+                </p>
+
+
+                <a
+                  href="${getCourseLink()}"
+                  class="btn btn-primary full-btn"
+                >
+                  ${getCourseButtonText()}
+                </a>
 
               </div>
 
-              <h3>
-                ${escapeHtml(course.title)}
-              </h3>
+            </article>
 
-              <p>
-                ${escapeHtml(
-                  course.description ||
-                  "كورس تعليمي شامل لطلاب التمريض."
-                )}
-              </p>
+          `;
 
-              <a
-                href="login.html"
-                class="btn btn-primary full-btn"
-              >
-                دخول للكورس
-              </a>
-
-            </div>
-
-          </article>
-        `;
-
-      }).join("");
+        }).join("");
 
     }
 
+
+    // =========================
+    // COURSE BUTTON
+    // =========================
+
+    let currentCourseLink =
+      "login.html";
+
+    let currentCourseButtonText =
+      "دخول للكورس";
+
+
+    function getCourseLink() {
+
+      return currentCourseLink;
+
+    }
+
+
+    function getCourseButtonText() {
+
+      return currentCourseButtonText;
+
+    }
+
+
+    async function updateCourseButtons() {
+
+      try {
+
+        const {
+          data: { user }
+        } =
+          await supabaseClient.auth.getUser();
+
+
+        if (!user) {
+
+          currentCourseLink =
+            "login.html";
+
+          currentCourseButtonText =
+            "دخول للكورس";
+
+          return;
+
+        }
+
+
+        const { data: profile } =
+          await supabaseClient
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .maybeSingle();
+
+
+        if (profile?.role === "admin") {
+
+          currentCourseLink =
+            "admin.html";
+
+          currentCourseButtonText =
+            "لوحة التحكم";
+
+          return;
+
+        }
+
+
+        currentCourseLink =
+          "student.html";
+
+        currentCourseButtonText =
+          "دخول للكورس";
+
+      } catch (error) {
+
+        console.error(
+          "Course button error:",
+          error
+        );
+
+      }
+
+    }
+
+
+    // =========================
+    // ESCAPE HTML
+    // =========================
 
     function escapeHtml(value) {
 
       return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
 
     }
 
 
-    loadCourses();
+    // =========================
+    // START
+    // =========================
+
+    async function initHomePage() {
+
+      await updateAccountButtons();
+
+      await updateCourseButtons();
+
+      await loadCourses();
+
+    }
+
+
+    initHomePage();
+
   </script>
 
 </body>
