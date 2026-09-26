@@ -1,78 +1,168 @@
-const examLoading = document.getElementById("examLoading");
-const examContent = document.getElementById("examContent");
-const examError = document.getElementById("examError");
-const examErrorText = document.getElementById("examErrorText");
+const examLoading =
+  document.getElementById("examLoading");
 
-const examTitle = document.getElementById("examTitle");
-const examDescription = document.getElementById("examDescription");
-const lectureTitle = document.getElementById("lectureTitle");
-const maxScore = document.getElementById("maxScore");
+const examContent =
+  document.getElementById("examContent");
 
-const examReady = document.getElementById("examReady");
-const examNoUrl = document.getElementById("examNoUrl");
-const openExamBtn = document.getElementById("openExamBtn");
+const examError =
+  document.getElementById("examError");
 
-const themeBtn = document.getElementById("themeBtn");
+const examErrorText =
+  document.getElementById("examErrorText");
+
+const examTitle =
+  document.getElementById("examTitle");
+
+const examDescription =
+  document.getElementById("examDescription");
+
+const lectureTitle =
+  document.getElementById("lectureTitle");
+
+const maxScore =
+  document.getElementById("maxScore");
+
+const questionsContainer =
+  document.getElementById("questionsContainer");
+
+const examForm =
+  document.getElementById("examForm");
+
+const submitExamBtn =
+  document.getElementById("submitExamBtn");
+
+const resultContent =
+  document.getElementById("resultContent");
+
+const resultScore =
+  document.getElementById("resultScore");
+
+const resultMaxScore =
+  document.getElementById("resultMaxScore");
+
+const resultPercentage =
+  document.getElementById("resultPercentage");
+
+const resultMessage =
+  document.getElementById("resultMessage");
+
+const themeBtn =
+  document.getElementById("themeBtn");
+
+
+const params =
+  new URLSearchParams(window.location.search);
+
+const examId =
+  params.get("id");
+
+let currentUser = null;
+let currentExam = null;
+let currentQuestions = [];
 
 
 // =====================================
-// استخراج ID الاختبار من الرابط
+// Dark Mode
 // =====================================
 
-const params = new URLSearchParams(window.location.search);
-const examId = params.get("id");
+function applyTheme() {
 
+  const theme =
+    localStorage.getItem("theme");
 
-// =====================================
-// Dark / Light Mode
-// =====================================
-
-function applySavedTheme() {
-  const savedTheme = localStorage.getItem("theme");
-
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-  } else {
-    document.body.classList.remove("dark");
-  }
+  document.body.classList.toggle(
+    "dark",
+    theme === "dark"
+  );
 }
 
-applySavedTheme();
+applyTheme();
 
 
 if (themeBtn) {
+
   themeBtn.addEventListener("click", () => {
 
     document.body.classList.toggle("dark");
 
-    const isDark =
-      document.body.classList.contains("dark");
-
     localStorage.setItem(
       "theme",
-      isDark ? "dark" : "light"
+      document.body.classList.contains("dark")
+        ? "dark"
+        : "light"
     );
+
   });
+
 }
 
 
 // =====================================
-// التأكد من تسجيل الدخول
+// إظهار الخطأ
 // =====================================
 
-async function checkUser() {
+function showError(message) {
+
+  examLoading.style.display = "none";
+
+  examContent.style.display = "none";
+
+  resultContent.style.display = "none";
+
+  examError.style.display = "block";
+
+  examErrorText.textContent = message;
+}
+
+
+// =====================================
+// المستخدم الحالي
+// =====================================
+
+async function getCurrentUser() {
 
   const {
-    data: { user },
+    data,
     error
   } = await supabaseClient.auth.getUser();
 
-  if (error || !user) {
+  if (error || !data.user) {
+
     location.href = "login.html";
+
     return null;
   }
 
-  return user;
+  return data.user;
+}
+
+
+// =====================================
+// التأكد هل الطالب حل الاختبار قبل كده
+// =====================================
+
+async function getPreviousResult() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("exam_results")
+    .select(
+      "id, score, submitted_at, feedback"
+    )
+    .eq("exam_id", examId)
+    .eq("student_id", currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+
+    console.error(error);
+
+    return null;
+  }
+
+  return data;
 }
 
 
@@ -83,53 +173,132 @@ async function checkUser() {
 async function loadExam() {
 
   if (!examId) {
-    showError("رابط الاختبار غير صحيح.");
+
+    showError(
+      "رابط الاختبار غير صحيح."
+    );
+
     return;
   }
 
-  const user = await checkUser();
 
-  if (!user) return;
+  currentUser =
+    await getCurrentUser();
+
+  if (!currentUser) return;
 
 
-  const { data: exam, error } = await supabaseClient
-    .from("lecture_exams")
-    .select(`
-      id,
-      title,
-      description,
-      exam_url,
-      max_score,
-      lecture_id,
-      lectures (
+  const previousResult =
+    await getPreviousResult();
+
+
+  if (previousResult) {
+
+    showPreviousResult(
+      previousResult
+    );
+
+    return;
+  }
+
+
+  const {
+    data: exam,
+    error: examErrorResult
+  } =
+    await supabaseClient
+      .from("lecture_exams")
+      .select(`
         id,
         title,
-        course_id,
-        is_free
-      )
-    `)
-    .eq("id", examId)
-    .maybeSingle();
+        description,
+        max_score,
+        lecture_id,
+        lectures (
+          id,
+          title,
+          course_id,
+          is_free
+        )
+      `)
+      .eq("id", examId)
+      .maybeSingle();
 
 
-  if (error) {
-    console.error(error);
+  if (examErrorResult) {
+
+    console.error(examErrorResult);
+
     showError(
       "حدث خطأ أثناء تحميل بيانات الاختبار."
     );
+
     return;
   }
 
 
   if (!exam) {
+
     showError(
-      "الاختبار غير موجود أو غير متاح لحسابك."
+      "الاختبار غير موجود أو غير متاح."
     );
+
     return;
   }
 
 
-  renderExam(exam);
+  currentExam = exam;
+
+
+  const {
+    data: questions,
+    error: questionsError
+  } =
+    await supabaseClient
+      .from("exam_questions")
+      .select(`
+        id,
+        question_text,
+        question_order,
+        exam_options (
+          id,
+          option_text,
+          option_order
+        )
+      `)
+      .eq("exam_id", examId)
+      .order("question_order", {
+        ascending: true
+      });
+
+
+  if (questionsError) {
+
+    console.error(questionsError);
+
+    showError(
+      "حدث خطأ أثناء تحميل أسئلة الاختبار."
+    );
+
+    return;
+  }
+
+
+  if (!questions || !questions.length) {
+
+    showError(
+      "لم تتم إضافة أسئلة لهذا الاختبار بعد."
+    );
+
+    return;
+  }
+
+
+  currentQuestions =
+    questions;
+
+
+  renderExam();
 }
 
 
@@ -137,56 +306,391 @@ async function loadExam() {
 // عرض الاختبار
 // =====================================
 
-function renderExam(exam) {
+function renderExam() {
 
   examTitle.textContent =
-    exam.title || "اختبار المحاضرة";
-
+    currentExam.title || "اختبار";
 
   examDescription.textContent =
-    exam.description || "";
-
+    currentExam.description || "";
 
   lectureTitle.textContent =
-    exam.lectures?.title || "—";
-
+    currentExam.lectures?.title || "—";
 
   maxScore.textContent =
-    exam.max_score ?? "—";
+    currentExam.max_score;
 
 
-  if (exam.exam_url) {
+  questionsContainer.innerHTML =
+    currentQuestions.map(
+      (question, index) => `
 
-    openExamBtn.href = exam.exam_url;
+        <div class="question-card">
 
-    examReady.style.display = "block";
-    examNoUrl.style.display = "none";
+          <div class="question-number">
+            السؤال ${index + 1}
+          </div>
 
-  } else {
+          <h3>
+            ${escapeHtml(
+              question.question_text
+            )}
+          </h3>
 
-    examReady.style.display = "none";
-    examNoUrl.style.display = "block";
+          <div class="options-list">
 
-  }
+            ${
+              question.exam_options
+                .sort(
+                  (a, b) =>
+                    a.option_order -
+                    b.option_order
+                )
+                .map(
+                  option => `
+
+                    <label class="exam-option">
+
+                      <input
+                        type="radio"
+                        name="question_${question.id}"
+                        value="${option.id}"
+                        required
+                      >
+
+                      <span>
+                        ${escapeHtml(
+                          option.option_text
+                        )}
+                      </span>
+
+                    </label>
+
+                  `
+                )
+                .join("")
+            }
+
+          </div>
+
+        </div>
+
+      `
+    )
+    .join("");
 
 
   examLoading.style.display = "none";
+
+  examError.style.display = "none";
+
   examContent.style.display = "block";
 }
 
 
 // =====================================
-// عرض خطأ
+// إرسال الاختبار
 // =====================================
 
-function showError(message) {
+examForm.addEventListener(
+  "submit",
+  async (event) => {
 
-  examLoading.style.display = "none";
+    event.preventDefault();
+
+
+    if (
+      !currentUser ||
+      !currentExam ||
+      !currentQuestions.length
+    ) {
+      return;
+    }
+
+
+    const confirmed =
+      confirm(
+        "هل أنت متأكد من إرسال الاختبار؟ لن تتمكن من إرساله مرة أخرى."
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    submitExamBtn.disabled = true;
+
+    submitExamBtn.textContent =
+      "جاري التصحيح...";
+
+
+    // التأكد مرة أخيرة من عدم وجود نتيجة سابقة
+
+    const previousResult =
+      await getPreviousResult();
+
+
+    if (previousResult) {
+
+      showPreviousResult(
+        previousResult
+      );
+
+      return;
+    }
+
+
+    // تحميل الإجابات الصحيحة
+
+    const questionIds =
+      currentQuestions.map(
+        question => question.id
+      );
+
+
+    const {
+      data: correctOptions,
+      error
+    } =
+      await supabaseClient
+        .from("exam_options")
+        .select(
+          "id, question_id, is_correct"
+        )
+        .in(
+          "question_id",
+          questionIds
+        );
+
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "حدث خطأ أثناء تصحيح الاختبار."
+      );
+
+      submitExamBtn.disabled = false;
+
+      submitExamBtn.textContent =
+        "إرسال الاختبار";
+
+      return;
+    }
+
+
+    // حساب عدد الإجابات الصحيحة
+
+    let correctCount = 0;
+
+
+    currentQuestions.forEach(
+      question => {
+
+        const selected =
+          document.querySelector(
+            `input[name="question_${question.id}"]:checked`
+          );
+
+
+        if (!selected) {
+          return;
+        }
+
+
+        const correct =
+          correctOptions.find(
+            option =>
+              option.question_id ===
+                question.id &&
+              option.is_correct === true
+          );
+
+
+        if (
+          correct &&
+          correct.id === selected.value
+        ) {
+
+          correctCount++;
+
+        }
+
+      }
+    );
+
+
+    const totalQuestions =
+      currentQuestions.length;
+
+
+    const maxScore =
+      Number(currentExam.max_score);
+
+
+    const score =
+      totalQuestions > 0
+        ? (correctCount / totalQuestions) *
+          maxScore
+        : 0;
+
+
+    const roundedScore =
+      Math.round(score * 100) / 100;
+
+
+    // حفظ النتيجة
+
+    const {
+      error: insertError
+    } =
+      await supabaseClient
+        .from("exam_results")
+        .insert({
+
+          exam_id: currentExam.id,
+
+          student_id: currentUser.id,
+
+          score: roundedScore,
+
+          feedback:
+            `أجبت ${correctCount} من ${totalQuestions} إجابة صحيحة.`
+
+        });
+
+
+    if (insertError) {
+
+      console.error(insertError);
+
+      alert(
+        "حدث خطأ أثناء حفظ النتيجة."
+      );
+
+      submitExamBtn.disabled = false;
+
+      submitExamBtn.textContent =
+        "إرسال الاختبار";
+
+      return;
+    }
+
+
+    showResult(
+      roundedScore,
+      maxScore,
+      correctCount,
+      totalQuestions
+    );
+
+  }
+);
+
+
+// =====================================
+// عرض النتيجة
+// =====================================
+
+function showResult(
+  score,
+  maxScore,
+  correctCount,
+  totalQuestions
+) {
+
+  const percentage =
+    maxScore > 0
+      ? Math.round(
+          (score / maxScore) * 100
+        )
+      : 0;
+
+
+  resultScore.textContent =
+    score;
+
+  resultMaxScore.textContent =
+    maxScore;
+
+  resultPercentage.textContent =
+    `${percentage}%`;
+
+
+  resultMessage.textContent =
+    `إجابات صحيحة: ${correctCount} من ${totalQuestions}`;
+
+
   examContent.style.display = "none";
 
-  examError.style.display = "block";
+  examError.style.display = "none";
 
-  examErrorText.textContent = message;
+  resultContent.style.display = "block";
+}
+
+
+// =====================================
+// عرض نتيجة سابقة
+// =====================================
+
+function showPreviousResult(result) {
+
+  const score =
+    Number(result.score || 0);
+
+  const maxScore =
+    Number(
+      currentExam?.max_score || 0
+    );
+
+
+  resultScore.textContent =
+    score;
+
+  resultMaxScore.textContent =
+    maxScore;
+
+
+  const percentage =
+    maxScore > 0
+      ? Math.round(
+          (score / maxScore) * 100
+        )
+      : 0;
+
+
+  resultPercentage.textContent =
+    `${percentage}%`;
+
+
+  resultMessage.textContent =
+    "لقد سبق لك إرسال هذا الاختبار.";
+
+
+  examLoading.style.display = "none";
+
+  examContent.style.display = "none";
+
+  examError.style.display = "none";
+
+  resultContent.style.display = "block";
+}
+
+
+// =====================================
+// حماية النصوص
+// =====================================
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 
