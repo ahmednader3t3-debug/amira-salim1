@@ -1,6 +1,541 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>لوحة الإدارة | أميرة سليم</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
-<body><header class="header"><div class="container nav"><a class="brand" href="index.html"><span class="logo">AS</span><span><b>أميرة سليم</b><small>ADMIN PANEL</small></span></a><button id="logout" class="btn small">تسجيل الخروج</button></div></header>
-<main class="section"><div class="container"><span class="eyebrow">لوحة التحكم</span><h1>إدارة المنصة</h1><div id="adminMsg" class="msg"></div>
-<div class="admin-grid"><section class="panel"><h2>إضافة كورس</h2><form id="courseForm"><label>اسم الكورس<input id="title" required></label><label>الوصف<textarea id="description" required></textarea></label><label>رابط الفيديو (اختياري)<input id="video_url" type="url"></label><button class="btn">إضافة الكورس</button></form></section>
-<section class="panel"><h2>الكورسات الحالية</h2><div id="adminCourses"></div></section></div>
-<section class="panel users"><h2>طلبات الاشتراك والدفع</h2><div id="requests"></div></section><section class="panel users"><h2>الطلاب</h2><div id="users"></div></section></div></main><script src="config.js"></script><script src="admin.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>لوحة الإدارة | DR AMIRA SALIM</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+
+<body class="dashboard">
+
+  <!-- HEADER -->
+  <header class="header">
+
+    <div class="container nav">
+
+      <a href="admin.html" class="brand">
+        <span class="brand-main">DR AMIRA SALIM</span>
+        <span class="brand-sub">ADMIN PANEL</span>
+      </a>
+
+      <div class="dashboard-actions">
+
+        <button
+          id="themeBtn"
+          class="icon-btn"
+          type="button"
+        >
+          🌙
+        </button>
+
+        <a
+          href="index.html"
+          class="btn btn-outline"
+        >
+          الرئيسية
+        </a>
+
+        <button
+          id="logoutBtn"
+          class="btn btn-primary"
+          type="button"
+        >
+          تسجيل الخروج
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+
+    <div class="container">
+
+      <!-- TITLE -->
+      <div class="dashboard-top">
+
+        <div class="dashboard-title">
+
+          <h1>
+            لوحة الإدارة ⚙️
+          </h1>
+
+          <p>
+            إدارة الكورسات والمحاضرات والاختبارات وطلبات الاشتراك.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- STATS -->
+      <section class="dashboard-stats">
+
+        <div class="dashboard-stat">
+          <span>عدد الكورسات</span>
+          <strong id="coursesCount">0</strong>
+        </div>
+
+        <div class="dashboard-stat">
+          <span>عدد المحاضرات</span>
+          <strong id="lecturesCount">0</strong>
+        </div>
+
+        <div class="dashboard-stat">
+          <span>طلبات الاشتراك</span>
+          <strong id="requestsCount">0</strong>
+        </div>
+
+      </section>
+
+
+      <!-- ADMIN GRID -->
+      <div class="admin-grid">
+
+
+        <!-- ADD COURSE -->
+        <section class="admin-panel">
+
+          <h2>
+            ➕ إضافة كورس
+          </h2>
+
+          <form id="courseForm">
+
+            <div class="form-group">
+
+              <label>
+                اسم الكورس
+              </label>
+
+              <input
+                id="courseTitle"
+                type="text"
+                placeholder="مثال: أساسيات التمريض"
+                required
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                وصف الكورس
+              </label>
+
+              <textarea
+                id="courseDescription"
+                placeholder="اكتب وصف مختصر للكورس"
+              ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                السنة الدراسية
+              </label>
+
+              <select id="courseYear" required>
+
+                <option value="1">
+                  الفرقة الأولى
+                </option>
+
+                <option value="2">
+                  الفرقة الثانية
+                </option>
+
+                <option value="3">
+                  الفرقة الثالثة
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                سعر الكورس
+              </label>
+
+              <input
+                id="coursePrice"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+                placeholder="0 = مجاني"
+                required
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                رابط صورة الكورس
+              </label>
+
+              <input
+                id="courseImage"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+
+            <label class="checkbox-row">
+
+              <input
+                id="courseVisible"
+                type="checkbox"
+                checked
+              >
+
+              إظهار الكورس للطلاب
+
+            </label>
+
+
+            <button
+              type="submit"
+              class="btn btn-primary full-btn"
+            >
+              إضافة الكورس
+            </button>
+
+          </form>
+
+        </section>
+
+
+        <!-- ADD LECTURE -->
+        <section class="admin-panel">
+
+          <h2>
+            ➕ إضافة محاضرة
+          </h2>
+
+          <form id="lectureForm">
+
+            <div class="form-group">
+
+              <label>
+                الكورس
+              </label>
+
+              <select
+                id="lectureCourse"
+                required
+              >
+
+                <option value="">
+                  اختر الكورس
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                اسم المحاضرة
+              </label>
+
+              <input
+                id="lectureTitle"
+                type="text"
+                placeholder="مثال: Introduction"
+                required
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                وصف المحاضرة
+              </label>
+
+              <textarea
+                id="lectureDescription"
+                placeholder="وصف مختصر"
+              ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                رابط الفيديو
+              </label>
+
+              <input
+                id="lectureVideo"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                رابط PDF
+              </label>
+
+              <input
+                id="lecturePdf"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                ترتيب المحاضرة
+              </label>
+
+              <input
+                id="lectureOrder"
+                type="number"
+                min="1"
+                value="1"
+                required
+              >
+
+            </div>
+
+
+            <label class="checkbox-row">
+
+              <input
+                id="lectureFree"
+                type="checkbox"
+              >
+
+              🆓 محاضرة مجانية / تجريبية
+
+            </label>
+
+
+            <button
+              type="submit"
+              class="btn btn-primary full-btn"
+            >
+              إضافة المحاضرة
+            </button>
+
+          </form>
+
+        </section>
+
+
+        <!-- ADD EXAM -->
+        <section class="admin-panel">
+
+          <h2>
+            📝 إضافة اختبار
+          </h2>
+
+          <form id="examForm">
+
+            <div class="form-group">
+
+              <label>
+                المحاضرة
+              </label>
+
+              <select
+                id="examLecture"
+                required
+              >
+
+                <option value="">
+                  اختر المحاضرة
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                اسم الاختبار
+              </label>
+
+              <input
+                id="examTitle"
+                type="text"
+                value="اختبار المحاضرة"
+                required
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                وصف الاختبار
+              </label>
+
+              <textarea
+                id="examDescription"
+                placeholder="وصف الاختبار"
+              ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                رابط الاختبار
+              </label>
+
+              <input
+                id="examUrl"
+                type="url"
+                placeholder="https://..."
+              >
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label>
+                الدرجة النهائية
+              </label>
+
+              <input
+                id="examMaxScore"
+                type="number"
+                min="1"
+                value="100"
+                required
+              >
+
+            </div>
+
+
+            <button
+              type="submit"
+              class="btn btn-primary full-btn"
+            >
+              حفظ الاختبار
+            </button>
+
+          </form>
+
+        </section>
+
+
+        <!-- REQUESTS -->
+        <section class="admin-panel">
+
+          <h2>
+            💳 طلبات الاشتراك
+          </h2>
+
+          <div
+            id="requestsList"
+            class="admin-list"
+          >
+
+            <div class="loading-card">
+              جاري تحميل الطلبات...
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+      <!-- COURSES MANAGEMENT -->
+      <section
+        class="admin-panel"
+        style="margin-top:22px;"
+      >
+
+        <h2>
+          📚 الكورسات الحالية
+        </h2>
+
+        <div
+          id="coursesList"
+          class="admin-list"
+        >
+
+          <div class="loading-card">
+            جاري تحميل الكورسات...
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- LECTURES MANAGEMENT -->
+      <section
+        class="admin-panel"
+        style="margin-top:22px;"
+      >
+
+        <h2>
+          🎥 المحاضرات الحالية
+        </h2>
+
+        <div
+          id="lecturesList"
+          class="admin-list"
+        >
+
+          <div class="loading-card">
+            جاري تحميل المحاضرات...
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <script src="admin.js"></script>
+
+</body>
+</html>
