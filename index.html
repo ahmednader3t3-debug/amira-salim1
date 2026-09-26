@@ -1,29 +1,406 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
+
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>أميرة سليم | منصة التمريض</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>أميرة سليم | NURSING ACADEMY</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
-<header class="header"><div class="container nav">
-<a class="brand" href="#"><span class="logo">AS</span><span><b>أميرة سليم</b><small>NURSING ACADEMY</small></span></a>
-<nav><a href="#courses">الكورسات</a><a href="#about">عن المنصة</a><a href="#contact">تواصل</a></nav>
-<div id="authArea"><a class="btn small" href="login.html">دخول الطلاب</a></div>
-</div></header>
-<section class="hero"><div class="container hero-grid"><div>
-<span class="eyebrow">منصة تعليمية متخصصة في التمريض</span>
-<h1>اتعلم التمريض بشكل <span>أوضح وأقرب للواقع.</span></h1>
-<p>كورسات ومحتوى تدريبي منظم يساعد طلاب وممارسي التمريض على تطوير المعرفة والمهارات المهنية.</p>
-<div class="actions"><a class="btn" href="#courses">استكشف الكورسات</a><a class="btn ghost" href="login.html">دخول الطلاب</a></div>
-<div class="stats"><div><b>+20</b><small>دورة تدريبية</small></div><div><b>+500</b><small>متدرب</small></div><div><b>100%</b><small>محتوى عربي</small></div></div>
-</div><div class="hero-card"><div class="cross">✚</div><span>تعلم • طبّق • تطوّر</span><h2>أميرة سليم</h2><p>رحلتك التعليمية في التمريض تبدأ من هنا.</p><div class="glass">🎓 محتوى مرتب للطلاب والمتدربين</div></div></div></section>
-<section class="section" id="courses"><div class="container"><div class="head"><div><span class="eyebrow">التعلّم المتخصص</span><h2>الكورسات</h2></div></div><div id="coursesGrid" class="grid"><div class="loading">جاري تحميل الكورسات...</div></div></div></section>
-<section class="section muted" id="about"><div class="container about"><div class="about-box">AS</div><div><span class="eyebrow">عن المنصة</span><h2>تعليم تمريض منظم وبسيط.</h2><p>منصة أميرة سليم مخصصة لتقديم محتوى تدريبي يساعد الطلاب والمتدربين على فهم المفاهيم الأساسية وتطوير مهاراتهم التعليمية والمهنية.</p></div></div></section>
-<section class="section" id="contact"><div class="container contact"><div><span class="eyebrow">جاهز تبدأ؟</span><h2>سجّل دخولك وابدأ التعلم.</h2><p>للاشتراك في الكورسات، سجّل حسابًا ثم اختر الكورس واتبع تعليمات التحويل.</p></div><a class="btn" href="login.html">دخول الطلاب ←</a></div></section>
-<footer><div class="container">© <span id="year"></span> أميرة سليم — جميع الحقوق محفوظة.</div></footer>
-<script src="config.js"></script><script src="app.js"></script>
-</body></html>
+
+<header class="header">
+
+  <div class="container nav">
+
+    <a class="brand" href="index.html">
+
+      <span class="logo">AS</span>
+
+      <span>
+        <b>أميرة سليم</b>
+        <small>NURSING ACADEMY</small>
+      </span>
+
+    </a>
+
+
+    <nav>
+
+      <a href="#courses">الكورسات</a>
+      <a href="#about">عن الأكاديمية</a>
+      <a href="#contact">تواصل معنا</a>
+
+    </nav>
+
+
+    <div id="authArea">
+
+      <a id="loginBtn" class="btn small" href="login.html">
+        تسجيل الدخول
+      </a>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<main>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+  <div class="container hero-grid">
+
+    <div>
+
+      <span class="eyebrow">
+        NURSING ACADEMY
+      </span>
+
+      <h1>
+        اتعلم التمريض
+        <span>بشكل احترافي</span>
+      </h1>
+
+      <p>
+        منصة أميرة سليم التعليمية لتطوير مهاراتك في مجال التمريض
+        من خلال الكورسات والمحاضرات والاختبارات والمتابعة المستمرة.
+      </p>
+
+
+      <div class="actions">
+
+        <a id="heroBtn" class="btn" href="login.html">
+          ابدأ الآن
+        </a>
+
+        <a class="btn ghost" href="#courses">
+          استكشف الكورسات
+        </a>
+
+      </div>
+
+
+      <div class="stats">
+
+        <div>
+          <b>+</b>
+          <small>كورسات تدريبية</small>
+        </div>
+
+        <div>
+          <b>24/7</b>
+          <small>متابعة تعليمية</small>
+        </div>
+
+        <div>
+          <b>AS</b>
+          <small>Nursing Academy</small>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="hero-card">
+
+      <div class="cross">
+        🩺
+      </div>
+
+      <span>
+        AMIRA SALIM
+      </span>
+
+      <h2>
+        Nursing
+      </h2>
+
+      <p>
+        Learn • Practice • Improve
+      </p>
+
+      <div class="glass">
+        محاضرات · واجبات · امتحانات · درجات
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- COURSES -->
+
+<section id="courses" class="section">
+
+  <div class="container">
+
+    <div class="head">
+
+      <span class="eyebrow">
+        EDUCATION
+      </span>
+
+      <h2>
+        الكورسات
+      </h2>
+
+      <p>
+        اختر الكورس المناسب وابدأ رحلتك التعليمية.
+      </p>
+
+    </div>
+
+
+    <div id="coursesGrid" class="grid">
+
+      <div class="loading">
+        جاري تحميل الكورسات...
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section id="about" class="section muted">
+
+  <div class="container about">
+
+    <div class="about-box">
+      AS
+    </div>
+
+    <div>
+
+      <span class="eyebrow">
+        ABOUT US
+      </span>
+
+      <h2>
+        أكاديمية أميرة سليم
+      </h2>
+
+      <p>
+        منصة تعليمية تهدف إلى تقديم محتوى تدريبي مبسط ومنظم
+        يساعد طلاب التمريض على تطوير معرفتهم ومهاراتهم العملية.
+      </p>
+
+      <p>
+        بعد تسجيل الدخول يمكنك متابعة الكورسات والواجبات
+        والامتحانات والدرجات من خلال لوحة الطالب الخاصة بك.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section id="contact" class="section">
+
+  <div class="container">
+
+    <div class="contact">
+
+      <div>
+
+        <span class="eyebrow">
+          CONTACT
+        </span>
+
+        <h2>
+          جاهز تبدأ؟
+        </h2>
+
+        <p>
+          سجل حسابك وابدأ متابعة الكورسات المتاحة.
+        </p>
+
+      </div>
+
+      <a id="contactBtn" class="btn" href="login.html">
+        تسجيل الدخول
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+  <div class="container">
+    © أميرة سليم - NURSING ACADEMY
+  </div>
+
+</footer>
+
+
+<script src="config.js"></script>
+
+<script>
+
+async function initHome() {
+
+  /* =========================
+     CHECK LOGIN
+  ========================= */
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const heroBtn =
+    document.getElementById("heroBtn");
+
+  const contactBtn =
+    document.getElementById("contactBtn");
+
+
+  if (user) {
+
+    loginBtn.textContent = "لوحة الطالب";
+    loginBtn.href = "student.html";
+
+    heroBtn.textContent = "دخول لوحة الطالب";
+    heroBtn.href = "student.html";
+
+    contactBtn.textContent = "لوحة الطالب";
+    contactBtn.href = "student.html";
+
+  } else {
+
+    loginBtn.textContent = "تسجيل الدخول";
+    loginBtn.href = "login.html";
+
+    heroBtn.textContent = "ابدأ الآن";
+    heroBtn.href = "login.html";
+
+    contactBtn.textContent = "تسجيل الدخول";
+    contactBtn.href = "login.html";
+
+  }
+
+
+  /* =========================
+     LOAD COURSES
+  ========================= */
+
+  const coursesGrid =
+    document.getElementById("coursesGrid");
+
+
+  const {
+    data: courses,
+    error
+  } = await supabaseClient
+    .from("courses")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
+
+
+  if (error || !courses?.length) {
+
+    coursesGrid.innerHTML = `
+      <div class="empty">
+        لا توجد كورسات متاحة حاليًا.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  coursesGrid.innerHTML =
+    courses.map(course => `
+
+      <article class="course">
+
+        <div class="course-icon">
+          🩺
+        </div>
+
+        <span class="tag">
+          دورة تدريبية
+        </span>
+
+        <h3>
+          ${safe(course.title)}
+        </h3>
+
+        <p>
+          ${safe(course.description || "")}
+        </p>
+
+        <a
+          class="course-btn"
+          href="${user ? "student.html" : "login.html"}"
+        >
+          ${user ? "عرض الكورس" : "سجل للدخول"}
+        </a>
+
+      </article>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   SECURITY
+========================= */
+
+function safe(value) {
+
+  return String(value).replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char])
+  );
+
+}
+
+
+initHome();
+
+</script>
+
+</body>
+</html>
