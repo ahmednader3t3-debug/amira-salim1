@@ -1,191 +1,321 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>لوحة الطالب | أميرة سليم</title>
+  <title>الطالب | DR AMIRA SALIM</title>
 
-<link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
 </head>
 
-<body>
+<body class="dashboard">
 
-<header class="header">
+  <!-- HEADER -->
+  <header class="header">
 
-  <div class="container nav">
+    <div class="container nav">
 
-    <a class="brand" href="student.html">
-      <span class="logo">AS</span>
-
-      <span>
-        <b>أميرة سليم</b>
-        <small>NURSING ACADEMY</small>
-      </span>
-    </a>
-
-    <div style="display:flex;align-items:center;gap:12px">
-
-      <button
-        id="profileBtn"
-        class="btn small"
-        type="button"
-        title="حسابي">
-        👤
-      </button>
-
-      <button
-        id="logout"
-        class="btn small"
-        type="button">
-        تسجيل الخروج
-      </button>
-
-    </div>
-
-  </div>
-
-</header>
+      <a href="student.html" class="brand">
+        <span class="brand-main">DR AMIRA SALIM</span>
+        <span class="brand-sub">NURSING COURSES</span>
+      </a>
 
 
-<main class="section">
+      <div class="dashboard-actions">
 
-<div class="container">
-
-  <div class="dashboard-head">
-
-    <div>
-
-      <span class="eyebrow">
-        لوحة الطالب
-      </span>
-
-      <h1 id="welcome">
-        أهلاً بك
-      </h1>
-
-      <p>
-        تابع كورساتك ومحاضراتك وامتحاناتك من مكان واحد.
-      </p>
-
-    </div>
-
-  </div>
+        <!-- DARK / LIGHT -->
+        <button
+          id="themeBtn"
+          class="icon-btn"
+          type="button"
+          title="تغيير المظهر"
+        >
+          🌙
+        </button>
 
 
-  <!-- ACCOUNT -->
-
-  <section
-    id="profilePanel"
-    class="dashboard-section"
-    style="display:none">
-
-    <div class="dashboard-title">
-
-      <div>
-
-        <span class="eyebrow">
-          ACCOUNT
-        </span>
-
-        <h2>
-          حسابي
-        </h2>
-
-      </div>
-
-    </div>
-
-    <div class="course">
-
-      <h3 id="profileName">
-        -
-      </h3>
-
-      <p>
-        البريد الإلكتروني:
-        <strong id="profileEmail">-</strong>
-      </p>
-
-    </div>
-
-  </section>
+        <!-- WHATSAPP -->
+        <a
+          id="whatsappBtn"
+          href="#"
+          target="_blank"
+          class="btn btn-outline"
+        >
+          واتساب
+        </a>
 
 
-  <!-- COURSES -->
+        <!-- ACCOUNT -->
+        <div class="account-menu">
 
-  <section class="dashboard-section">
+          <button
+            id="accountBtn"
+            class="avatar"
+            type="button"
+          >
+            A
+          </button>
 
-    <div class="dashboard-title">
 
-      <div>
+          <div
+            id="accountDropdown"
+            class="account-dropdown"
+          >
 
-        <span class="eyebrow">
-          EDUCATION
-        </span>
+            <div
+              style="
+                padding:10px 12px;
+                border-bottom:1px solid var(--border);
+                margin-bottom:5px;
+              "
+            >
 
-        <h2>
-          كورساتي
-        </h2>
+              <strong id="profileName">
+                الطالب
+              </strong>
+
+              <div
+                id="profileEmail"
+                style="
+                  color:var(--muted);
+                  font-size:11px;
+                  word-break:break-word;
+                "
+              >
+                ...
+              </div>
+
+            </div>
+
+
+            <button id="logoutBtn">
+              🚪 تسجيل الخروج
+            </button>
+
+          </div>
+
+        </div>
 
       </div>
 
     </div>
 
-    <div
-      id="studentCourses"
-      class="grid">
+  </header>
 
-      <div class="loading">
-        جاري تحميل الكورسات...
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+
+    <div class="container">
+
+      <!-- TOP -->
+      <div class="dashboard-top">
+
+        <div class="dashboard-title">
+
+          <h1>
+            أهلاً بيك 👋
+            <span id="welcomeName">...</span>
+          </h1>
+
+          <p>
+            اختار الكورس وابدأ التعلم.
+          </p>
+
+        </div>
+
+
+        <!-- YEAR -->
+        <div style="min-width:200px;">
+
+          <label
+            for="academicYear"
+            style="
+              display:block;
+              font-size:12px;
+              font-weight:700;
+              margin-bottom:6px;
+            "
+          >
+            السنة الدراسية
+          </label>
+
+          <select
+            id="academicYear"
+            style="
+              width:100%;
+              padding:11px 13px;
+              border:1px solid var(--border);
+              border-radius:12px;
+              background:var(--surface);
+              color:var(--text);
+              outline:none;
+            "
+          >
+
+            <option value="1">
+              الفرقة الأولى
+            </option>
+
+            <option value="2">
+              الفرقة الثانية
+            </option>
+
+            <option value="3">
+              الفرقة الثالثة
+            </option>
+
+          </select>
+
+        </div>
+
       </div>
 
+
+      <!-- STATS -->
+      <section class="dashboard-stats">
+
+        <div class="dashboard-stat">
+
+          <span>
+            الكورسات المتاحة
+          </span>
+
+          <strong id="coursesCount">
+            0
+          </strong>
+
+        </div>
+
+
+        <div class="dashboard-stat">
+
+          <span>
+            السنة الدراسية
+          </span>
+
+          <strong id="yearText">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="dashboard-stat">
+
+          <span>
+            الاختبارات
+          </span>
+
+          <strong id="examsCount">
+            0
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- COURSES -->
+      <section>
+
+        <div class="dashboard-section-title">
+
+          <h2>
+            الكورسات
+          </h2>
+
+          <p
+            style="
+              color:var(--muted);
+              font-size:13px;
+            "
+          >
+            الكورسات الخاصة بسنتك الدراسية
+          </p>
+
+        </div>
+
+
+        <div
+          id="coursesGrid"
+          class="cards-grid"
+        >
+
+          <div class="loading-card">
+
+            <div class="loader"></div>
+
+            <p>
+              جاري تحميل الكورسات...
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- LECTURES -->
+      <section
+        id="courseContent"
+        style="
+          display:none;
+          margin-top:55px;
+        "
+      >
+
+        <div class="section-heading">
+
+          <div>
+
+            <span
+              id="selectedCourseYear"
+              class="section-kicker"
+            >
+              COURSE
+            </span>
+
+            <h2 id="selectedCourseTitle">
+              المحاضرات
+            </h2>
+
+            <p id="selectedCourseDescription">
+            </p>
+
+          </div>
+
+
+          <button
+            id="backCoursesBtn"
+            class="btn btn-outline"
+            type="button"
+          >
+            ← كل الكورسات
+          </button>
+
+        </div>
+
+
+        <div
+          id="lecturesList"
+          class="lecture-list"
+        >
+        </div>
+
+      </section>
+
     </div>
 
-  </section>
+  </main>
 
 
-  <!-- LECTURES -->
-
-  <section
-    id="lecturesSection"
-    class="dashboard-section"
-    style="display:none">
-
-    <div class="dashboard-title">
-
-      <div>
-
-        <span class="eyebrow">
-          COURSE CONTENT
-        </span>
-
-        <h2 id="selectedCourseTitle">
-          المحاضرات
-        </h2>
-
-      </div>
-
-    </div>
-
-    <div
-      id="lecturesList"
-      class="dashboard-list">
-
-    </div>
-
-  </section>
-
-</div>
-
-</main>
-
-
-<script src="config.js"></script>
-<script src="student.js"></script>
+  <script src="student.js"></script>
 
 </body>
 </html>
