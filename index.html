@@ -1,819 +1,953 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>DR AMIRA SALIM</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>
+    لوحة تحكم | DR AMIRA SILEM
+  </title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
 </head>
 
 <body>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
+<header class="site-header">
 
-  <header class="header">
+  <div class="container nav">
 
-    <div class="container nav">
+    <a
+      href="index.html?v=2"
+      class="brand"
+    >
+      <span>
+        DR AMIRA SILEM
+      </span>
+    </a>
 
-      <a href="index.html" class="brand">
-        <span class="brand-main">DR AMIRA SALIM</span>
-        <span class="brand-sub">NURSING COURSES</span>
+    <div class="nav-actions">
+
+      <a
+        href="index.html?v=2"
+        class="btn secondary-btn"
+      >
+        الرئيسية
       </a>
 
-      <nav class="nav-links">
-        <a href="#courses">الكورسات</a>
-        <a href="#about">عن الدكتورة</a>
-        <a href="#contact">تواصل معنا</a>
-      </nav>
+      <button
+        id="themeToggle"
+        class="icon-btn"
+        type="button"
+      >
+        🌙
+      </button>
 
-      <div class="nav-actions">
-
-        <button
-          id="themeBtn"
-          class="icon-btn"
-          type="button"
-          title="تغيير المظهر"
-        >
-          🌙
-        </button>
-
-        <a
-          id="accountBtn"
-          href="login.html"
-          class="btn btn-primary"
-        >
-          تسجيل الدخول
-        </a>
-
-      </div>
+      <button
+        id="logoutBtn"
+        class="btn danger-btn"
+        type="button"
+      >
+        تسجيل الخروج
+      </button>
 
     </div>
 
-  </header>
+  </div>
 
+</header>
 
-  <!-- =========================
-       HERO
-  ========================== -->
+<main class="container dashboard-page">
 
-  <main>
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
 
-    <section class="hero">
+  <section class="dashboard-hero">
 
-      <div class="container hero-content">
+    <div>
 
-        <div class="hero-text">
+      <span class="eyebrow">
+        ADMIN DASHBOARD
+      </span>
 
-          <span class="eyebrow">
-            تعليم التمريض بطريقة مختلفة
-          </span>
+      <h1>
+        لوحة تحكم د. أميرة سليم
+      </h1>
 
-          <h1>
-            DR AMIRA SALIM
-          </h1>
+      <p>
+        إدارة الكورسات والمحاضرات والامتحانات وصلاحيات الطلاب.
+      </p>
 
-          <p>
-            كورسات ومحاضرات تمريض منظمة تساعدك تفهم،
-            تراجع، وتختبر نفسك بعد كل محاضرة.
-          </p>
+    </div>
 
-          <div class="hero-buttons">
+  </section>
 
-            <a
-              href="#courses"
-              class="btn btn-primary"
-            >
-              استعرض الكورسات
-            </a>
+  <!-- =====================================================
+       STATS
+  ====================================================== -->
 
-            <a
-              id="heroWhatsappBtn"
-              href="#"
-              target="_blank"
-              rel="noopener"
-              class="btn btn-outline"
-            >
-              تواصل معنا
-            </a>
+  <section class="stats-grid">
 
-          </div>
+    <div class="stat-card">
 
-        </div>
+      <span>
+        الكورسات
+      </span>
 
+      <strong id="coursesCount">
+        0
+      </strong>
 
-        <div class="hero-card">
+    </div>
 
-          <div class="hero-card-icon">
-            🩺
-          </div>
+    <div class="stat-card">
 
-          <h3>
-            تعلم • راجع • اختبر
-          </h3>
+      <span>
+        المحاضرات
+      </span>
 
-          <p>
-            كل كورس يحتوي على محاضرات،
-            فيديوهات، ملفات PDF واختبارات.
-          </p>
+      <strong id="lecturesCount">
+        0
+      </strong>
 
-          <div class="hero-features">
+    </div>
 
-            <span>✓ محاضرات منظمة</span>
-            <span>✓ فيديوهات تعليمية</span>
-            <span>✓ ملفات PDF</span>
-            <span>✓ اختبار بعد كل محاضرة</span>
+    <div class="stat-card">
 
-          </div>
+      <span>
+        الامتحانات
+      </span>
 
-        </div>
+      <strong id="examsCount">
+        0
+      </strong>
 
-      </div>
+    </div>
 
-    </section>
+    <div class="stat-card">
 
+      <span>
+        طلبات الاشتراك
+      </span>
 
-    <!-- =========================
-         COURSES
-    ========================== -->
+      <strong id="requestsCount">
+        0
+      </strong>
 
-    <section id="courses" class="section">
+    </div>
 
-      <div class="container">
+  </section>
 
-        <div class="section-heading">
+  <!-- =====================================================
+       ADMIN MESSAGE
+  ====================================================== -->
 
-          <div>
+  <div
+    id="adminMsg"
+    class="msg"
+  ></div>
 
-            <span class="section-kicker">
-              COURSES
-            </span>
+  <!-- =====================================================
+       ADD COURSE
+  ====================================================== -->
 
-            <h2>
-              الكورسات المتاحة
-            </h2>
+  <section class="admin-panel">
 
-            <p>
-              اختار الكورس المناسب لسنتك الدراسية.
-            </p>
-
-          </div>
-
-          <a
-            id="studentBtn"
-            href="login.html"
-            class="btn btn-outline"
-          >
-            دخول الطالب
-          </a>
-
-        </div>
-
-
-        <div
-          id="coursesGrid"
-          class="cards-grid"
-        >
-
-          <div class="loading-card">
-
-            <div class="loader"></div>
-
-            <p>
-              جاري تحميل الكورسات...
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         ABOUT
-    ========================== -->
-
-    <section
-      id="about"
-      class="section section-soft"
-    >
-
-      <div class="container about-grid">
-
-        <div class="about-box">
-
-          <span class="section-kicker">
-            ABOUT
-          </span>
-
-          <h2>
-            التعليم بشكل أبسط وأوضح
-          </h2>
-
-          <p>
-            منصة تعليمية مخصصة لطلاب التمريض،
-            تجمع المحاضرات والفيديوهات والملفات
-            والاختبارات في مكان واحد.
-          </p>
-
-        </div>
-
-
-        <div class="about-stats">
-
-          <div class="stat-card">
-            <strong>3</strong>
-            <span>سنوات دراسية</span>
-          </div>
-
-          <div class="stat-card">
-            <strong>PDF</strong>
-            <span>ملفات للمراجعة</span>
-          </div>
-
-          <div class="stat-card">
-            <strong>Quiz</strong>
-            <span>اختبار بعد المحاضرة</span>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         CONTACT
-    ========================== -->
-
-    <section
-      id="contact"
-      class="section contact-section"
-    >
-
-      <div class="container contact-card">
-
-        <div>
-
-          <span class="section-kicker">
-            CONTACT
-          </span>
-
-          <h2>
-            محتاج تستفسر عن كورس؟
-          </h2>
-
-          <p>
-            تواصل مباشرة مع د. أميرة سليم عن طريق واتساب.
-          </p>
-
-        </div>
-
-
-        <a
-          id="whatsappBtn"
-          href="#"
-          target="_blank"
-          rel="noopener"
-          class="btn btn-whatsapp"
-        >
-          💬 تواصل عبر واتساب
-        </a>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- =========================
-       FOOTER
-  ========================== -->
-
-  <footer class="footer">
-
-    <div class="container footer-inner">
+    <div class="panel-title">
 
       <div>
 
-        <strong>
-          DR AMIRA SALIM
-        </strong>
+        <h2>
+          📚 إضافة كورس
+        </h2>
 
         <p>
-          تعليم التمريض بطريقة منظمة.
+          أنشئ كورس جديد وحدد السنة والسعر.
         </p>
 
       </div>
 
+    </div>
+
+    <form id="courseForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label for="courseTitle">
+            اسم الكورس
+          </label>
+
+          <input
+            id="courseTitle"
+            type="text"
+            placeholder="مثال: Anatomy"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="courseYear">
+            السنة الدراسية
+          </label>
+
+          <select
+            id="courseYear"
+            required
+          >
+
+            <option value="">
+              اختر السنة
+            </option>
+
+            <option value="1">
+              الفرقة الأولى
+            </option>
+
+            <option value="2">
+              الفرقة الثانية
+            </option>
+
+            <option value="3">
+              الفرقة الثالثة
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="coursePrice">
+            السعر
+          </label>
+
+          <input
+            id="coursePrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="مثال: 500"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="courseImage">
+            رابط صورة الكورس
+          </label>
+
+          <input
+            id="courseImage"
+            type="url"
+            placeholder="https://..."
+          >
+
+        </div>
+
+      </div>
+
+      <div class="form-group">
+
+        <label for="courseDescription">
+          وصف الكورس
+        </label>
+
+        <textarea
+          id="courseDescription"
+          rows="4"
+          placeholder="اكتب وصف الكورس..."
+        ></textarea>
+
+      </div>
+
+      <label class="check-row">
+
+        <input
+          id="courseVisible"
+          type="checkbox"
+          checked
+        >
+
+        <span>
+          إظهار الكورس للطلاب
+        </span>
+
+      </label>
+
+      <button
+        class="btn primary-btn"
+        type="submit"
+      >
+        إضافة الكورس
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- =====================================================
+       ADD LECTURE
+  ====================================================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
       <div>
 
-        © <span id="year"></span>
-        DR AMIRA SALIM
+        <h2>
+          🎥 إضافة محاضرة
+        </h2>
+
+        <p>
+          أضف المحاضرة داخل الكورس مع الفيديو وPDF.
+        </p>
 
       </div>
 
     </div>
 
-  </footer>
+    <form id="lectureForm">
 
+      <div class="form-grid">
 
-  <!-- =========================
-       JAVASCRIPT
-  ========================== -->
+        <div class="form-group">
 
-  <script>
+          <label for="lectureCourse">
+            الكورس
+          </label>
 
-    const coursesGrid =
-      document.getElementById("coursesGrid");
+          <select
+            id="lectureCourse"
+            required
+          >
 
-    const themeBtn =
-      document.getElementById("themeBtn");
+            <option value="">
+              اختر الكورس
+            </option>
 
-    const whatsappBtn =
-      document.getElementById("whatsappBtn");
+          </select>
 
-    const heroWhatsappBtn =
-      document.getElementById("heroWhatsappBtn");
+        </div>
 
-    const accountBtn =
-      document.getElementById("accountBtn");
+        <div class="form-group">
 
-    const studentBtn =
-      document.getElementById("studentBtn");
+          <label for="lectureTitle">
+            اسم المحاضرة
+          </label>
 
-    const yearEl =
-      document.getElementById("year");
+          <input
+            id="lectureTitle"
+            type="text"
+            placeholder="مثال: Bones of the Skull"
+            required
+          >
 
+        </div>
 
-    // =========================
-    // YEAR
-    // =========================
+        <div class="form-group">
 
-    yearEl.textContent =
-      new Date().getFullYear();
+          <label for="lectureOrder">
+            ترتيب المحاضرة
+          </label>
 
+          <input
+            id="lectureOrder"
+            type="number"
+            min="1"
+            value="1"
+            required
+          >
 
-    // =========================
-    // THEME
-    // =========================
+        </div>
 
-    const savedTheme =
-      localStorage.getItem("theme");
+        <div class="form-group">
 
-    if (savedTheme === "dark") {
+          <label for="lectureVideo">
+            فيديو المحاضرة
+          </label>
 
-      document.body.classList.add("dark");
+          <input
+            id="lectureVideo"
+            type="file"
+            accept="video/*"
+          >
 
-      themeBtn.textContent = "☀️";
+        </div>
 
-    }
+        <div class="form-group">
 
+          <label for="lecturePdf">
+            PDF المحاضرة
+          </label>
 
-    themeBtn.addEventListener("click", () => {
+          <input
+            id="lecturePdf"
+            type="file"
+            accept="application/pdf"
+          >
 
-      document.body.classList.toggle("dark");
+        </div>
 
-      const isDark =
-        document.body.classList.contains("dark");
+      </div>
 
-      localStorage.setItem(
-        "theme",
-        isDark ? "dark" : "light"
-      );
+      <div class="form-group">
 
-      themeBtn.textContent =
-        isDark ? "☀️" : "🌙";
+        <label for="lectureDescription">
+          وصف المحاضرة
+        </label>
 
-    });
+        <textarea
+          id="lectureDescription"
+          rows="3"
+          placeholder="وصف مختصر للمحاضرة..."
+        ></textarea>
 
+      </div>
 
-    // =========================
-    // WHATSAPP
-    // =========================
+      <label class="check-row">
 
-    const whatsappLink =
-      whatsappUrl();
+        <input
+          id="lectureFree"
+          type="checkbox"
+        >
 
-    whatsappBtn.href =
-      whatsappLink;
+        <span>
+          محاضرة مجانية / تجريبية
+        </span>
 
-    heroWhatsappBtn.href =
-      whatsappLink;
+      </label>
 
+      <button
+        id="lectureSubmitBtn"
+        class="btn primary-btn"
+        type="submit"
+      >
+        إضافة المحاضرة
+      </button>
 
-    // =========================
-    // ACCOUNT STATUS
-    // =========================
+    </form>
 
-    async function updateAccountButtons() {
+  </section>
 
-      try {
+  <!-- =====================================================
+       FULL EXAM BUILDER
+  ====================================================== -->
 
-        const {
-          data: { user }
-        } =
-          await supabaseClient.auth.getUser();
+  <section class="admin-panel">
 
+    <div class="panel-title">
 
-        // -------------------------
-        // NOT LOGGED IN
-        // -------------------------
+      <div>
 
-        if (!user) {
+        <h2>
+          📝 إنشاء امتحان كامل
+        </h2>
 
-          accountBtn.href =
-            "login.html";
+        <p>
+          أضف الامتحان والأسئلة والاختيارات كلها مرة واحدة.
+        </p>
 
-          accountBtn.textContent =
-            "تسجيل الدخول";
+      </div>
 
-          studentBtn.href =
-            "login.html";
+    </div>
 
-          studentBtn.textContent =
-            "دخول الطالب";
+    <form id="fullExamForm">
 
-          return;
+      <!-- EXAM BASIC DATA -->
 
-        }
+      <div class="form-grid">
 
+        <div class="form-group">
 
-        // -------------------------
-        // GET PROFILE
-        // -------------------------
+          <label for="examLecture">
+            المحاضرة
+          </label>
 
-        const { data: profile } =
-          await supabaseClient
-            .from("profiles")
-            .select("role, full_name")
-            .eq("id", user.id)
-            .maybeSingle();
+          <select
+            id="examLecture"
+            required
+          >
 
+            <option value="">
+              اختر المحاضرة
+            </option>
 
-        // -------------------------
-        // ADMIN
-        // -------------------------
+          </select>
 
-        if (profile?.role === "admin") {
+        </div>
 
-          accountBtn.href =
-            "admin.html";
+        <div class="form-group">
 
-          accountBtn.textContent =
-            "لوحة التحكم";
+          <label for="examTitle">
+            اسم الامتحان
+          </label>
 
-          studentBtn.href =
-            "admin.html";
+          <input
+            id="examTitle"
+            type="text"
+            value="اختبار المحاضرة"
+            required
+          >
 
-          studentBtn.textContent =
-            "لوحة التحكم";
+        </div>
 
-          return;
+        <div class="form-group">
 
-        }
+          <label for="examMaxScore">
+            الدرجة النهائية
+          </label>
 
+          <input
+            id="examMaxScore"
+            type="number"
+            min="1"
+            value="100"
+            required
+          >
 
-        // -------------------------
-        // STUDENT
-        // -------------------------
+        </div>
 
-        accountBtn.href =
-          "student.html";
+      </div>
 
-        accountBtn.textContent =
-          "لوحة الطالب";
+      <div class="form-group">
 
-        studentBtn.href =
-          "student.html";
+        <label for="examDescription">
+          وصف الامتحان
+        </label>
 
-        studentBtn.textContent =
-          "لوحة الطالب";
+        <textarea
+          id="examDescription"
+          rows="3"
+          placeholder="وصف اختياري للامتحان..."
+        ></textarea>
 
-      } catch (error) {
+      </div>
 
-        console.error(
-          "Account check error:",
-          error
-        );
+      <!-- QUESTIONS BUILDER -->
 
-        // الصفحة تفضل شغالة عادي
-        // ومفيش أي redirect للـ login
+      <div class="exam-builder">
 
-      }
+        <div class="exam-builder-header">
 
-    }
-
-
-    // =========================
-    // LOAD COURSES
-    // =========================
-
-    async function loadCourses() {
-
-      const { data, error } =
-        await supabaseClient
-          .from("courses")
-          .select("*")
-          .eq("is_visible", true)
-          .order("academic_year", {
-            ascending: true
-          })
-          .order("created_at", {
-            ascending: false
-          });
-
-
-      if (error) {
-
-        console.error(
-          "Courses error:",
-          error
-        );
-
-        coursesGrid.innerHTML = `
-
-          <div class="empty-card">
+          <div>
 
             <h3>
-              حدث خطأ
+              ❓ أسئلة الامتحان
             </h3>
 
             <p>
-              تعذر تحميل الكورسات حالياً.
+              أضف كل الأسئلة والاختيارات من هنا.
             </p>
 
           </div>
 
-        `;
+          <button
+            id="addQuestionBtn"
+            class="btn secondary-btn"
+            type="button"
+          >
+            + إضافة سؤال
+          </button>
 
-        return;
+        </div>
 
-      }
+        <div
+          id="questionsBuilder"
+        ></div>
 
+      </div>
 
-      if (!data || data.length === 0) {
+      <!-- EXAM MESSAGE -->
 
-        coursesGrid.innerHTML = `
+      <div
+        id="fullExamMsg"
+        class="msg"
+      ></div>
 
-          <div class="empty-card">
+      <!-- SUBMIT -->
 
-            <h3>
-              لسه مفيش كورسات
-            </h3>
+      <button
+        id="fullExamSubmitBtn"
+        class="btn primary-btn"
+        type="submit"
+      >
+        📝 إنشاء الامتحان بالكامل
+      </button>
 
-            <p>
-              سيتم إضافة الكورسات قريباً.
-            </p>
+    </form>
 
-          </div>
+  </section>
 
-        `;
+  <!-- =====================================================
+       STUDENT ACCESS
+  ====================================================== -->
 
-        return;
+  <section class="admin-panel">
 
-      }
+    <div class="panel-title">
 
+      <div>
 
-      coursesGrid.innerHTML =
-        data.map(course => {
+        <h2>
+          🔐 إدارة وصول الطلاب
+        </h2>
 
-          const price =
-            Number(course.price) === 0
-              ? "مجاني"
-              : `${Number(course.price).toLocaleString("ar-EG")} جنيه`;
+        <p>
+          افتح كورس كامل أو محاضرة واحدة لطالب.
+        </p>
 
+      </div>
 
-          const image =
-            course.image_url
+    </div>
 
-              ? `
-                <img
-                  src="${escapeHtml(course.image_url)}"
-                  alt="${escapeHtml(course.title)}"
-                  class="course-image"
-                >
-              `
+    <div class="form-grid">
 
-              : `
-                <div class="course-image-placeholder">
-                  🩺
-                </div>
-              `;
+      <div class="form-group">
 
+        <label for="accessStudent">
+          الطالب
+        </label>
 
-          return `
+        <select id="accessStudent">
 
-            <article class="course-card">
+          <option value="">
+            اختر الطالب
+          </option>
 
-              ${image}
+        </select>
 
-              <div class="course-card-body">
+      </div>
 
-                <div class="course-top">
+      <div class="form-group">
 
-                  <span class="year-badge">
-                    السنة ${course.academic_year}
-                  </span>
+        <label for="accessCourse">
+          الكورس
+        </label>
 
-                  <span class="price-badge">
-                    ${price}
-                  </span>
+        <select id="accessCourse">
 
-                </div>
+          <option value="">
+            اختر الكورس
+          </option>
 
+        </select>
 
-                <h3>
-                  ${escapeHtml(course.title)}
-                </h3>
+      </div>
 
+      <div class="form-group">
 
-                <p>
-                  ${escapeHtml(
-                    course.description ||
-                    "كورس تعليمي شامل لطلاب التمريض."
-                  )}
-                </p>
+        <label for="accessLecture">
+          المحاضرة
+        </label>
 
+        <select id="accessLecture">
 
-                <a
-                  href="${getCourseLink()}"
-                  class="btn btn-primary full-btn"
-                >
-                  ${getCourseButtonText()}
-                </a>
+          <option value="">
+            اختر الكورس أولًا
+          </option>
 
-              </div>
+        </select>
 
-            </article>
+      </div>
 
-          `;
+    </div>
 
-        }).join("");
+    <div class="admin-actions">
 
-    }
+      <button
+        id="openCourseAccessBtn"
+        class="btn success-btn"
+        type="button"
+      >
+        🔓 فتح الكورس بالكامل
+      </button>
 
+      <button
+        id="openLectureAccessBtn"
+        class="btn success-btn"
+        type="button"
+      >
+        📖 فتح المحاضرة فقط
+      </button>
 
-    // =========================
-    // COURSE BUTTON
-    // =========================
+    </div>
 
-    let currentCourseLink =
-      "login.html";
+    <div
+      id="accessMsg"
+      class="msg"
+    ></div>
 
-    let currentCourseButtonText =
-      "دخول للكورس";
+    <div class="table-wrap">
 
+      <table class="admin-table">
 
-    function getCourseLink() {
+        <thead>
 
-      return currentCourseLink;
+          <tr>
 
-    }
+            <th>
+              الطالب
+            </th>
 
+            <th>
+              المحاضرة
+            </th>
 
-    function getCourseButtonText() {
+            <th>
+              الكورس
+            </th>
 
-      return currentCourseButtonText;
+            <th>
+              التاريخ
+            </th>
 
-    }
+            <th>
+              إجراء
+            </th>
 
+          </tr>
 
-    async function updateCourseButtons() {
+        </thead>
 
-      try {
+        <tbody id="lectureAccessTable">
 
-        const {
-          data: { user }
-        } =
-          await supabaseClient.auth.getUser();
+          <tr>
 
+            <td colspan="5">
+              جاري تحميل الصلاحيات...
+            </td>
 
-        if (!user) {
+          </tr>
 
-          currentCourseLink =
-            "login.html";
+        </tbody>
 
-          currentCourseButtonText =
-            "دخول للكورس";
+      </table>
 
-          return;
+    </div>
 
-        }
+  </section>
 
+  <!-- =====================================================
+       REQUESTS
+  ====================================================== -->
 
-        const { data: profile } =
-          await supabaseClient
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .maybeSingle();
+  <section class="admin-panel">
 
+    <div class="panel-title">
 
-        if (profile?.role === "admin") {
+      <div>
 
-          currentCourseLink =
-            "admin.html";
+        <h2>
+          💳 طلبات الاشتراك
+        </h2>
 
-          currentCourseButtonText =
-            "لوحة التحكم";
+        <p>
+          راجع طلبات الطلاب ثم وافق أو ارفض.
+        </p>
 
-          return;
+      </div>
 
-        }
+    </div>
 
+    <div class="table-wrap">
 
-        currentCourseLink =
-          "student.html";
+      <table class="admin-table">
 
-        currentCourseButtonText =
-          "دخول للكورس";
+        <thead>
 
-      } catch (error) {
+          <tr>
 
-        console.error(
-          "Course button error:",
-          error
-        );
+            <th>
+              الطالب
+            </th>
 
-      }
+            <th>
+              الكورس
+            </th>
 
-    }
+            <th>
+              الحالة
+            </th>
 
+            <th>
+              التاريخ
+            </th>
 
-    // =========================
-    // ESCAPE HTML
-    // =========================
+            <th>
+              الإجراء
+            </th>
 
-    function escapeHtml(value) {
+          </tr>
 
-      return String(value ?? "")
+        </thead>
 
-        .replace(
-          /&/g,
-          "&amp;"
-        )
+        <tbody id="requestsTable">
 
-        .replace(
-          /</g,
-          "&lt;"
-        )
+          <tr>
 
-        .replace(
-          />/g,
-          "&gt;"
-        )
+            <td colspan="5">
+              جاري التحميل...
+            </td>
 
-        .replace(
-          /"/g,
-          "&quot;"
-        )
+          </tr>
 
-        .replace(
-          /'/g,
-          "&#039;"
-        );
+        </tbody>
 
-    }
+      </table>
 
+    </div>
 
-    // =========================
-    // START
-    // =========================
+  </section>
 
-    async function initHomePage() {
+  <!-- =====================================================
+       COURSES
+  ====================================================== -->
 
-      await updateAccountButtons();
+  <section class="admin-panel">
 
-      await updateCourseButtons();
+    <div class="panel-title">
 
-      await loadCourses();
+      <div>
 
-    }
+        <h2>
+          📚 الكورسات الحالية
+        </h2>
 
+        <p>
+          من هنا ستقدر على إدارة وحذف الكورسات.
+        </p>
 
-    initHomePage();
+      </div>
 
-  </script>
+    </div>
+
+    <div
+      id="coursesList"
+      class="admin-list"
+    >
+      جاري التحميل...
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       LECTURES
+  ====================================================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+
+        <h2>
+          🎬 المحاضرات الحالية
+        </h2>
+
+        <p>
+          من هنا ستقدر على إدارة وحذف المحاضرات.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div
+      id="lecturesList"
+      class="admin-list"
+    >
+      جاري التحميل...
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       EXAMS
+  ====================================================== -->
+
+  <section class="admin-panel">
+
+    <div class="panel-title">
+
+      <div>
+
+        <h2>
+          📝 الامتحانات الحالية
+        </h2>
+
+        <p>
+          الامتحانات المنشأة داخل المحاضرات.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div
+      id="examsList"
+      class="admin-list"
+    >
+      جاري التحميل...
+    </div>
+
+  </section>
+
+</main>
+
+<!-- =====================================================
+     SUPABASE
+====================================================== -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+<!-- =====================================================
+     CONFIG
+====================================================== -->
+
+<script src="config.js"></script>
+
+<!-- =====================================================
+     ADMIN LOGIC
+====================================================== -->
+
+<script src="admin.js"></script>
 
 </body>
+
 </html>
