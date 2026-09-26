@@ -8,6 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link
     href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
@@ -21,22 +22,36 @@
 <header class="site-header">
   <div class="container nav">
 
-    <a href="index.html" class="brand">
+    <a href="index.html?v=2" class="brand">
       <span>DR AMIRA SALIM</span>
     </a>
 
     <div class="nav-actions">
-      <a href="index.html" class="btn secondary-btn">
+
+      <!-- الرئيسية -->
+      <a
+        href="index.html?v=2"
+        class="btn secondary-btn"
+      >
         الرئيسية
       </a>
 
-      <button id="themeToggle" class="icon-btn" type="button">
+      <button
+        id="themeToggle"
+        class="icon-btn"
+        type="button"
+      >
         🌙
       </button>
 
-      <button id="logoutBtn" class="btn danger-btn" type="button">
+      <button
+        id="logoutBtn"
+        class="btn danger-btn"
+        type="button"
+      >
         تسجيل الخروج
       </button>
+
     </div>
 
   </div>
@@ -47,13 +62,23 @@
 
   <!-- HEADER -->
   <section class="dashboard-hero">
+
     <div>
-      <span class="eyebrow">ADMIN DASHBOARD</span>
-      <h1>لوحة تحكم د. أميرة سليم</h1>
+
+      <span class="eyebrow">
+        ADMIN DASHBOARD
+      </span>
+
+      <h1>
+        لوحة تحكم د. أميرة سليم
+      </h1>
+
       <p>
         إدارة الكورسات والمحاضرات والامتحانات وصلاحيات الطلاب.
       </p>
+
     </div>
+
   </section>
 
 
@@ -84,7 +109,10 @@
 
 
   <!-- MESSAGE -->
-  <div id="adminMsg" class="msg"></div>
+  <div
+    id="adminMsg"
+    class="msg"
+  ></div>
 
 
   <!-- =========================
@@ -94,18 +122,31 @@
   <section class="admin-panel">
 
     <div class="panel-title">
+
       <div>
-        <h2>📚 إضافة كورس</h2>
-        <p>أنشئ كورس جديد وحدد السنة والسعر.</p>
+
+        <h2>
+          📚 إضافة كورس
+        </h2>
+
+        <p>
+          أنشئ كورس جديد وحدد السنة والسعر.
+        </p>
+
       </div>
+
     </div>
+
 
     <form id="courseForm">
 
       <div class="form-grid">
 
         <div class="form-group">
-          <label for="courseTitle">اسم الكورس</label>
+
+          <label for="courseTitle">
+            اسم الكورس
+          </label>
 
           <input
             id="courseTitle"
@@ -113,23 +154,47 @@
             placeholder="مثال: Anatomy"
             required
           >
+
         </div>
 
 
         <div class="form-group">
-          <label for="courseYear">السنة الدراسية</label>
 
-          <select id="courseYear" required>
-            <option value="">اختر السنة</option>
-            <option value="1">الفرقة الأولى</option>
-            <option value="2">الفرقة الثانية</option>
-            <option value="3">الفرقة الثالثة</option>
+          <label for="courseYear">
+            السنة الدراسية
+          </label>
+
+          <select
+            id="courseYear"
+            required
+          >
+
+            <option value="">
+              اختر السنة
+            </option>
+
+            <option value="1">
+              الفرقة الأولى
+            </option>
+
+            <option value="2">
+              الفرقة الثانية
+            </option>
+
+            <option value="3">
+              الفرقة الثالثة
+            </option>
+
           </select>
+
         </div>
 
 
         <div class="form-group">
-          <label for="coursePrice">السعر</label>
+
+          <label for="coursePrice">
+            السعر
+          </label>
 
           <input
             id="coursePrice"
@@ -139,45 +204,61 @@
             placeholder="مثال: 500"
             required
           >
+
         </div>
 
 
         <div class="form-group">
-          <label for="courseImage">رابط صورة الكورس</label>
+
+          <label for="courseImage">
+            رابط صورة الكورس
+          </label>
 
           <input
             id="courseImage"
             type="url"
             placeholder="https://..."
           >
+
         </div>
 
       </div>
 
 
       <div class="form-group">
-        <label for="courseDescription">وصف الكورس</label>
+
+        <label for="courseDescription">
+          وصف الكورس
+        </label>
 
         <textarea
           id="courseDescription"
           rows="4"
           placeholder="اكتب وصف الكورس..."
         ></textarea>
+
       </div>
 
 
       <label class="check-row">
+
         <input
           id="courseVisible"
           type="checkbox"
           checked
         >
 
-        <span>إظهار الكورس للطلاب</span>
+        <span>
+          إظهار الكورس للطلاب
+        </span>
+
       </label>
 
 
-      <button class="btn primary-btn" type="submit">
+      <button
+        class="btn primary-btn"
+        type="submit"
+      >
         إضافة الكورس
       </button>
 
@@ -193,12 +274,19 @@
   <section class="admin-panel">
 
     <div class="panel-title">
+
       <div>
-        <h2>🎥 إضافة محاضرة</h2>
+
+        <h2>
+          🎥 إضافة محاضرة
+        </h2>
+
         <p>
           المحاضرة تكون داخل كورس محدد ويمكن أن تحتوي على فيديو وPDF.
         </p>
+
       </div>
+
     </div>
 
 
@@ -207,16 +295,30 @@
       <div class="form-grid">
 
         <div class="form-group">
-          <label for="lectureCourse">الكورس</label>
 
-          <select id="lectureCourse" required>
-            <option value="">اختر الكورس</option>
+          <label for="lectureCourse">
+            الكورس
+          </label>
+
+          <select
+            id="lectureCourse"
+            required
+          >
+
+            <option value="">
+              اختر الكورس
+            </option>
+
           </select>
+
         </div>
 
 
         <div class="form-group">
-          <label for="lectureTitle">اسم المحاضرة</label>
+
+          <label for="lectureTitle">
+            اسم المحاضرة
+          </label>
 
           <input
             id="lectureTitle"
@@ -224,11 +326,15 @@
             placeholder="مثال: Bones of the Skull"
             required
           >
+
         </div>
 
 
         <div class="form-group">
-          <label for="lectureOrder">ترتيب المحاضرة</label>
+
+          <label for="lectureOrder">
+            ترتيب المحاضرة
+          </label>
 
           <input
             id="lectureOrder"
@@ -237,34 +343,44 @@
             value="1"
             required
           >
+
         </div>
 
 
         <div class="form-group">
-          <label for="lectureVideo">فيديو المحاضرة</label>
+
+          <label for="lectureVideo">
+            فيديو المحاضرة
+          </label>
 
           <input
             id="lectureVideo"
             type="file"
             accept="video/*"
           >
+
         </div>
 
 
         <div class="form-group">
-          <label for="lecturePdf">PDF المحاضرة</label>
+
+          <label for="lecturePdf">
+            PDF المحاضرة
+          </label>
 
           <input
             id="lecturePdf"
             type="file"
             accept="application/pdf"
           >
+
         </div>
 
       </div>
 
 
       <div class="form-group">
+
         <label for="lectureDescription">
           وصف المحاضرة
         </label>
@@ -274,6 +390,7 @@
           rows="3"
           placeholder="وصف مختصر للمحاضرة..."
         ></textarea>
+
       </div>
 
 
@@ -311,10 +428,19 @@
   <section class="admin-panel">
 
     <div class="panel-title">
+
       <div>
-        <h2>📝 إنشاء امتحان</h2>
-        <p>اربط امتحان بمحاضرة محددة.</p>
+
+        <h2>
+          📝 إنشاء امتحان
+        </h2>
+
+        <p>
+          اربط امتحان بمحاضرة محددة.
+        </p>
+
       </div>
+
     </div>
 
 
@@ -328,10 +454,15 @@
             المحاضرة
           </label>
 
-          <select id="examLecture" required>
+          <select
+            id="examLecture"
+            required
+          >
+
             <option value="">
               اختر المحاضرة
             </option>
+
           </select>
 
         </div>
@@ -405,10 +536,19 @@
   <section class="admin-panel">
 
     <div class="panel-title">
+
       <div>
-        <h2>❓ إضافة سؤال</h2>
-        <p>أضف السؤال إلى امتحان محدد.</p>
+
+        <h2>
+          ❓ إضافة سؤال
+        </h2>
+
+        <p>
+          أضف السؤال إلى امتحان محدد.
+        </p>
+
       </div>
+
     </div>
 
 
@@ -422,10 +562,15 @@
             الامتحان
           </label>
 
-          <select id="questionExam" required>
+          <select
+            id="questionExam"
+            required
+          >
+
             <option value="">
               اختر الامتحان
             </option>
+
           </select>
 
         </div>
@@ -484,10 +629,19 @@
   <section class="admin-panel">
 
     <div class="panel-title">
+
       <div>
-        <h2>🔘 إضافة اختيار</h2>
-        <p>أضف الاختيارات وحدد الإجابة الصحيحة.</p>
+
+        <h2>
+          🔘 إضافة اختيار
+        </h2>
+
+        <p>
+          أضف الاختيارات وحدد الإجابة الصحيحة.
+        </p>
+
       </div>
+
     </div>
 
 
@@ -501,10 +655,15 @@
             السؤال
           </label>
 
-          <select id="optionQuestion" required>
+          <select
+            id="optionQuestion"
+            required
+          >
+
             <option value="">
               اختر السؤال
             </option>
+
           </select>
 
         </div>
@@ -579,11 +738,15 @@
     <div class="panel-title">
 
       <div>
-        <h2>🔐 إدارة وصول الطلاب</h2>
+
+        <h2>
+          🔐 إدارة وصول الطلاب
+        </h2>
 
         <p>
           بعد تأكيد التحويل يمكنك فتح كورس كامل أو محاضرة واحدة لطالب.
         </p>
+
       </div>
 
     </div>
@@ -666,7 +829,10 @@
     </div>
 
 
-    <div id="accessMsg" class="msg"></div>
+    <div
+      id="accessMsg"
+      class="msg"
+    ></div>
 
 
     <div class="table-wrap">
@@ -676,21 +842,40 @@
         <thead>
 
           <tr>
-            <th>الطالب</th>
-            <th>المحاضرة</th>
-            <th>الكورس</th>
-            <th>التاريخ</th>
-            <th>إجراء</th>
+
+            <th>
+              الطالب
+            </th>
+
+            <th>
+              المحاضرة
+            </th>
+
+            <th>
+              الكورس
+            </th>
+
+            <th>
+              التاريخ
+            </th>
+
+            <th>
+              إجراء
+            </th>
+
           </tr>
 
         </thead>
 
+
         <tbody id="lectureAccessTable">
 
           <tr>
+
             <td colspan="5">
               جاري تحميل الصلاحيات...
             </td>
+
           </tr>
 
         </tbody>
@@ -711,11 +896,15 @@
     <div class="panel-title">
 
       <div>
-        <h2>💳 طلبات الاشتراك</h2>
+
+        <h2>
+          💳 طلبات الاشتراك
+        </h2>
 
         <p>
           راجع طلبات الطلاب ثم وافق أو ارفض.
         </p>
+
       </div>
 
     </div>
@@ -728,21 +917,40 @@
         <thead>
 
           <tr>
-            <th>الطالب</th>
-            <th>الكورس</th>
-            <th>الحالة</th>
-            <th>التاريخ</th>
-            <th>الإجراء</th>
+
+            <th>
+              الطالب
+            </th>
+
+            <th>
+              الكورس
+            </th>
+
+            <th>
+              الحالة
+            </th>
+
+            <th>
+              التاريخ
+            </th>
+
+            <th>
+              الإجراء
+            </th>
+
           </tr>
 
         </thead>
 
+
         <tbody id="requestsTable">
 
           <tr>
+
             <td colspan="5">
               جاري التحميل...
             </td>
+
           </tr>
 
         </tbody>
@@ -763,16 +971,21 @@
     <div class="panel-title">
 
       <div>
-        <h2>📚 الكورسات الحالية</h2>
+
+        <h2>
+          📚 الكورسات الحالية
+        </h2>
+
       </div>
 
     </div>
 
 
-    <div id="coursesList" class="admin-list">
-
+    <div
+      id="coursesList"
+      class="admin-list"
+    >
       جاري التحميل...
-
     </div>
 
   </section>
@@ -787,16 +1000,21 @@
     <div class="panel-title">
 
       <div>
-        <h2>🎬 المحاضرات الحالية</h2>
+
+        <h2>
+          🎬 المحاضرات الحالية
+        </h2>
+
       </div>
 
     </div>
 
 
-    <div id="lecturesList" class="admin-list">
-
+    <div
+      id="lecturesList"
+      class="admin-list"
+    >
       جاري التحميل...
-
     </div>
 
   </section>
@@ -811,16 +1029,21 @@
     <div class="panel-title">
 
       <div>
-        <h2>📝 الامتحانات الحالية</h2>
+
+        <h2>
+          📝 الامتحانات الحالية
+        </h2>
+
       </div>
 
     </div>
 
 
-    <div id="examsList" class="admin-list">
-
+    <div
+      id="examsList"
+      class="admin-list"
+    >
       جاري التحميل...
-
     </div>
 
   </section>
@@ -828,9 +1051,13 @@
 </main>
 
 
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- CONFIG -->
 <script src="config.js"></script>
+
+<!-- ADMIN LOGIC -->
 <script src="admin.js"></script>
 
 </body>
