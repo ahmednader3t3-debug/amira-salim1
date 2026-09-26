@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>اختبار المحاضرة | DR AMIRA SALIM</title>
+  <title>الاختبار | DR AMIRA SALIM</title>
 
   <link rel="stylesheet" href="style.css">
 
@@ -15,153 +16,177 @@
 
 <body>
 
-  <header class="site-header">
+<header class="site-header">
 
-    <div class="container nav-container">
+  <div class="container nav-container">
 
-      <a href="index.html" class="logo">
-        DR AMIRA SALIM
+    <a href="index.html" class="logo">
+      DR AMIRA SALIM
+    </a>
+
+    <div class="nav-actions">
+
+      <button id="themeBtn" class="icon-btn">
+        🌙
+      </button>
+
+      <a href="student.html" class="btn secondary-btn">
+        لوحة الطالب
       </a>
 
-      <div class="nav-actions">
+    </div>
 
-        <button id="themeBtn" class="icon-btn">
-          🌙
-        </button>
+  </div>
 
-        <a href="student.html" class="btn secondary-btn">
-          لوحة الطالب
-        </a>
+</header>
 
-      </div>
+
+<main class="container">
+
+  <section class="exam-page">
+
+    <div id="examLoading" class="loading">
+      جاري تحميل الاختبار...
+    </div>
+
+
+    <div
+      id="examError"
+      class="empty-state"
+      style="display:none;"
+    >
+
+      <h3>
+        تعذر تحميل الاختبار
+      </h3>
+
+      <p id="examErrorText"></p>
+
+      <a
+        href="student.html"
+        class="btn primary-btn"
+      >
+        العودة للوحة الطالب
+      </a>
 
     </div>
 
-  </header>
 
+    <div
+      id="examContent"
+      style="display:none;"
+    >
 
-  <main class="container">
+      <div class="exam-header">
 
-    <section class="exam-page">
+        <span class="badge">
+          اختبار المحاضرة
+        </span>
 
-      <div id="examLoading" class="loading">
-        جاري تحميل الاختبار...
-      </div>
+        <h1 id="examTitle">
+          —
+        </h1>
 
+        <p id="examDescription"></p>
 
-      <div id="examContent" style="display:none;">
+        <div class="exam-info">
 
-        <div class="exam-header">
-
-          <span class="badge">
-            اختبار المحاضرة
+          <span>
+            المحاضرة:
+            <strong id="lectureTitle">—</strong>
           </span>
 
-          <h1 id="examTitle">
-            اختبار
-          </h1>
-
-          <p id="examDescription"></p>
-
-        </div>
-
-
-        <div class="exam-card">
-
-          <div class="exam-info">
-
-            <div>
-              <strong>المحاضرة:</strong>
-
-              <span id="lectureTitle">
-                —
-              </span>
-            </div>
-
-            <div>
-              <strong>الدرجة النهائية:</strong>
-
-              <span id="maxScore">
-                —
-              </span>
-            </div>
-
-          </div>
-
-
-          <div id="examNoUrl" class="empty-state" style="display:none;">
-
-            <h3>
-              الاختبار غير متاح حاليًا
-            </h3>
-
-            <p>
-              لم يتم إضافة رابط الاختبار من لوحة الإدارة بعد.
-            </p>
-
-          </div>
-
-
-          <div id="examReady" style="display:none;">
-
-            <p class="exam-note">
-              اضغط على الزر بالأسفل لفتح الاختبار.
-            </p>
-
-            <a
-              id="openExamBtn"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn primary-btn"
-            >
-              بدء الاختبار
-            </a>
-
-          </div>
+          <span>
+            الدرجة:
+            <strong id="maxScore">—</strong>
+          </span>
 
         </div>
 
       </div>
 
 
-      <div
-        id="examError"
-        class="empty-state"
-        style="display:none;"
-      >
-        <h3>
-          تعذر تحميل الاختبار
-        </h3>
+      <form id="examForm">
 
-        <p id="examErrorText">
-          حدث خطأ غير متوقع.
-        </p>
+        <div id="questionsContainer"></div>
 
-        <a
-          href="student.html"
-          class="btn primary-btn"
+        <button
+          id="submitExamBtn"
+          type="submit"
+          class="btn primary-btn exam-submit-btn"
         >
-          العودة للوحة الطالب
-        </a>
-      </div>
+          إرسال الاختبار
+        </button>
 
-    </section>
-
-  </main>
-
-
-  <footer class="site-footer">
-
-    <div class="container">
-
-      <p>
-        © 2026 DR AMIRA SALIM — Nursing Courses
-      </p>
+      </form>
 
     </div>
 
-  </footer>
+
+    <div
+      id="resultContent"
+      style="display:none;"
+      class="result-card"
+    >
+
+      <div class="result-icon">
+        ✓
+      </div>
+
+      <span class="badge">
+        تم تصحيح الاختبار
+      </span>
+
+      <h2>
+        نتيجتك
+      </h2>
+
+      <div class="result-score">
+
+        <strong id="resultScore">
+          0
+        </strong>
+
+        <span>
+          /
+          <span id="resultMaxScore">
+            0
+          </span>
+        </span>
+
+      </div>
+
+      <p id="resultPercentage">
+        0%
+      </p>
+
+      <p id="resultMessage"></p>
+
+      <a
+        href="student.html"
+        class="btn primary-btn"
+      >
+        العودة للوحة الطالب
+      </a>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer class="site-footer">
+
+  <div class="container">
+
+    <p>
+      © 2026 DR AMIRA SALIM — Nursing Courses
+    </p>
+
+  </div>
+
+</footer>
 
 </body>
 </html>
