@@ -4,22 +4,24 @@ const adminEmail = document.getElementById("adminEmail");
 const coursesList = document.getElementById("coursesList");
 const lecturesList = document.getElementById("lecturesList");
 const requestsList = document.getElementById("requestsList");
+const examsList = document.getElementById("examsList");
 
 const lectureCourse = document.getElementById("lectureCourse");
 const examLecture = document.getElementById("examLecture");
 
+const questionExam = document.getElementById("questionExam");
+const optionQuestion = document.getElementById("optionQuestion");
+
 const courseForm = document.getElementById("courseForm");
 const lectureForm = document.getElementById("lectureForm");
 const examForm = document.getElementById("examForm");
+const questionForm = document.getElementById("questionForm");
+const optionForm = document.getElementById("optionForm");
 
 const statsCourses = document.getElementById("statsCourses");
 const statsLectures = document.getElementById("statsLectures");
 const statsRequests = document.getElementById("statsRequests");
 
-
-// ===============================
-// أدوات مساعدة
-// ===============================
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -30,16 +32,13 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-function showMessage(message, type = "ok") {
-  alert(message);
-}
 
-
-// ===============================
-// حماية صفحة الأدمن
-// ===============================
+// =====================================
+// حماية لوحة الإدارة
+// =====================================
 
 async function checkAdmin() {
+
   const {
     data: { user },
     error
@@ -50,11 +49,12 @@ async function checkAdmin() {
     return null;
   }
 
-  const { data: profile, error: profileError } = await supabaseClient
-    .from("profiles")
-    .select("id, full_name, email, role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const { data: profile, error: profileError } =
+    await supabaseClient
+      .from("profiles")
+      .select("id, full_name, email, role")
+      .eq("id", user.id)
+      .maybeSingle();
 
   if (
     profileError ||
@@ -66,23 +66,22 @@ async function checkAdmin() {
     return null;
   }
 
-  if (adminName) {
-    adminName.textContent = profile.full_name || "Admin";
-  }
+  adminName.textContent =
+    profile.full_name || "Admin";
 
-  if (adminEmail) {
-    adminEmail.textContent = profile.email || user.email || "";
-  }
+  adminEmail.textContent =
+    profile.email || user.email || "";
 
   return user;
 }
 
 
-// ===============================
+// =====================================
 // تحميل الكورسات
-// ===============================
+// =====================================
 
 async function loadCourses() {
+
   const { data, error } = await supabaseClient
     .from("courses")
     .select("*")
@@ -91,13 +90,12 @@ async function loadCourses() {
 
   if (error) {
     console.error(error);
-    coursesList.innerHTML = "<p>حدث خطأ أثناء تحميل الكورسات.</p>";
+    coursesList.innerHTML =
+      "<p>حدث خطأ أثناء تحميل الكورسات.</p>";
     return [];
   }
 
-  if (statsCourses) {
-    statsCourses.textContent = data.length;
-  }
+  statsCourses.textContent = data.length;
 
   renderCourses(data);
   fillCourseSelect(data);
@@ -107,6 +105,7 @@ async function loadCourses() {
 
 
 function renderCourses(courses) {
+
   if (!courses.length) {
     coursesList.innerHTML = `
       <div class="empty-state">
@@ -117,28 +116,35 @@ function renderCourses(courses) {
   }
 
   coursesList.innerHTML = courses.map(course => `
+
     <div class="admin-card">
 
       <div class="admin-card-info">
 
-        <h3>${escapeHtml(course.title)}</h3>
+        <h3>
+          ${escapeHtml(course.title)}
+        </h3>
 
         <p>
           ${escapeHtml(course.description || "بدون وصف")}
         </p>
 
         <div class="admin-meta">
+
           <span>
             السنة: ${course.academic_year}
           </span>
 
           <span>
-            السعر: ${Number(course.price).toFixed(2)} جنيه
+            السعر:
+            ${Number(course.price).toFixed(2)}
+            جنيه
           </span>
 
           <span>
             ${course.is_visible ? "ظاهر" : "مخفي"}
           </span>
+
         </div>
 
       </div>
@@ -149,47 +155,40 @@ function renderCourses(courses) {
           class="danger-btn"
           onclick="deleteCourse('${course.id}')"
         >
-          حذف الكورس
+          حذف
         </button>
 
       </div>
 
     </div>
+
   `).join("");
 }
 
 
-// ===============================
-// اختيار الكورس عند إضافة محاضرة
-// ===============================
-
 function fillCourseSelect(courses) {
-  if (!lectureCourse) return;
-
-  if (!courses.length) {
-    lectureCourse.innerHTML = `
-      <option value="">لا توجد كورسات</option>
-    `;
-    return;
-  }
 
   lectureCourse.innerHTML = `
-    <option value="">اختر الكورس</option>
+    <option value="">
+      اختر الكورس
+    </option>
 
     ${courses.map(course => `
       <option value="${course.id}">
-        ${escapeHtml(course.title)} - السنة ${course.academic_year}
+        ${escapeHtml(course.title)}
+        — السنة ${course.academic_year}
       </option>
     `).join("")}
   `;
 }
 
 
-// ===============================
+// =====================================
 // تحميل المحاضرات
-// ===============================
+// =====================================
 
 async function loadLectures() {
+
   const { data, error } = await supabaseClient
     .from("lectures")
     .select(`
@@ -199,18 +198,17 @@ async function loadLectures() {
         academic_year
       )
     `)
-    .order("course_id", { ascending: true })
-    .order("lecture_order", { ascending: true });
+    .order("course_id")
+    .order("lecture_order");
 
   if (error) {
     console.error(error);
-    lecturesList.innerHTML = "<p>حدث خطأ أثناء تحميل المحاضرات.</p>";
+    lecturesList.innerHTML =
+      "<p>حدث خطأ أثناء تحميل المحاضرات.</p>";
     return [];
   }
 
-  if (statsLectures) {
-    statsLectures.textContent = data.length;
-  }
+  statsLectures.textContent = data.length;
 
   renderLectures(data);
   fillExamLectureSelect(data);
@@ -220,6 +218,7 @@ async function loadLectures() {
 
 
 function renderLectures(lectures) {
+
   if (!lectures.length) {
     lecturesList.innerHTML = `
       <div class="empty-state">
@@ -230,6 +229,7 @@ function renderLectures(lectures) {
   }
 
   lecturesList.innerHTML = lectures.map(lecture => `
+
     <div class="admin-card">
 
       <div class="admin-card-info">
@@ -240,30 +240,28 @@ function renderLectures(lectures) {
 
         <p>
           الكورس:
-          ${escapeHtml(lecture.courses?.title || "غير معروف")}
+          ${escapeHtml(
+            lecture.courses?.title || "غير معروف"
+          )}
         </p>
 
         <div class="admin-meta">
 
           <span>
-            المحاضرة رقم ${lecture.lecture_order}
+            رقم ${lecture.lecture_order}
           </span>
 
           <span>
             ${lecture.is_free ? "مجانية" : "مقفولة"}
           </span>
 
-          ${
-            lecture.video_url
-              ? `<span>فيديو ✓</span>`
-              : `<span>فيديو ✕</span>`
-          }
+          <span>
+            ${lecture.video_url ? "فيديو ✓" : "فيديو ✕"}
+          </span>
 
-          ${
-            lecture.pdf_url
-              ? `<span>PDF ✓</span>`
-              : `<span>PDF ✕</span>`
-          }
+          <span>
+            ${lecture.pdf_url ? "PDF ✓" : "PDF ✕"}
+          </span>
 
         </div>
 
@@ -275,36 +273,29 @@ function renderLectures(lectures) {
           class="danger-btn"
           onclick="deleteLecture('${lecture.id}')"
         >
-          حذف المحاضرة
+          حذف
         </button>
 
       </div>
 
     </div>
+
   `).join("");
 }
 
 
-// ===============================
-// اختيار المحاضرة عند إضافة اختبار
-// ===============================
-
 function fillExamLectureSelect(lectures) {
-  if (!examLecture) return;
-
-  if (!lectures.length) {
-    examLecture.innerHTML = `
-      <option value="">لا توجد محاضرات</option>
-    `;
-    return;
-  }
 
   examLecture.innerHTML = `
-    <option value="">اختر المحاضرة</option>
+    <option value="">
+      اختر المحاضرة
+    </option>
 
     ${lectures.map(lecture => `
       <option value="${lecture.id}">
-        ${escapeHtml(lecture.courses?.title || "")}
+        ${escapeHtml(
+          lecture.courses?.title || ""
+        )}
         — ${escapeHtml(lecture.title)}
       </option>
     `).join("")}
@@ -312,195 +303,415 @@ function fillExamLectureSelect(lectures) {
 }
 
 
-// ===============================
-// تحميل طلبات الاشتراك
-// ===============================
+// =====================================
+// تحميل الاختبارات
+// =====================================
 
-async function loadRequests() {
+async function loadExams() {
+
   const { data, error } = await supabaseClient
-    .from("course_requests")
+    .from("lecture_exams")
     .select(`
       id,
-      status,
-      created_at,
-      student_id,
-      course_id,
-      courses (
+      title,
+      description,
+      max_score,
+      lecture_id,
+      lectures (
         title,
-        price
-      ),
-      profiles (
-        full_name,
-        email
+        course_id,
+        courses (
+          title
+        )
       )
     `)
     .order("created_at", { ascending: false });
 
   if (error) {
     console.error(error);
-    requestsList.innerHTML = `
-      <p>حدث خطأ أثناء تحميل طلبات الاشتراك.</p>
-    `;
+    examsList.innerHTML =
+      "<p>حدث خطأ أثناء تحميل الاختبارات.</p>";
     return [];
   }
 
-  if (statsRequests) {
-    const pendingCount = data.filter(
-      request => request.status === "pending"
-    ).length;
+  renderExams(data);
+  fillExamSelect(data);
 
-    statsRequests.textContent = pendingCount;
-  }
-
-  renderRequests(data);
+  await loadQuestions();
 
   return data;
 }
 
 
-function renderRequests(requests) {
-  if (!requests.length) {
-    requestsList.innerHTML = `
+function renderExams(exams) {
+
+  if (!exams.length) {
+    examsList.innerHTML = `
       <div class="empty-state">
-        لا توجد طلبات اشتراك.
+        لا توجد اختبارات حتى الآن.
       </div>
     `;
     return;
   }
 
-  requestsList.innerHTML = requests.map(request => {
+  examsList.innerHTML = exams.map(exam => `
 
-    let statusText = "قيد الانتظار";
-    let statusClass = "pending";
+    <div class="admin-card">
 
-    if (request.status === "approved") {
-      statusText = "تمت الموافقة";
-      statusClass = "approved";
-    }
+      <div class="admin-card-info">
 
-    if (request.status === "rejected") {
-      statusText = "مرفوض";
-      statusClass = "rejected";
-    }
+        <h3>
+          ${escapeHtml(exam.title)}
+        </h3>
 
-    return `
-      <div class="admin-card">
+        <p>
+          الكورس:
+          ${escapeHtml(
+            exam.lectures?.courses?.title || ""
+          )}
+        </p>
 
-        <div class="admin-card-info">
+        <p>
+          المحاضرة:
+          ${escapeHtml(
+            exam.lectures?.title || ""
+          )}
+        </p>
 
-          <h3>
-            ${escapeHtml(
-              request.profiles?.full_name || "طالب"
-            )}
-          </h3>
+        <div class="admin-meta">
 
-          <p>
-            ${escapeHtml(
-              request.profiles?.email || ""
-            )}
-          </p>
-
-          <p>
-            الكورس:
-            <strong>
-              ${escapeHtml(
-                request.courses?.title || "غير معروف"
-              )}
-            </strong>
-          </p>
-
-          <div class="admin-meta">
-
-            <span>
-              السعر:
-              ${Number(
-                request.courses?.price || 0
-              ).toFixed(2)} جنيه
-            </span>
-
-            <span class="request-status ${statusClass}">
-              ${statusText}
-            </span>
-
-          </div>
-
-        </div>
-
-        <div class="admin-actions">
-
-          ${
-            request.status === "pending"
-              ? `
-                <button
-                  class="success-btn"
-                  onclick="approveRequest(
-                    '${request.id}',
-                    '${request.student_id}',
-                    '${request.course_id}'
-                  )"
-                >
-                  موافقة
-                </button>
-
-                <button
-                  class="danger-btn"
-                  onclick="rejectRequest('${request.id}')"
-                >
-                  رفض
-                </button>
-              `
-              : ""
-          }
+          <span>
+            الدرجة:
+            ${exam.max_score}
+          </span>
 
         </div>
 
       </div>
-    `;
-  }).join("");
+
+    </div>
+
+  `).join("");
 }
 
 
-// ===============================
-// إضافة كورس
-// ===============================
+function fillExamSelect(exams) {
 
-if (courseForm) {
-  courseForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  questionExam.innerHTML = `
+    <option value="">
+      اختر الاختبار
+    </option>
 
-    const title =
-      document.getElementById("courseTitle").value.trim();
+    ${exams.map(exam => `
+      <option value="${exam.id}">
+        ${escapeHtml(exam.title)}
+        — ${escapeHtml(
+          exam.lectures?.title || ""
+        )}
+      </option>
+    `).join("")}
+  `;
+}
 
-    const description =
-      document.getElementById("courseDescription").value.trim();
 
-    const academicYear =
-      Number(
-        document.getElementById("courseYear").value
+// =====================================
+// إضافة / تحديث اختبار
+// =====================================
+
+examForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const lectureId =
+    examLecture.value;
+
+  const title =
+    document.getElementById("examTitle")
+      .value.trim();
+
+  const description =
+    document.getElementById("examDescription")
+      .value.trim();
+
+  const maxScore =
+    Number(
+      document.getElementById("examMaxScore")
+        .value
+    );
+
+  if (
+    !lectureId ||
+    !title ||
+    !Number.isFinite(maxScore) ||
+    maxScore <= 0
+  ) {
+    alert("راجع بيانات الاختبار.");
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("lecture_exams")
+      .upsert(
+        {
+          lecture_id: lectureId,
+          title,
+          description,
+          max_score: maxScore
+        },
+        {
+          onConflict: "lecture_id"
+        }
       );
 
-    const price =
-      Number(
-        document.getElementById("coursePrice").value
-      );
+  if (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء حفظ الاختبار.");
+    return;
+  }
 
-    const imageUrl =
-      document.getElementById("courseImage").value.trim();
+  alert("تم حفظ الاختبار بنجاح.");
 
-    const isVisible =
-      document.getElementById("courseVisible").checked;
+  examForm.reset();
 
-    if (
-      !title ||
-      ![1, 2, 3].includes(academicYear) ||
-      Number.isNaN(price) ||
-      price < 0
-    ) {
-      alert("راجع بيانات الكورس.");
+  await loadExams();
+});
+
+
+// =====================================
+// إضافة سؤال
+// =====================================
+
+questionForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const examId =
+    questionExam.value;
+
+  const questionText =
+    document.getElementById("questionText")
+      .value.trim();
+
+  const questionOrder =
+    Number(
+      document.getElementById("questionOrder")
+        .value
+    );
+
+  if (
+    !examId ||
+    !questionText ||
+    !Number.isFinite(questionOrder) ||
+    questionOrder < 1
+  ) {
+    alert("راجع بيانات السؤال.");
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
+      .from("exam_questions")
+      .insert({
+        exam_id: examId,
+        question_text: questionText,
+        question_order: questionOrder
+      });
+
+  if (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء إضافة السؤال.");
+    return;
+  }
+
+  alert("تم إضافة السؤال.");
+
+  questionForm.reset();
+
+  await loadQuestions();
+});
+
+
+// =====================================
+// تحميل الأسئلة
+// =====================================
+
+async function loadQuestions() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("exam_questions")
+      .select(`
+        id,
+        question_text,
+        question_order,
+        exam_id,
+        lecture_exams (
+          title
+        )
+      `)
+      .order("exam_id")
+      .order("question_order");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  fillQuestionSelect(data);
+}
+
+
+function fillQuestionSelect(questions) {
+
+  optionQuestion.innerHTML = `
+    <option value="">
+      اختر السؤال
+    </option>
+
+    ${questions.map(question => `
+      <option value="${question.id}">
+        ${escapeHtml(
+          question.lecture_exams?.title || ""
+        )}
+        — ${escapeHtml(
+          question.question_text
+        )}
+      </option>
+    `).join("")}
+  `;
+}
+
+
+// =====================================
+// إضافة اختيار
+// =====================================
+
+optionForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const questionId =
+    optionQuestion.value;
+
+  const optionText =
+    document.getElementById("optionText")
+      .value.trim();
+
+  const optionOrder =
+    Number(
+      document.getElementById("optionOrder")
+        .value
+    );
+
+  const isCorrect =
+    document.getElementById("optionCorrect")
+      .checked;
+
+  if (
+    !questionId ||
+    !optionText ||
+    !Number.isFinite(optionOrder) ||
+    optionOrder < 1
+  ) {
+    alert("راجع بيانات الاختيار.");
+    return;
+  }
+
+  /*
+    لو الاختيار الجديد هو الصحيح،
+    نخلي باقي اختيارات السؤال غير صحيحة.
+  */
+
+  if (isCorrect) {
+
+    const { error: resetError } =
+      await supabaseClient
+        .from("exam_options")
+        .update({
+          is_correct: false
+        })
+        .eq("question_id", questionId);
+
+    if (resetError) {
+      console.error(resetError);
+      alert("حدث خطأ أثناء تحديد الإجابة الصحيحة.");
       return;
     }
+  }
 
-    const { error } = await supabaseClient
+  const { error } =
+    await supabaseClient
+      .from("exam_options")
+      .insert({
+        question_id: questionId,
+        option_text: optionText,
+        option_order: optionOrder,
+        is_correct: isCorrect
+      });
+
+  if (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء إضافة الاختيار.");
+    return;
+  }
+
+  alert("تم إضافة الاختيار.");
+
+  optionForm.reset();
+
+  await loadQuestions();
+});
+
+
+// =====================================
+// إضافة كورس
+// =====================================
+
+courseForm.addEventListener("submit", async (e) => {
+
+  e.preventDefault();
+
+  const title =
+    document.getElementById("courseTitle")
+      .value.trim();
+
+  const description =
+    document.getElementById("courseDescription")
+      .value.trim();
+
+  const academicYear =
+    Number(
+      document.getElementById("courseYear")
+        .value
+    );
+
+  const price =
+    Number(
+      document.getElementById("coursePrice")
+        .value
+    );
+
+  const imageUrl =
+    document.getElementById("courseImage")
+      .value.trim();
+
+  const isVisible =
+    document.getElementById("courseVisible")
+      .checked;
+
+  if (
+    !title ||
+    ![1, 2, 3].includes(academicYear) ||
+    !Number.isFinite(price) ||
+    price < 0
+  ) {
+    alert("راجع بيانات الكورس.");
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
       .from("courses")
       .insert({
         title,
@@ -511,65 +722,71 @@ if (courseForm) {
         is_visible: isVisible
       });
 
-    if (error) {
-      console.error(error);
-      alert("حدث خطأ أثناء إضافة الكورس.");
-      return;
-    }
+  if (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء إضافة الكورس.");
+    return;
+  }
 
-    alert("تم إضافة الكورس بنجاح.");
+  alert("تم إضافة الكورس بنجاح.");
 
-    courseForm.reset();
+  courseForm.reset();
 
-    document.getElementById("courseVisible").checked = true;
+  document.getElementById("courseVisible").checked = true;
 
-    await loadCourses();
-  });
-}
+  await loadCourses();
+});
 
 
-// ===============================
+// =====================================
 // إضافة محاضرة
-// ===============================
+// =====================================
 
-if (lectureForm) {
-  lectureForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+lectureForm.addEventListener("submit", async (e) => {
 
-    const courseId =
-      document.getElementById("lectureCourse").value;
+  e.preventDefault();
 
-    const title =
-      document.getElementById("lectureTitle").value.trim();
+  const courseId =
+    lectureCourse.value;
 
-    const description =
-      document.getElementById("lectureDescription").value.trim();
+  const title =
+    document.getElementById("lectureTitle")
+      .value.trim();
 
-    const videoUrl =
-      document.getElementById("lectureVideo").value.trim();
+  const description =
+    document.getElementById("lectureDescription")
+      .value.trim();
 
-    const pdfUrl =
-      document.getElementById("lecturePdf").value.trim();
+  const videoUrl =
+    document.getElementById("lectureVideo")
+      .value.trim();
 
-    const lectureOrder =
-      Number(
-        document.getElementById("lectureOrder").value
-      );
+  const pdfUrl =
+    document.getElementById("lecturePdf")
+      .value.trim();
 
-    const isFree =
-      document.getElementById("lectureFree").checked;
+  const lectureOrder =
+    Number(
+      document.getElementById("lectureOrder")
+        .value
+    );
 
-    if (
-      !courseId ||
-      !title ||
-      Number.isNaN(lectureOrder) ||
-      lectureOrder < 1
-    ) {
-      alert("راجع بيانات المحاضرة.");
-      return;
-    }
+  const isFree =
+    document.getElementById("lectureFree")
+      .checked;
 
-    const { error } = await supabaseClient
+  if (
+    !courseId ||
+    !title ||
+    !Number.isFinite(lectureOrder) ||
+    lectureOrder < 1
+  ) {
+    alert("راجع بيانات المحاضرة.");
+    return;
+  }
+
+  const { error } =
+    await supabaseClient
       .from("lectures")
       .insert({
         course_id: courseId,
@@ -581,106 +798,187 @@ if (lectureForm) {
         is_free: isFree
       });
 
-    if (error) {
-      console.error(error);
-      alert("حدث خطأ أثناء إضافة المحاضرة.");
-      return;
-    }
+  if (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء إضافة المحاضرة.");
+    return;
+  }
 
-    alert("تم إضافة المحاضرة بنجاح.");
+  alert("تم إضافة المحاضرة.");
 
-    lectureForm.reset();
+  lectureForm.reset();
 
-    await loadLectures();
-  });
-}
+  await loadLectures();
+});
 
 
-// ===============================
-// إضافة / تعديل اختبار
-// ===============================
+// =====================================
+// طلبات الاشتراك
+// =====================================
 
-if (examForm) {
-  examForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+async function loadRequests() {
 
-    const lectureId =
-      document.getElementById("examLecture").value;
-
-    const title =
-      document.getElementById("examTitle").value.trim();
-
-    const description =
-      document.getElementById("examDescription").value.trim();
-
-    const examUrl =
-      document.getElementById("examUrl").value.trim();
-
-    const maxScore =
-      Number(
-        document.getElementById("examMaxScore").value
-      );
-
-    if (
-      !lectureId ||
-      !title ||
-      Number.isNaN(maxScore) ||
-      maxScore <= 0
-    ) {
-      alert("راجع بيانات الاختبار.");
-      return;
-    }
-
-    /*
-      لأن lecture_id عليه UNIQUE
-      فـ upsert هنا يسمح بإضافة الاختبار
-      أو تحديث الاختبار الموجود لنفس المحاضرة.
-    */
-
-    const { error } = await supabaseClient
-      .from("lecture_exams")
-      .upsert(
-        {
-          lecture_id: lectureId,
+  const { data, error } =
+    await supabaseClient
+      .from("course_requests")
+      .select(`
+        id,
+        status,
+        created_at,
+        student_id,
+        course_id,
+        courses (
           title,
-          description,
-          exam_url: examUrl || null,
-          max_score: maxScore
-        },
-        {
-          onConflict: "lecture_id"
-        }
-      );
+          price
+        ),
+        profiles (
+          full_name,
+          email
+        )
+      `)
+      .order("created_at", {
+        ascending: false
+      });
 
-    if (error) {
-      console.error(error);
-      alert("حدث خطأ أثناء حفظ الاختبار.");
-      return;
-    }
+  if (error) {
+    console.error(error);
+    requestsList.innerHTML =
+      "<p>حدث خطأ أثناء تحميل الطلبات.</p>";
+    return;
+  }
 
-    alert("تم حفظ الاختبار بنجاح.");
+  const pending =
+    data.filter(
+      request => request.status === "pending"
+    ).length;
 
-    examForm.reset();
-  });
+  statsRequests.textContent = pending;
+
+  renderRequests(data);
 }
 
 
-// ===============================
-// الموافقة على طلب
-// ===============================
+function renderRequests(requests) {
+
+  if (!requests.length) {
+    requestsList.innerHTML = `
+      <div class="empty-state">
+        لا توجد طلبات اشتراك.
+      </div>
+    `;
+    return;
+  }
+
+  requestsList.innerHTML =
+    requests.map(request => {
+
+      let statusText = "قيد الانتظار";
+
+      if (request.status === "approved") {
+        statusText = "تمت الموافقة";
+      }
+
+      if (request.status === "rejected") {
+        statusText = "مرفوض";
+      }
+
+      return `
+
+        <div class="admin-card">
+
+          <div class="admin-card-info">
+
+            <h3>
+              ${escapeHtml(
+                request.profiles?.full_name || "طالب"
+              )}
+            </h3>
+
+            <p>
+              ${escapeHtml(
+                request.profiles?.email || ""
+              )}
+            </p>
+
+            <p>
+              الكورس:
+              <strong>
+                ${escapeHtml(
+                  request.courses?.title || ""
+                )}
+              </strong>
+            </p>
+
+            <div class="admin-meta">
+
+              <span>
+                ${Number(
+                  request.courses?.price || 0
+                ).toFixed(2)}
+                جنيه
+              </span>
+
+              <span>
+                ${statusText}
+              </span>
+
+            </div>
+
+          </div>
+
+          <div class="admin-actions">
+
+            ${
+              request.status === "pending"
+                ? `
+                  <button
+                    class="success-btn"
+                    onclick="approveRequest(
+                      '${request.id}',
+                      '${request.student_id}',
+                      '${request.course_id}'
+                    )"
+                  >
+                    موافقة
+                  </button>
+
+                  <button
+                    class="danger-btn"
+                    onclick="rejectRequest(
+                      '${request.id}'
+                    )"
+                  >
+                    رفض
+                  </button>
+                `
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+      `;
+    }).join("");
+}
+
+
+// =====================================
+// الموافقة
+// =====================================
 
 async function approveRequest(
   requestId,
   studentId,
   courseId
 ) {
-  const confirmed = confirm(
-    "هل تريد الموافقة على هذا الطلب وفتح الكورس للطالب؟"
-  );
 
-  if (!confirmed) return;
+  if (!confirm(
+    "هل تريد الموافقة وفتح الكورس للطالب؟"
+  )) {
+    return;
+  }
 
-  // إنشاء الاشتراك
   const { error: enrollmentError } =
     await supabaseClient
       .from("enrollments")
@@ -690,58 +988,58 @@ async function approveRequest(
           course_id: courseId
         },
         {
-          onConflict: "student_id,course_id"
+          onConflict:
+            "student_id,course_id"
         }
       );
 
   if (enrollmentError) {
     console.error(enrollmentError);
-    alert("تعذر إنشاء اشتراك الطالب.");
+    alert("تعذر فتح الكورس للطالب.");
     return;
   }
 
-  // تحديث حالة الطلب
-  const { error: requestError } =
+  const { error } =
     await supabaseClient
       .from("course_requests")
       .update({
         status: "approved",
-        updated_at: new Date().toISOString()
+        updated_at:
+          new Date().toISOString()
       })
       .eq("id", requestId);
 
-  if (requestError) {
-    console.error(requestError);
-    alert(
-      "تم إنشاء الاشتراك لكن حدث خطأ أثناء تحديث الطلب."
-    );
+  if (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء تحديث الطلب.");
     return;
   }
 
-  alert("تمت الموافقة وفتح الكورس للطالب.");
+  alert("تمت الموافقة وفتح الكورس.");
 
   await loadRequests();
 }
 
 
-// ===============================
-// رفض طلب
-// ===============================
+// =====================================
+// رفض الطلب
+// =====================================
 
 async function rejectRequest(requestId) {
-  const confirmed = confirm(
-    "هل تريد رفض طلب الاشتراك؟"
-  );
 
-  if (!confirmed) return;
+  if (!confirm("هل تريد رفض الطلب؟")) {
+    return;
+  }
 
-  const { error } = await supabaseClient
-    .from("course_requests")
-    .update({
-      status: "rejected",
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", requestId);
+  const { error } =
+    await supabaseClient
+      .from("course_requests")
+      .update({
+        status: "rejected",
+        updated_at:
+          new Date().toISOString()
+      })
+      .eq("id", requestId);
 
   if (error) {
     console.error(error);
@@ -755,21 +1053,23 @@ async function rejectRequest(requestId) {
 }
 
 
-// ===============================
+// =====================================
 // حذف كورس
-// ===============================
+// =====================================
 
 async function deleteCourse(courseId) {
-  const confirmed = confirm(
-    "تحذير: حذف الكورس سيحذف المحاضرات والاشتراكات والطلبات المرتبطة به.\n\nهل أنت متأكد؟"
-  );
 
-  if (!confirmed) return;
+  if (!confirm(
+    "حذف الكورس سيحذف المحاضرات والاختبارات والاشتراكات المرتبطة به. هل أنت متأكد؟"
+  )) {
+    return;
+  }
 
-  const { error } = await supabaseClient
-    .from("courses")
-    .delete()
-    .eq("id", courseId);
+  const { error } =
+    await supabaseClient
+      .from("courses")
+      .delete()
+      .eq("id", courseId);
 
   if (error) {
     console.error(error);
@@ -779,29 +1079,30 @@ async function deleteCourse(courseId) {
 
   alert("تم حذف الكورس.");
 
-  await Promise.all([
-    loadCourses(),
-    loadLectures(),
-    loadRequests()
-  ]);
+  await loadCourses();
+  await loadLectures();
+  await loadExams();
+  await loadRequests();
 }
 
 
-// ===============================
+// =====================================
 // حذف محاضرة
-// ===============================
+// =====================================
 
 async function deleteLecture(lectureId) {
-  const confirmed = confirm(
-    "هل أنت متأكد من حذف هذه المحاضرة؟"
-  );
 
-  if (!confirmed) return;
+  if (!confirm(
+    "هل تريد حذف المحاضرة والاختبار المرتبط بها؟"
+  )) {
+    return;
+  }
 
-  const { error } = await supabaseClient
-    .from("lectures")
-    .delete()
-    .eq("id", lectureId);
+  const { error } =
+    await supabaseClient
+      .from("lectures")
+      .delete()
+      .eq("id", lectureId);
 
   if (error) {
     console.error(error);
@@ -812,74 +1113,71 @@ async function deleteLecture(lectureId) {
   alert("تم حذف المحاضرة.");
 
   await loadLectures();
+  await loadExams();
 }
 
 
-// ===============================
+// =====================================
 // تسجيل الخروج
-// ===============================
+// =====================================
 
-const logoutBtn =
-  document.getElementById("logoutBtn");
+document
+  .getElementById("logoutBtn")
+  .addEventListener("click", async () => {
 
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", async () => {
     await supabaseClient.auth.signOut();
+
     location.href = "login.html";
   });
-}
 
 
-// ===============================
-// Dark / Light Mode
-// ===============================
+// =====================================
+// Dark Mode
+// =====================================
 
 const themeBtn =
   document.getElementById("themeBtn");
 
-function applySavedTheme() {
-  const savedTheme =
+function applyTheme() {
+
+  const theme =
     localStorage.getItem("theme");
 
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-  } else {
-    document.body.classList.remove("dark");
-  }
+  document.body.classList.toggle(
+    "dark",
+    theme === "dark"
+  );
 }
 
-applySavedTheme();
+applyTheme();
 
-if (themeBtn) {
-  themeBtn.addEventListener("click", () => {
+themeBtn.addEventListener("click", () => {
 
-    document.body.classList.toggle("dark");
+  document.body.classList.toggle("dark");
 
-    const isDark =
-      document.body.classList.contains("dark");
-
-    localStorage.setItem(
-      "theme",
-      isDark ? "dark" : "light"
-    );
-  });
-}
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark")
+      ? "dark"
+      : "light"
+  );
+});
 
 
-// ===============================
-// تشغيل لوحة الإدارة
-// ===============================
+// =====================================
+// تشغيل لوحة الأدمن
+// =====================================
 
 async function initAdmin() {
+
   const user = await checkAdmin();
 
   if (!user) return;
 
-  await Promise.all([
-    loadCourses(),
-    loadLectures(),
-    loadRequests()
-  ]);
+  await loadCourses();
+  await loadLectures();
+  await loadRequests();
+  await loadExams();
 }
 
 initAdmin();
