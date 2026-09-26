@@ -34,8 +34,13 @@ async function init() {
   setupButtons();
 
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabaseClient.auth.getUser();
+
+  if (userError) {
+    console.error(userError);
+  }
 
   if (!user) {
     location.href = "login.html";
@@ -49,15 +54,18 @@ async function init() {
   // GET PROFILE
   // =========================
 
-  const { data: profile, error } =
+  const { data: profile, error: profileError } =
     await supabaseClient
       .from("profiles")
       .select("*")
       .eq("id", user.id)
       .maybeSingle();
 
-  if (error) {
-    console.error(error);
+  if (profileError) {
+    console.error(profileError);
+
+    alert("حصل خطأ أثناء تحميل بيانات الحساب.");
+    return;
   }
 
   currentProfile = profile;
@@ -79,27 +87,46 @@ async function init() {
     user.user_metadata?.full_name ||
     "الطالب";
 
-  document.getElementById("profileName").textContent = name;
+  const profileName =
+    document.getElementById("profileName");
 
-  document.getElementById("profileEmail").textContent =
-    user.email || "";
+  const profileEmail =
+    document.getElementById("profileEmail");
 
-  document.getElementById("welcomeName").textContent =
-    name;
+  const welcomeName =
+    document.getElementById("welcomeName");
+
+  if (profileName) {
+    profileName.textContent = name;
+  }
+
+  if (profileEmail) {
+    profileEmail.textContent =
+      user.email || "";
+  }
+
+  if (welcomeName) {
+    welcomeName.textContent = name;
+  }
 
   const firstLetter =
     name.trim().charAt(0).toUpperCase() || "A";
 
-  accountBtn.textContent = firstLetter;
+  if (accountBtn) {
+    accountBtn.textContent = firstLetter;
+  }
 
 
   // =========================
   // YEAR
   // =========================
 
-  const year = Number(profile?.academic_year) || 1;
+  const year =
+    Number(profile?.academic_year) || 1;
 
-  academicYearSelect.value = year;
+  if (academicYearSelect) {
+    academicYearSelect.value = year;
+  }
 
   updateYearText(year);
 
@@ -120,10 +147,15 @@ async function init() {
 
 function setupTheme() {
 
+  if (!themeBtn) {
+    return;
+  }
+
   const savedTheme =
     localStorage.getItem("theme");
 
   if (savedTheme === "dark") {
+
     document.body.classList.add("dark");
 
     themeBtn.textContent = "☀️";
@@ -152,6 +184,10 @@ function setupTheme() {
 // =========================
 
 function setupAccountMenu() {
+
+  if (!accountBtn || !accountDropdown) {
+    return;
+  }
 
   accountBtn.addEventListener("click", (e) => {
 
@@ -182,76 +218,104 @@ function setupAccountMenu() {
 
 function setupButtons() {
 
-  whatsappBtn.href = whatsappUrl();
+  if (whatsappBtn) {
+    whatsappBtn.href = whatsappUrl();
+  }
 
 
-  logoutBtn.addEventListener(
-    "click",
-    logout
-  );
+  if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+      "click",
+      logout
+    );
+
+  }
 
 
-  academicYearSelect.addEventListener(
-    "change",
-    async () => {
+  if (academicYearSelect) {
 
-      const year =
-        Number(academicYearSelect.value);
+    academicYearSelect.addEventListener(
+      "change",
+      async () => {
 
-      if (![1, 2, 3].includes(year)) {
-        return;
+        const year =
+          Number(academicYearSelect.value);
+
+        if (![1, 2, 3].includes(year)) {
+          return;
+        }
+
+
+        updateYearText(year);
+
+
+        const { error: updateError } =
+          await supabaseClient
+            .from("profiles")
+            .update({
+              academic_year: year
+            })
+            .eq("id", currentUser.id);
+
+
+        if (updateError) {
+
+          console.error(updateError);
+
+          alert(
+            "حصل خطأ أثناء حفظ السنة الدراسية."
+          );
+
+          return;
+        }
+
+
+        await loadCourses(year);
+
+
+        if (courseContent) {
+          courseContent.style.display = "none";
+        }
+
+        currentCourse = null;
+
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+
       }
+    );
+
+  }
 
 
-      updateYearText(year);
+  const backCoursesBtn =
+    document.getElementById("backCoursesBtn");
 
+  if (backCoursesBtn) {
 
-      const { error } =
-        await supabaseClient
-          .from("profiles")
-          .update({
-            academic_year: year
-          })
-          .eq("id", currentUser.id);
+    backCoursesBtn.addEventListener(
+      "click",
+      () => {
 
+        if (courseContent) {
+          courseContent.style.display = "none";
+        }
 
-      if (error) {
+        currentCourse = null;
 
-        alert(
-          "حصل خطأ أثناء حفظ السنة الدراسية."
-        );
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
 
-        return;
       }
+    );
 
-
-      await loadCourses(year);
-
-      courseContent.style.display = "none";
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
-    }
-  );
-
-
-  document
-    .getElementById("backCoursesBtn")
-    .addEventListener("click", () => {
-
-      courseContent.style.display = "none";
-
-      currentCourse = null;
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
-    });
+  }
 }
 
 
@@ -268,14 +332,19 @@ async function loadEnrollments() {
       .eq("student_id", currentUser.id);
 
   if (error) {
-    console.error(error);
+
+    console.error(
+      "LOAD ENROLLMENTS ERROR:",
+      error
+    );
 
     currentEnrollments = [];
 
     return;
   }
 
-  currentEnrollments = data || [];
+  currentEnrollments =
+    data || [];
 }
 
 
@@ -292,14 +361,19 @@ async function loadRequests() {
       .eq("student_id", currentUser.id);
 
   if (error) {
-    console.error(error);
+
+    console.error(
+      "LOAD REQUESTS ERROR:",
+      error
+    );
 
     currentRequests = [];
 
     return;
   }
 
-  currentRequests = data || [];
+  currentRequests =
+    data || [];
 }
 
 
@@ -308,6 +382,15 @@ async function loadRequests() {
 // =========================
 
 async function loadCourses(year) {
+
+  if (!coursesGrid) {
+    console.error(
+      "coursesGrid element not found."
+    );
+
+    return;
+  }
+
 
   coursesGrid.innerHTML = `
     <div class="loading-card">
@@ -322,7 +405,10 @@ async function loadCourses(year) {
   `;
 
 
-  const { data, error } =
+  const {
+    data: courses,
+    error: coursesError
+  } =
     await supabaseClient
       .from("courses")
       .select("*")
@@ -333,9 +419,12 @@ async function loadCourses(year) {
       });
 
 
-  if (error) {
+  if (coursesError) {
 
-    console.error(error);
+    console.error(
+      "LOAD COURSES ERROR:",
+      coursesError
+    );
 
     coursesGrid.innerHTML = `
       <div class="empty-card">
@@ -348,6 +437,10 @@ async function loadCourses(year) {
           مش قادرين نحمل الكورسات دلوقتي.
         </p>
 
+        <small>
+          افتح Console لمعرفة الخطأ.
+        </small>
+
       </div>
     `;
 
@@ -355,15 +448,22 @@ async function loadCourses(year) {
   }
 
 
-  const courses = data || [];
+  const courseList =
+    courses || [];
 
 
-  document.getElementById(
-    "coursesCount"
-  ).textContent = courses.length;
+  const coursesCount =
+    document.getElementById(
+      "coursesCount"
+    );
+
+  if (coursesCount) {
+    coursesCount.textContent =
+      courseList.length;
+  }
 
 
-  if (courses.length === 0) {
+  if (courseList.length === 0) {
 
     coursesGrid.innerHTML = `
       <div class="empty-card">
@@ -384,7 +484,9 @@ async function loadCourses(year) {
 
 
   coursesGrid.innerHTML =
-    courses.map(renderCourseCard).join("");
+    courseList
+      .map(renderCourseCard)
+      .join("");
 }
 
 
@@ -412,27 +514,31 @@ function renderCourseCard(course) {
       : `${Number(course.price).toLocaleString("ar-EG")} جنيه`;
 
 
-  const image = course.image_url
+  const image =
+    course.image_url
 
-    ? `
-      <img
-        src="${escapeHtml(course.image_url)}"
-        alt="${escapeHtml(course.title)}"
-        class="course-image"
-      >
-    `
+      ? `
+        <img
+          src="${escapeHtml(course.image_url)}"
+          alt="${escapeHtml(course.title)}"
+          class="course-image"
+        >
+      `
 
-    : `
-      <div class="course-image-placeholder">
-        🩺
-      </div>
-    `;
+      : `
+        <div class="course-image-placeholder">
+          🩺
+        </div>
+      `;
 
 
   let action = "";
 
 
+  // =========================
   // FREE
+  // =========================
+
   if (Number(course.price) === 0) {
 
     action = `
@@ -447,7 +553,10 @@ function renderCourseCard(course) {
   }
 
 
+  // =========================
   // ENROLLED
+  // =========================
+
   else if (enrolled) {
 
     action = `
@@ -462,7 +571,10 @@ function renderCourseCard(course) {
   }
 
 
+  // =========================
   // PENDING
+  // =========================
+
   else if (request?.status === "pending") {
 
     action = `
@@ -478,7 +590,10 @@ function renderCourseCard(course) {
   }
 
 
+  // =========================
   // REJECTED
+  // =========================
+
   else if (request?.status === "rejected") {
 
     action = `
@@ -493,7 +608,10 @@ function renderCourseCard(course) {
   }
 
 
+  // =========================
   // PAID
+  // =========================
+
   else {
 
     action = `
@@ -556,7 +674,10 @@ function renderCourseCard(course) {
 
 async function openCourse(courseId) {
 
-  const { data: course, error } =
+  const {
+    data: course,
+    error: courseError
+  } =
     await supabaseClient
       .from("courses")
       .select("*")
@@ -564,9 +685,26 @@ async function openCourse(courseId) {
       .maybeSingle();
 
 
-  if (error || !course) {
+  if (courseError) {
 
-    alert("الكورس غير موجود.");
+    console.error(
+      "OPEN COURSE ERROR:",
+      courseError
+    );
+
+    alert(
+      "حصل خطأ أثناء فتح الكورس."
+    );
+
+    return;
+  }
+
+
+  if (!course) {
+
+    alert(
+      "الكورس غير موجود."
+    );
 
     return;
   }
@@ -592,27 +730,63 @@ async function openCourse(courseId) {
   }
 
 
-  currentCourse = course;
+  currentCourse =
+    course;
 
 
-  document.getElementById(
-    "selectedCourseTitle"
-  ).textContent = course.title;
+  const selectedCourseTitle =
+    document.getElementById(
+      "selectedCourseTitle"
+    );
+
+  const selectedCourseYear =
+    document.getElementById(
+      "selectedCourseYear"
+    );
+
+  const selectedCourseDescription =
+    document.getElementById(
+      "selectedCourseDescription"
+    );
 
 
-  document.getElementById(
-    "selectedCourseYear"
-  ).textContent =
-    `الفرقة ${course.academic_year}`;
+  if (selectedCourseTitle) {
+
+    selectedCourseTitle.textContent =
+      course.title;
+
+  }
 
 
-  document.getElementById(
-    "selectedCourseDescription"
-  ).textContent =
-    course.description || "";
+  if (selectedCourseYear) {
+
+    selectedCourseYear.textContent =
+      `الفرقة ${course.academic_year}`;
+
+  }
 
 
-  courseContent.style.display = "block";
+  if (selectedCourseDescription) {
+
+    selectedCourseDescription.textContent =
+      course.description || "";
+
+  }
+
+
+  if (courseContent) {
+    courseContent.style.display =
+      "block";
+  }
+
+
+  if (!lecturesList) {
+    console.error(
+      "lecturesList element not found."
+    );
+
+    return;
+  }
 
 
   lecturesList.innerHTML = `
@@ -628,7 +802,10 @@ async function openCourse(courseId) {
   `;
 
 
-  const { data: lectures, error } =
+  const {
+    data: lectures,
+    error: lectureError
+  } =
     await supabaseClient
       .from("lectures")
       .select("*")
@@ -638,14 +815,24 @@ async function openCourse(courseId) {
       });
 
 
-  if (error) {
+  if (lectureError) {
 
-    console.error(error);
+    console.error(
+      "LOAD LECTURES ERROR:",
+      lectureError
+    );
 
     lecturesList.innerHTML = `
       <div class="empty-card">
-        <h3>حصل خطأ</h3>
-        <p>تعذر تحميل المحاضرات.</p>
+
+        <h3>
+          حصل خطأ
+        </h3>
+
+        <p>
+          تعذر تحميل المحاضرات.
+        </p>
+
       </div>
     `;
 
@@ -675,29 +862,45 @@ async function openCourse(courseId) {
 
   const examIds =
     await getExamIds(
-      lectures.map(l => l.id)
+      lectures.map(
+        lecture => lecture.id
+      )
     );
 
 
-  document.getElementById(
-    "examsCount"
-  ).textContent = examIds.length;
+  const examsCount =
+    document.getElementById(
+      "examsCount"
+    );
+
+  if (examsCount) {
+
+    examsCount.textContent =
+      examIds.length;
+
+  }
 
 
   lecturesList.innerHTML =
-    lectures.map(
-      lecture =>
-        renderLecture(
-          lecture,
-          examIds
-        )
-    ).join("");
+    lectures
+      .map(
+        lecture =>
+          renderLecture(
+            lecture,
+            examIds
+          )
+      )
+      .join("");
 
 
-  courseContent.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
+  if (courseContent) {
+
+    courseContent.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  }
 }
 
 
@@ -707,21 +910,35 @@ async function openCourse(courseId) {
 
 async function getExamIds(lectureIds) {
 
-  if (!lectureIds.length) {
+  if (
+    !lectureIds ||
+    lectureIds.length === 0
+  ) {
+
     return [];
+
   }
 
 
-  const { data, error } =
+  const {
+    data,
+    error: examError
+  } =
     await supabaseClient
       .from("lecture_exams")
       .select("id,lecture_id")
-      .in("lecture_id", lectureIds);
+      .in(
+        "lecture_id",
+        lectureIds
+      );
 
 
-  if (error) {
+  if (examError) {
 
-    console.error(error);
+    console.error(
+      "LOAD EXAMS ERROR:",
+      examError
+    );
 
     return [];
   }
@@ -735,7 +952,10 @@ async function getExamIds(lectureIds) {
 // RENDER LECTURE
 // =========================
 
-function renderLecture(lecture, examIds) {
+function renderLecture(
+  lecture,
+  examIds
+) {
 
   const isFree =
     lecture.is_free === true;
@@ -743,23 +963,26 @@ function renderLecture(lecture, examIds) {
 
   const exam =
     examIds.find(
-      e => e.lecture_id === lecture.id
+      e =>
+        e.lecture_id ===
+        lecture.id
     );
 
 
-  const badge = isFree
+  const badge =
+    isFree
 
-    ? `
-      <span class="free-badge">
-        🆓 مجانية
-      </span>
-    `
+      ? `
+        <span class="free-badge">
+          🆓 مجانية
+        </span>
+      `
 
-    : `
-      <span class="lock-badge">
-        🔒 ضمن الكورس
-      </span>
-    `;
+      : `
+        <span class="lock-badge">
+          🔒 ضمن الكورس
+        </span>
+      `;
 
 
   const videoButton =
@@ -827,7 +1050,9 @@ function renderLecture(lecture, examIds) {
         ">
 
           <h3>
-            ${escapeHtml(lecture.title)}
+            ${escapeHtml(
+              lecture.title
+            )}
           </h3>
 
           ${badge}
@@ -865,7 +1090,10 @@ function renderLecture(lecture, examIds) {
 
 async function requestCourse(courseId) {
 
-  const { data: course, error } =
+  const {
+    data: course,
+    error: courseError
+  } =
     await supabaseClient
       .from("courses")
       .select("id,title,price")
@@ -873,9 +1101,26 @@ async function requestCourse(courseId) {
       .maybeSingle();
 
 
-  if (error || !course) {
+  if (courseError) {
 
-    alert("الكورس غير موجود.");
+    console.error(
+      "REQUEST COURSE ERROR:",
+      courseError
+    );
+
+    alert(
+      "حصل خطأ أثناء تحميل بيانات الكورس."
+    );
+
+    return;
+  }
+
+
+  if (!course) {
+
+    alert(
+      "الكورس غير موجود."
+    );
 
     return;
   }
@@ -883,7 +1128,9 @@ async function requestCourse(courseId) {
 
   if (Number(course.price) === 0) {
 
-    await openCourse(courseId);
+    await openCourse(
+      courseId
+    );
 
     return;
   }
@@ -891,11 +1138,16 @@ async function requestCourse(courseId) {
 
   const existing =
     currentRequests.find(
-      r => r.course_id === courseId
+      r =>
+        r.course_id ===
+        courseId
     );
 
 
-  if (existing?.status === "pending") {
+  if (
+    existing?.status ===
+    "pending"
+  ) {
 
     alert(
       "أنت بالفعل قدمت طلب اشتراك في الكورس."
@@ -905,24 +1157,35 @@ async function requestCourse(courseId) {
   }
 
 
-  const { error: insertError } =
+  const {
+    error: insertError
+  } =
     await supabaseClient
       .from("course_requests")
       .upsert(
         {
-          student_id: currentUser.id,
-          course_id: courseId,
-          status: "pending"
+          student_id:
+            currentUser.id,
+
+          course_id:
+            courseId,
+
+          status:
+            "pending"
         },
         {
-          onConflict: "student_id,course_id"
+          onConflict:
+            "student_id,course_id"
         }
       );
 
 
   if (insertError) {
 
-    console.error(insertError);
+    console.error(
+      "REQUEST INSERT ERROR:",
+      insertError
+    );
 
     alert(
       "حصل خطأ أثناء إرسال طلب الاشتراك."
@@ -944,10 +1207,16 @@ async function requestCourse(courseId) {
 
   await loadRequests();
 
-  const year =
-    Number(academicYearSelect.value);
 
-  await loadCourses(year);
+  const year =
+    Number(
+      academicYearSelect.value
+    );
+
+
+  await loadCourses(
+    year
+  );
 
 
   alert(
@@ -963,16 +1232,28 @@ async function requestCourse(courseId) {
 function updateYearText(year) {
 
   const names = {
+
     1: "الفرقة الأولى",
+
     2: "الفرقة الثانية",
+
     3: "الفرقة الثالثة"
+
   };
 
 
-  document.getElementById(
-    "yearText"
-  ).textContent =
-    names[year] || "-";
+  const yearText =
+    document.getElementById(
+      "yearText"
+    );
+
+
+  if (yearText) {
+
+    yearText.textContent =
+      names[year] || "-";
+
+  }
 }
 
 
@@ -984,7 +1265,8 @@ async function logout() {
 
   await supabaseClient.auth.signOut();
 
-  location.href = "index.html";
+  location.href =
+    "index.html";
 }
 
 
@@ -994,10 +1276,27 @@ async function logout() {
 
 function escapeHtml(value) {
 
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 }
