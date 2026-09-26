@@ -1,0 +1,3 @@
+document.getElementById("year").textContent=new Date().getFullYear();
+async function load(){const {data}=await supabaseClient.from("courses").select("*").order("created_at",{ascending:false});const box=document.getElementById("coursesGrid");if(!data?.length){box.innerHTML='<div class="empty">سيتم إضافة الكورسات قريبًا.</div>';return}box.innerHTML=data.map(c=>`<article class="course"><div class="course-icon">🩺</div><span class="tag">دورة تدريبية</span><h3>${safe(c.title)}</h3><p>${safe(c.description||"")}</p><a href="login.html" class="course-btn">دخول الطلاب للتسجيل</a></article>`).join("")}
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}load();
