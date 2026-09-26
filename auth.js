@@ -1,27 +1,123 @@
-const loginForm=document.getElementById("loginForm"),signupForm=document.getElementById("signupForm"),msg=document.getElementById("msg");
-function showMsg(t,error=false){if(msg){msg.textContent=t;msg.className="msg "+(error?"error":"ok")}}
-if(loginForm) loginForm.addEventListener("submit",async e=>{e.preventDefault();showMsg("جاري تسجيل الدخول...");const {data,error}=await supabaseClient.auth.signInWithPassword({email:email.value,password:password.value});if(error)return showMsg("بيانات الدخول غير صحيحة أو الحساب غير مفعّل.",true);location.href="student.html";});
-if(signupForm) signupForm.addEventListener("submit",async e=>{
-  e.preventDefault();
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const msg = document.getElementById("msg");
 
-  showMsg("جاري إنشاء الحساب...");
+function showMsg(text, error = false) {
+  if (!msg) return;
 
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const name = document.getElementById("name").value;
+  msg.textContent = text;
+  msg.className = "msg " + (error ? "error" : "ok");
+}
 
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: name
-      },
-      emailRedirectTo: "https://ahmednader3t3-debug.github.io/amira-salim1/"
+
+// =========================
+// LOGIN
+// =========================
+
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    showMsg("جاري تسجيل الدخول...");
+
+    const email = document
+      .getElementById("email")
+      .value
+      .trim();
+
+    const password = document.getElementById("password").value;
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      showMsg(
+        "بيانات الدخول غير صحيحة أو الحساب غير مفعّل.",
+        true
+      );
+      return;
+    }
+
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (profile?.role === "admin") {
+      location.href = "admin.html";
+    } else {
+      location.href = "student.html";
     }
   });
+}
 
-  if(error) return showMsg(error.message, true);
 
-  showMsg("تم إنشاء الحساب. راجع بريدك الإلكتروني لتأكيد الحساب.");
-});
+// =========================
+// SIGN UP
+// =========================
+
+if (signupForm) {
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    showMsg("جاري إنشاء الحساب...");
+
+    const name = document
+      .getElementById("name")
+      .value
+      .trim();
+
+    const email = document
+      .getElementById("email")
+      .value
+      .trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const academicYear = Number(
+      document.getElementById("academicYear").value
+    );
+
+    if (
+      !name ||
+      !email ||
+      password.length < 6 ||
+      ![1, 2, 3].includes(academicYear)
+    ) {
+      showMsg(
+        "راجع الاسم والإيميل والباسورد والسنة الدراسية.",
+        true
+      );
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+
+      options: {
+        data: {
+          full_name: name,
+          academic_year: academicYear
+        },
+
+        emailRedirectTo:
+          "https://ahmednader3t3-debug.github.io/amira-salim1/"
+      }
+    });
+
+    if (error) {
+      showMsg(error.message, true);
+      return;
+    }
+
+    showMsg(
+      "تم إنشاء الحساب. راجع بريدك الإلكتروني لتأكيد الحساب."
+    );
+  });
+}
