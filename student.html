@@ -1,19 +1,21 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>لوحة الطالب | أميرة سليم</title>
+<title>لوحة الطالب | أميرة سليم</title>
 
-  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
 <header class="header">
+
   <div class="container nav">
 
     <a class="brand" href="student.html">
@@ -25,23 +27,27 @@
       </span>
     </a>
 
-    <div class="student-nav">
+    <div style="display:flex;align-items:center;gap:12px">
 
-      <button id="themeBtn" class="icon-btn" title="الوضع الليلي">
-        🌙
+      <button
+        id="profileBtn"
+        class="btn small"
+        type="button"
+        title="حسابي">
+        👤
       </button>
 
-      <button id="settingsBtn" class="icon-btn" title="الإعدادات">
-        ⚙️
-      </button>
-
-      <button id="logout" class="btn small">
+      <button
+        id="logout"
+        class="btn small"
+        type="button">
         تسجيل الخروج
       </button>
 
     </div>
 
   </div>
+
 </header>
 
 
@@ -49,69 +55,64 @@
 
 <div class="container">
 
-  <!-- PROFILE HERO -->
+  <div class="dashboard-head">
 
-  <section class="student-profile">
+    <div>
 
-    <div class="profile-avatar">
-      <span id="avatarLetter">A</span>
-    </div>
-
-    <div class="profile-info">
-
-      <span class="eyebrow">NURSING ACADEMY</span>
+      <span class="eyebrow">
+        لوحة الطالب
+      </span>
 
       <h1 id="welcome">
         أهلاً بك
       </h1>
 
-      <p id="studentEmail">
-        جاري تحميل البريد الإلكتروني...
+      <p>
+        تابع كورساتك ومحاضراتك وامتحاناتك من مكان واحد.
       </p>
 
-    </div>
-
-    <button id="profileBtn" class="profile-btn">
-      👤 حسابي
-    </button>
-
-  </section>
-
-
-  <!-- STATS -->
-
-  <div class="dashboard-stats">
-
-    <div class="dashboard-stat">
-      <span>📚</span>
-      <b id="coursesCount">0</b>
-      <small>الكورسات</small>
-    </div>
-
-    <div class="dashboard-stat">
-      <span>📝</span>
-      <b id="assignmentsCount">0</b>
-      <small>الواجبات</small>
-    </div>
-
-    <div class="dashboard-stat">
-      <span>🧪</span>
-      <b id="examsCount">0</b>
-      <small>الامتحانات</small>
-    </div>
-
-    <div class="dashboard-stat">
-      <span>📊</span>
-      <b id="gradesCount">0</b>
-      <small>النتائج</small>
     </div>
 
   </div>
 
 
-  <!-- PAYMENT -->
+  <!-- ACCOUNT -->
 
-  <div id="paymentInfo" class="payment-box"></div>
+  <section
+    id="profilePanel"
+    class="dashboard-section"
+    style="display:none">
+
+    <div class="dashboard-title">
+
+      <div>
+
+        <span class="eyebrow">
+          ACCOUNT
+        </span>
+
+        <h2>
+          حسابي
+        </h2>
+
+      </div>
+
+    </div>
+
+    <div class="course">
+
+      <h3 id="profileName">
+        -
+      </h3>
+
+      <p>
+        البريد الإلكتروني:
+        <strong id="profileEmail">-</strong>
+      </p>
+
+    </div>
+
+  </section>
 
 
   <!-- COURSES -->
@@ -119,96 +120,61 @@
   <section class="dashboard-section">
 
     <div class="dashboard-title">
+
       <div>
-        <span class="eyebrow">EDUCATION</span>
-        <h2>كورساتي</h2>
+
+        <span class="eyebrow">
+          EDUCATION
+        </span>
+
+        <h2>
+          كورساتي
+        </h2>
+
       </div>
+
     </div>
 
-    <div id="studentCourses" class="grid">
+    <div
+      id="studentCourses"
+      class="grid">
+
       <div class="loading">
         جاري تحميل الكورسات...
       </div>
+
     </div>
 
   </section>
 
 
-  <!-- ASSIGNMENTS -->
+  <!-- LECTURES -->
 
-  <section class="dashboard-section">
-
-    <div class="dashboard-title">
-      <div>
-        <span class="eyebrow">TASKS</span>
-        <h2>الواجبات</h2>
-      </div>
-    </div>
-
-    <div id="assignmentsList" class="dashboard-list">
-      <div class="loading">
-        جاري تحميل الواجبات...
-      </div>
-    </div>
-
-  </section>
-
-
-  <!-- EXAMS -->
-
-  <section class="dashboard-section">
+  <section
+    id="lecturesSection"
+    class="dashboard-section"
+    style="display:none">
 
     <div class="dashboard-title">
+
       <div>
-        <span class="eyebrow">EXAMS</span>
-        <h2>الامتحانات</h2>
+
+        <span class="eyebrow">
+          COURSE CONTENT
+        </span>
+
+        <h2 id="selectedCourseTitle">
+          المحاضرات
+        </h2>
+
       </div>
+
     </div>
 
-    <div id="examsList" class="dashboard-list">
-      <div class="loading">
-        جاري تحميل الامتحانات...
-      </div>
-    </div>
+    <div
+      id="lecturesList"
+      class="dashboard-list">
 
-  </section>
-
-
-  <!-- GRADES -->
-
-  <section class="dashboard-section">
-
-    <div class="dashboard-title">
-      <div>
-        <span class="eyebrow">RESULTS</span>
-        <h2>درجاتي</h2>
-      </div>
-    </div>
-
-    <div id="gradesList" class="dashboard-list">
-      <div class="loading">
-        جاري تحميل الدرجات...
-      </div>
-    </div>
-
-  </section>
-
-
-  <!-- NOTIFICATIONS -->
-
-  <section class="dashboard-section">
-
-    <div class="dashboard-title">
-      <div>
-        <span class="eyebrow">NOTIFICATIONS</span>
-        <h2>الإشعارات</h2>
-      </div>
-    </div>
-
-    <div id="notificationsList" class="dashboard-list">
-      <div class="loading">
-        جاري تحميل الإشعارات...
-      </div>
     </div>
 
   </section>
@@ -216,110 +182,6 @@
 </div>
 
 </main>
-
-
-<!-- PROFILE MODAL -->
-
-<div id="profileModal" class="modal">
-
-  <div class="modal-card">
-
-    <button class="modal-close" id="closeProfile">
-      ×
-    </button>
-
-    <div class="modal-avatar">
-      👤
-    </div>
-
-    <span class="eyebrow">MY ACCOUNT</span>
-
-    <h2>حسابي</h2>
-
-    <div class="account-info">
-
-      <div>
-        <small>الاسم</small>
-        <strong id="accountName">—</strong>
-      </div>
-
-      <div>
-        <small>البريد الإلكتروني</small>
-        <strong id="accountEmail">—</strong>
-      </div>
-
-      <div>
-        <small>نوع الحساب</small>
-        <strong>طالب</strong>
-      </div>
-
-      <div>
-        <small>حالة الحساب</small>
-        <strong class="account-active">
-          ● نشط
-        </strong>
-      </div>
-
-    </div>
-
-    <button id="modalLogout" class="btn full">
-      تسجيل الخروج
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- SETTINGS MODAL -->
-
-<div id="settingsModal" class="modal">
-
-  <div class="modal-card">
-
-    <button class="modal-close" id="closeSettings">
-      ×
-    </button>
-
-    <span class="eyebrow">SETTINGS</span>
-
-    <h2>الإعدادات</h2>
-
-    <div class="settings-list">
-
-      <div class="setting-row">
-
-        <div>
-          <strong>الوضع الليلي</strong>
-          <small>تغيير مظهر المنصة</small>
-        </div>
-
-        <button id="settingsTheme" class="switch">
-          <span></span>
-        </button>
-
-      </div>
-
-
-      <div class="setting-row">
-
-        <div>
-          <strong>اللغة</strong>
-          <small>لغة واجهة المنصة</small>
-        </div>
-
-        <select id="languageSelect">
-          <option value="ar">العربية</option>
-          <option value="en">English</option>
-        </select>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
 
 
 <script src="config.js"></script>
