@@ -1,400 +1,329 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<meta charset="utf-8">
+  <title>لوحة الطالب | أميرة سليم</title>
 
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 
-<title>لوحة الطالب | أميرة سليم</title>
-
-<link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 
 <body>
 
-
 <header class="header">
-
   <div class="container nav">
 
-
-    <!-- LOGO -->
-    <!-- اللوجو هنا يرجع للـ Dashboard -->
-
     <a class="brand" href="student.html">
-
-      <span class="logo">
-        AS
-      </span>
+      <span class="logo">AS</span>
 
       <span>
-
-        <b>
-          أميرة سليم
-        </b>
-
-        <small>
-          NURSING ACADEMY
-        </small>
-
+        <b>أميرة سليم</b>
+        <small>NURSING ACADEMY</small>
       </span>
-
     </a>
 
+    <div class="student-nav">
 
-    <!-- LOGOUT -->
+      <button id="themeBtn" class="icon-btn" title="الوضع الليلي">
+        🌙
+      </button>
 
-    <button
-      id="logout"
-      class="btn small">
+      <button id="settingsBtn" class="icon-btn" title="الإعدادات">
+        ⚙️
+      </button>
 
-      تسجيل الخروج
+      <button id="logout" class="btn small">
+        تسجيل الخروج
+      </button>
 
-    </button>
-
+    </div>
 
   </div>
-
 </header>
-
 
 
 <main class="section">
 
-
 <div class="container">
 
+  <!-- PROFILE HERO -->
 
-  <!-- =========================
-       WELCOME
-  ========================== -->
+  <section class="student-profile">
 
-  <div class="dashboard-head">
+    <div class="profile-avatar">
+      <span id="avatarLetter">A</span>
+    </div>
 
-    <div>
+    <div class="profile-info">
 
-      <span class="eyebrow">
-        لوحة الطالب
-      </span>
+      <span class="eyebrow">NURSING ACADEMY</span>
 
       <h1 id="welcome">
         أهلاً بك
       </h1>
 
-      <p>
-        تابع كورساتك وواجباتك وامتحاناتك ونتائجك من مكان واحد.
+      <p id="studentEmail">
+        جاري تحميل البريد الإلكتروني...
       </p>
 
     </div>
 
-  </div>
+    <button id="profileBtn" class="profile-btn">
+      👤 حسابي
+    </button>
+
+  </section>
 
 
-
-  <!-- =========================
-       STATISTICS
-  ========================== -->
+  <!-- STATS -->
 
   <div class="dashboard-stats">
 
-
     <div class="dashboard-stat">
-
-      <span>
-        📚
-      </span>
-
-      <b id="coursesCount">
-        0
-      </b>
-
-      <small>
-        الكورسات
-      </small>
-
+      <span>📚</span>
+      <b id="coursesCount">0</b>
+      <small>الكورسات</small>
     </div>
 
-
-
     <div class="dashboard-stat">
-
-      <span>
-        📝
-      </span>
-
-      <b id="assignmentsCount">
-        0
-      </b>
-
-      <small>
-        الواجبات
-      </small>
-
+      <span>📝</span>
+      <b id="assignmentsCount">0</b>
+      <small>الواجبات</small>
     </div>
 
-
-
     <div class="dashboard-stat">
-
-      <span>
-        🧪
-      </span>
-
-      <b id="examsCount">
-        0
-      </b>
-
-      <small>
-        الامتحانات
-      </small>
-
+      <span>🧪</span>
+      <b id="examsCount">0</b>
+      <small>الامتحانات</small>
     </div>
 
-
-
     <div class="dashboard-stat">
-
-      <span>
-        📊
-      </span>
-
-      <b id="gradesCount">
-        0
-      </b>
-
-      <small>
-        النتائج
-      </small>
-
+      <span>📊</span>
+      <b id="gradesCount">0</b>
+      <small>النتائج</small>
     </div>
-
 
   </div>
 
 
+  <!-- PAYMENT -->
 
-  <!-- =========================
-       PAYMENT
-  ========================== -->
-
-  <div
-    id="paymentInfo"
-    class="payment-box">
-  </div>
+  <div id="paymentInfo" class="payment-box"></div>
 
 
-
-  <!-- =========================
-       COURSES
-  ========================== -->
+  <!-- COURSES -->
 
   <section class="dashboard-section">
 
-
     <div class="dashboard-title">
-
       <div>
-
-        <span class="eyebrow">
-          EDUCATION
-        </span>
-
-        <h2>
-          كورساتي
-        </h2>
-
+        <span class="eyebrow">EDUCATION</span>
+        <h2>كورساتي</h2>
       </div>
-
     </div>
 
-
-    <div
-      id="studentCourses"
-      class="grid">
-
+    <div id="studentCourses" class="grid">
+      <div class="loading">
+        جاري تحميل الكورسات...
+      </div>
     </div>
-
 
   </section>
 
 
-
-  <!-- =========================
-       ASSIGNMENTS
-  ========================== -->
+  <!-- ASSIGNMENTS -->
 
   <section class="dashboard-section">
 
-
     <div class="dashboard-title">
-
       <div>
-
-        <span class="eyebrow">
-          TASKS
-        </span>
-
-        <h2>
-          الواجبات
-        </h2>
-
+        <span class="eyebrow">TASKS</span>
+        <h2>الواجبات</h2>
       </div>
-
     </div>
 
-
-    <div
-      id="assignmentsList"
-      class="dashboard-list">
-
+    <div id="assignmentsList" class="dashboard-list">
       <div class="loading">
         جاري تحميل الواجبات...
       </div>
-
     </div>
-
 
   </section>
 
 
-
-  <!-- =========================
-       EXAMS
-  ========================== -->
+  <!-- EXAMS -->
 
   <section class="dashboard-section">
 
-
     <div class="dashboard-title">
-
       <div>
-
-        <span class="eyebrow">
-          EXAMS
-        </span>
-
-        <h2>
-          الامتحانات
-        </h2>
-
+        <span class="eyebrow">EXAMS</span>
+        <h2>الامتحانات</h2>
       </div>
-
     </div>
 
-
-    <div
-      id="examsList"
-      class="dashboard-list">
-
+    <div id="examsList" class="dashboard-list">
       <div class="loading">
         جاري تحميل الامتحانات...
       </div>
-
     </div>
-
 
   </section>
 
 
-
-  <!-- =========================
-       GRADES
-  ========================== -->
+  <!-- GRADES -->
 
   <section class="dashboard-section">
 
-
     <div class="dashboard-title">
-
       <div>
-
-        <span class="eyebrow">
-          RESULTS
-        </span>
-
-        <h2>
-          درجاتي
-        </h2>
-
+        <span class="eyebrow">RESULTS</span>
+        <h2>درجاتي</h2>
       </div>
-
     </div>
 
-
-    <div
-      id="gradesList"
-      class="dashboard-list">
-
+    <div id="gradesList" class="dashboard-list">
       <div class="loading">
         جاري تحميل الدرجات...
       </div>
-
     </div>
-
 
   </section>
 
 
-
-  <!-- =========================
-       NOTIFICATIONS
-  ========================== -->
+  <!-- NOTIFICATIONS -->
 
   <section class="dashboard-section">
 
-
     <div class="dashboard-title">
-
       <div>
-
-        <span class="eyebrow">
-          NOTIFICATIONS
-        </span>
-
-        <h2>
-          الإشعارات
-        </h2>
-
+        <span class="eyebrow">NOTIFICATIONS</span>
+        <h2>الإشعارات</h2>
       </div>
-
     </div>
 
-
-    <div
-      id="notificationsList"
-      class="dashboard-list">
-
+    <div id="notificationsList" class="dashboard-list">
       <div class="loading">
         جاري تحميل الإشعارات...
       </div>
-
     </div>
 
-
   </section>
-
 
 </div>
 
 </main>
 
 
+<!-- PROFILE MODAL -->
 
-<!-- =========================
-     SCRIPTS
-========================= -->
+<div id="profileModal" class="modal">
+
+  <div class="modal-card">
+
+    <button class="modal-close" id="closeProfile">
+      ×
+    </button>
+
+    <div class="modal-avatar">
+      👤
+    </div>
+
+    <span class="eyebrow">MY ACCOUNT</span>
+
+    <h2>حسابي</h2>
+
+    <div class="account-info">
+
+      <div>
+        <small>الاسم</small>
+        <strong id="accountName">—</strong>
+      </div>
+
+      <div>
+        <small>البريد الإلكتروني</small>
+        <strong id="accountEmail">—</strong>
+      </div>
+
+      <div>
+        <small>نوع الحساب</small>
+        <strong>طالب</strong>
+      </div>
+
+      <div>
+        <small>حالة الحساب</small>
+        <strong class="account-active">
+          ● نشط
+        </strong>
+      </div>
+
+    </div>
+
+    <button id="modalLogout" class="btn full">
+      تسجيل الخروج
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- SETTINGS MODAL -->
+
+<div id="settingsModal" class="modal">
+
+  <div class="modal-card">
+
+    <button class="modal-close" id="closeSettings">
+      ×
+    </button>
+
+    <span class="eyebrow">SETTINGS</span>
+
+    <h2>الإعدادات</h2>
+
+    <div class="settings-list">
+
+      <div class="setting-row">
+
+        <div>
+          <strong>الوضع الليلي</strong>
+          <small>تغيير مظهر المنصة</small>
+        </div>
+
+        <button id="settingsTheme" class="switch">
+          <span></span>
+        </button>
+
+      </div>
+
+
+      <div class="setting-row">
+
+        <div>
+          <strong>اللغة</strong>
+          <small>لغة واجهة المنصة</small>
+        </div>
+
+        <select id="languageSelect">
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </select>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
 
 <script src="config.js"></script>
-
 <script src="student.js"></script>
 
-
 </body>
-
 </html>
