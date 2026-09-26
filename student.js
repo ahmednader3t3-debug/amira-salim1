@@ -1,617 +1,337 @@
-const CONTACT_NUMBER = "01068980363";
-const WHATSAPP_NUMBER = "201068980363";
+<!doctype html>
+<html lang="ar" dir="rtl">
 
-let currentUser = null;
-let coursesMap = new Map();
+<head>
 
-async function init() {
+<meta charset="utf-8">
 
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
 
-  if (!user) {
-    location.href = "login.html";
-    return;
-  }
+<title>لوحة الطالب | أميرة سليم</title>
 
-  currentUser = user;
+<link rel="stylesheet" href="style.css">
 
-  document.getElementById("welcome").textContent =
-    "أهلاً بك، " + (user.user_metadata?.full_name || user.email);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  await loadCourses();
-  await loadAssignments();
-  await loadExams();
-  await loadGrades();
-  await loadNotifications();
+</head>
 
-  document.getElementById("paymentInfo").innerHTML = `
-    <b>طريقة الاشتراك:</b><br>
-    حوّل قيمة الكورس إلى رقم التواصل
-    <strong>${CONTACT_NUMBER}</strong>
-    وبعد التحويل اضغط زر الاشتراك في الكورس وأرسل رسالة تأكيد على واتساب.
-  `;
-}
 
+<body>
 
-/* =========================
-   COURSES
-========================= */
 
-async function loadCourses() {
+<header class="header">
 
-  const { data: courses, error } =
-    await supabaseClient
-      .from("courses")
-      .select("*")
-      .order("created_at", { ascending: false });
+  <div class="container nav">
 
-  const { data: enrollments } =
-    await supabaseClient
-      .from("enrollments")
-      .select("course_id")
-      .eq("student_id", currentUser.id);
+    <!-- LOGO -->
+    <a class="brand" href="student.html">
 
-  const { data: requests } =
-    await supabaseClient
-      .from("course_requests")
-      .select("course_id,status")
-      .eq("student_id", currentUser.id);
+      <span class="logo">
+        AS
+      </span>
 
-  const enrolled = new Set(
-    (enrollments || []).map(x => x.course_id)
-  );
+      <span>
+        <b>أميرة سليم</b>
+        <small>NURSING ACADEMY</small>
+      </span>
 
-  const requested = new Map(
-    (requests || []).map(x => [x.course_id, x.status])
-  );
+    </a>
 
-  const box = document.getElementById("studentCourses");
 
-  if (error || !courses?.length) {
-    box.innerHTML =
-      '<div class="empty">لا توجد كورسات حاليًا.</div>';
-    return;
-  }
+    <div>
 
-  document.getElementById("coursesCount").textContent =
-    enrolled.size;
+      <button
+        id="logout"
+        class="btn small">
 
-  courses.forEach(c => coursesMap.set(c.id, c));
+        تسجيل الخروج
 
-  box.innerHTML = courses.map(c => {
+      </button>
 
-    const status = requested.get(c.id);
+    </div>
 
-    let action = "";
+  </div>
 
-    if (enrolled.has(c.id)) {
+</header>
 
-      action = c.video_url
-        ? `<a class="course-btn"
-             target="_blank"
-             href="${safeAttr(c.video_url)}">
-             فتح المحاضرة
-           </a>`
-        : `<div class="approved">
-             تم تفعيل الكورس لك.
-           </div>`;
 
-    } else if (status === "pending") {
+<main class="section">
 
-      action = `
-        <div class="pending">
-          طلبك قيد المراجعة.
-        </div>
-      `;
+<div class="container">
 
-    } else if (status === "rejected") {
 
-      action = `
-        <button class="course-btn"
-          onclick="requestCourse('${c.id}')">
-          إعادة طلب الكورس
-        </button>
-      `;
+<!-- HEADER -->
 
-    } else {
+<div class="dashboard-head">
 
-      action = `
-        <button class="course-btn"
-          onclick="requestCourse('${c.id}')">
-          الاشتراك في الكورس
-        </button>
-      `;
-    }
+  <span class="eyebrow">
+    لوحة الطالب
+  </span>
 
-    return `
-      <article class="course">
+  <h1 id="welcome">
+    أهلاً بك
+  </h1>
 
-        <div class="course-icon">🩺</div>
+  <p>
+    تابع كورساتك وواجباتك وامتحاناتك ودرجاتك من مكان واحد.
+  </p>
 
-        <span class="tag">دورة تدريبية</span>
+</div>
 
-        <h3>${safe(c.title)}</h3>
 
-        <p>${safe(c.description || "")}</p>
+<!-- STATS -->
 
-        ${action}
+<div class="dashboard-stats">
 
-      </article>
-    `;
 
-  }).join("");
-}
+  <div class="dashboard-stat">
 
+    <span>📚</span>
 
-/* =========================
-   ASSIGNMENTS
-========================= */
+    <b id="coursesCount">
+      0
+    </b>
 
-async function loadAssignments() {
+    <small>
+      الكورسات
+    </small>
 
-  const box = document.getElementById("assignmentsList");
+  </div>
 
-  const { data, error } =
-    await supabaseClient
-      .from("assignments")
-      .select("*")
-      .order("due_at", { ascending: true });
 
-  if (error) {
-    box.innerHTML =
-      `<div class="empty">${safe(error.message)}</div>`;
-    return;
-  }
+  <div class="dashboard-stat">
 
-  if (!data?.length) {
-    box.innerHTML =
-      '<div class="empty">لا توجد واجبات حاليًا.</div>';
-    return;
-  }
+    <span>📝</span>
 
-  const courseIds = data.map(x => x.course_id);
+    <b id="assignmentsCount">
+      0
+    </b>
 
-  const { data: enrollments } =
-    await supabaseClient
-      .from("enrollments")
-      .select("course_id")
-      .eq("student_id", currentUser.id)
-      .in("course_id", courseIds);
+    <small>
+      الواجبات
+    </small>
 
-  const enrolled = new Set(
-    (enrollments || []).map(x => x.course_id)
-  );
+  </div>
 
-  const visible = data.filter(x => enrolled.has(x.course_id));
 
-  document.getElementById("assignmentsCount").textContent =
-    visible.length;
+  <div class="dashboard-stat">
 
-  if (!visible.length) {
-    box.innerHTML =
-      '<div class="empty">لا توجد واجبات للكورسات المفعلة.</div>';
-    return;
-  }
+    <span>🧪</span>
 
-  const { data: submissions } =
-    await supabaseClient
-      .from("assignment_submissions")
-      .select("*")
-      .eq("student_id", currentUser.id);
+    <b id="examsCount">
+      0
+    </b>
 
-  const submissionMap = new Map(
-    (submissions || []).map(x => [x.assignment_id, x])
-  );
+    <small>
+      الامتحانات
+    </small>
 
-  box.innerHTML = visible.map(a => {
+  </div>
 
-    const submission = submissionMap.get(a.id);
 
-    let status = "لم يتم التسليم";
-    let statusClass = "status pending";
+  <div class="dashboard-stat">
 
-    if (submission) {
-      status = submission.score !== null
-        ? `تم التصحيح: ${submission.score}/${a.max_score}`
-        : "تم التسليم";
+    <span>📊</span>
 
-      statusClass =
-        submission.score !== null
-          ? "status approved"
-          : "status pending";
-    }
+    <b id="gradesCount">
+      0
+    </b>
 
-    return `
-      <article class="dashboard-item">
+    <small>
+      الدرجات
+    </small>
 
-        <div>
-          <span class="tag">واجب</span>
+  </div>
 
-          <h3>${safe(a.title)}</h3>
 
-          <p>${safe(a.description || "")}</p>
+</div>
 
-          <small>
-            موعد التسليم:
-            ${formatDate(a.due_at)}
-          </small>
-        </div>
 
-        <div class="dashboard-item-side">
+<!-- PAYMENT -->
 
-          <span class="${statusClass}">
-            ${status}
-          </span>
+<div
+  id="paymentInfo"
+  class="payment-box">
+</div>
 
-          ${
-            !submission
-            ? `<button
-                 class="btn small"
-                 onclick="submitAssignment('${a.id}')">
-                 تسليم الواجب
-               </button>`
-            : ""
-          }
 
-        </div>
+<!-- COURSES -->
 
-      </article>
-    `;
+<section class="dashboard-section">
 
-  }).join("");
-}
+  <div class="dashboard-title">
 
+    <div>
 
-/* =========================
-   SUBMIT ASSIGNMENT
-========================= */
+      <span class="eyebrow">
+        EDUCATION
+      </span>
 
-async function submitAssignment(id) {
+      <h2>
+        كورساتي
+      </h2>
 
-  const answer = prompt("اكتب إجابتك أو ملاحظاتك للواجب:");
+    </div>
 
-  if (answer === null) return;
+  </div>
 
-  if (!answer.trim()) {
-    alert("اكتب الإجابة أولًا.");
-    return;
-  }
 
-  const { error } =
-    await supabaseClient
-      .from("assignment_submissions")
-      .upsert({
-        assignment_id: id,
-        student_id: currentUser.id,
-        answer: answer.trim()
-      }, {
-        onConflict: "assignment_id,student_id"
-      });
+  <div
+    id="studentCourses"
+    class="grid">
 
-  if (error) {
-    alert("حدث خطأ: " + error.message);
-    return;
-  }
+  </div>
 
-  alert("تم تسليم الواجب بنجاح.");
+</section>
 
-  loadAssignments();
-}
 
+<!-- ASSIGNMENTS -->
 
-/* =========================
-   EXAMS
-========================= */
+<section class="dashboard-section">
 
-async function loadExams() {
+  <div class="dashboard-title">
 
-  const box = document.getElementById("examsList");
+    <div>
 
-  const { data, error } =
-    await supabaseClient
-      .from("exams")
-      .select("*")
-      .order("starts_at", { ascending: true });
+      <span class="eyebrow">
+        TASKS
+      </span>
 
-  if (error) {
-    box.innerHTML =
-      `<div class="empty">${safe(error.message)}</div>`;
-    return;
-  }
+      <h2>
+        الواجبات
+      </h2>
 
-  if (!data?.length) {
-    box.innerHTML =
-      '<div class="empty">لا توجد امتحانات حاليًا.</div>';
-    return;
-  }
+    </div>
 
-  const courseIds = data.map(x => x.course_id);
+  </div>
 
-  const { data: enrollments } =
-    await supabaseClient
-      .from("enrollments")
-      .select("course_id")
-      .eq("student_id", currentUser.id)
-      .in("course_id", courseIds);
 
-  const enrolled = new Set(
-    (enrollments || []).map(x => x.course_id)
-  );
+  <div
+    id="assignmentsList"
+    class="dashboard-list">
 
-  const visible = data.filter(x => enrolled.has(x.course_id));
+    <div class="loading">
+      جاري تحميل الواجبات...
+    </div>
 
-  document.getElementById("examsCount").textContent =
-    visible.length;
+  </div>
 
-  if (!visible.length) {
-    box.innerHTML =
-      '<div class="empty">لا توجد امتحانات للكورسات المفعلة.</div>';
-    return;
-  }
+</section>
 
-  const { data: results } =
-    await supabaseClient
-      .from("exam_results")
-      .select("*")
-      .eq("student_id", currentUser.id);
 
-  const resultMap = new Map(
-    (results || []).map(x => [x.exam_id, x])
-  );
+<!-- EXAMS -->
 
-  box.innerHTML = visible.map(exam => {
+<section class="dashboard-section">
 
-    const result = resultMap.get(exam.id);
+  <div class="dashboard-title">
 
-    let action = "";
+    <div>
 
-    if (result) {
+      <span class="eyebrow">
+        EXAMS
+      </span>
 
-      action = `
-        <span class="status approved">
-          النتيجة: ${result.score}/${exam.max_score}
-        </span>
-      `;
+      <h2>
+        الامتحانات
+      </h2>
 
-    } else if (exam.exam_url) {
+    </div>
 
-      action = `
-        <a
-          class="btn small"
-          target="_blank"
-          href="${safeAttr(exam.exam_url)}">
-          دخول الامتحان
-        </a>
-      `;
+  </div>
 
-    } else {
 
-      action = `
-        <span class="status pending">
-          لم يبدأ بعد
-        </span>
-      `;
-    }
+  <div
+    id="examsList"
+    class="dashboard-list">
 
-    return `
-      <article class="dashboard-item">
+    <div class="loading">
+      جاري تحميل الامتحانات...
+    </div>
 
-        <div>
+  </div>
 
-          <span class="tag">امتحان</span>
+</section>
 
-          <h3>${safe(exam.title)}</h3>
 
-          <p>${safe(exam.description || "")}</p>
+<!-- GRADES -->
 
-          <small>
-            يبدأ:
-            ${formatDate(exam.starts_at)}
-          </small>
+<section class="dashboard-section">
 
-          <small>
-            المدة:
-            ${exam.duration_minutes} دقيقة
-          </small>
+  <div class="dashboard-title">
 
-        </div>
+    <div>
 
-        <div class="dashboard-item-side">
-          ${action}
-        </div>
+      <span class="eyebrow">
+        RESULTS
+      </span>
 
-      </article>
-    `;
+      <h2>
+        درجاتي
+      </h2>
 
-  }).join("");
-}
+    </div>
 
+  </div>
 
-/* =========================
-   GRADES
-========================= */
 
-async function loadGrades() {
+  <div
+    id="gradesList"
+    class="dashboard-list">
 
-  const box = document.getElementById("gradesList");
+    <div class="loading">
+      جاري تحميل الدرجات...
+    </div>
 
-  const { data: examResults } =
-    await supabaseClient
-      .from("exam_results")
-      .select("*")
-      .eq("student_id", currentUser.id);
+  </div>
 
-  const { data: submissions } =
-    await supabaseClient
-      .from("assignment_submissions")
-      .select("*")
-      .eq("student_id", currentUser.id)
-      .not("score", "is", null);
+</section>
 
-  const total =
-    (examResults || []).length +
-    (submissions || []).length;
 
-  document.getElementById("gradesCount").textContent = total;
+<!-- NOTIFICATIONS -->
 
-  if (!total) {
-    box.innerHTML =
-      '<div class="empty">لا توجد درجات حتى الآن.</div>';
-    return;
-  }
+<section class="dashboard-section">
 
-  box.innerHTML = `
+  <div class="dashboard-title">
 
-    ${(examResults || []).map(r => `
-      <article class="grade-item">
-        <div>
-          <span class="tag">امتحان</span>
-          <h3>نتيجة الامتحان</h3>
-        </div>
+    <div>
 
-        <strong>${r.score}</strong>
-      </article>
-    `).join("")}
+      <span class="eyebrow">
+        NOTIFICATIONS
+      </span>
 
-    ${(submissions || []).map(s => `
-      <article class="grade-item">
-        <div>
-          <span class="tag">واجب</span>
-          <h3>درجة الواجب</h3>
-        </div>
+      <h2>
+        الإشعارات
+      </h2>
 
-        <strong>${s.score}</strong>
-      </article>
-    `).join("")}
+    </div>
 
-  `;
-}
+  </div>
 
 
-/* =========================
-   NOTIFICATIONS
-========================= */
+  <div
+    id="notificationsList"
+    class="dashboard-list">
 
-async function loadNotifications() {
+    <div class="loading">
+      جاري تحميل الإشعارات...
+    </div>
 
-  const box = document.getElementById("notificationsList");
+  </div>
 
-  const { data, error } =
-    await supabaseClient
-      .from("notifications")
-      .select("*")
-      .eq("student_id", currentUser.id)
-      .order("created_at", { ascending: false });
+</section>
 
-  if (error || !data?.length) {
-    box.innerHTML =
-      '<div class="empty">لا توجد إشعارات.</div>';
-    return;
-  }
 
-  box.innerHTML = data.map(n => `
-    <article class="notification-item">
+</div>
 
-      <div class="notification-icon">🔔</div>
+</main>
 
-      <div>
-        <h3>${safe(n.title)}</h3>
-        <p>${safe(n.message || "")}</p>
-        <small>${formatDate(n.created_at)}</small>
-      </div>
 
-    </article>
-  `).join("");
-}
+<script src="config.js"></script>
 
+<script src="student.js"></script>
 
-/* =========================
-   COURSE REQUEST
-========================= */
 
-async function requestCourse(courseId) {
+</body>
 
-  const { data: course } =
-    await supabaseClient
-      .from("courses")
-      .select("title")
-      .eq("id", courseId)
-      .single();
-
-  const { error } =
-    await supabaseClient
-      .from("course_requests")
-      .upsert({
-        student_id: currentUser.id,
-        course_id: courseId,
-        status: "pending"
-      }, {
-        onConflict: "student_id,course_id"
-      });
-
-  if (error) {
-    alert("حصلت مشكلة: " + error.message);
-    return;
-  }
-
-  const msg = encodeURIComponent(
-    `مرحباً، أنا ${currentUser.user_metadata?.full_name || currentUser.email} وأريد الاشتراك في كورس: ${course?.title || ""}. تم التحويل على رقم ${CONTACT_NUMBER}. حسابي في المنصة: ${currentUser.email}.`
-  );
-
-  window.open(
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`,
-    "_blank"
-  );
-
-  alert("تم تسجيل طلبك.");
-
-  init();
-}
-
-
-/* =========================
-   HELPERS
-========================= */
-
-function formatDate(date) {
-
-  if (!date) return "غير محدد";
-
-  return new Date(date).toLocaleString("ar-EG", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  });
-}
-
-
-function safe(s) {
-
-  return String(s).replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[c]));
-
-}
-
-
-function safeAttr(s) {
-
-  return safe(s).replace(/javascript:/gi, "");
-}
-
-
-document.getElementById("logout").onclick = async () => {
-
-  await supabaseClient.auth.signOut();
-
-  location.href = "index.html";
-
-};
-
-
-init();
+</html>
