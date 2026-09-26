@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>اختبار المحاضرة | DR AMIRA SALIM</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js" defer></script>
+  <script src="exam.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+
+    <div class="container nav-container">
+
+      <a href="index.html" class="logo">
+        DR AMIRA SALIM
+      </a>
+
+      <div class="nav-actions">
+
+        <button id="themeBtn" class="icon-btn">
+          🌙
+        </button>
+
+        <a href="student.html" class="btn secondary-btn">
+          لوحة الطالب
+        </a>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main class="container">
+
+    <section class="exam-page">
+
+      <div id="examLoading" class="loading">
+        جاري تحميل الاختبار...
+      </div>
+
+
+      <div id="examContent" style="display:none;">
+
+        <div class="exam-header">
+
+          <span class="badge">
+            اختبار المحاضرة
+          </span>
+
+          <h1 id="examTitle">
+            اختبار
+          </h1>
+
+          <p id="examDescription"></p>
+
+        </div>
+
+
+        <div class="exam-card">
+
+          <div class="exam-info">
+
+            <div>
+              <strong>المحاضرة:</strong>
+
+              <span id="lectureTitle">
+                —
+              </span>
+            </div>
+
+            <div>
+              <strong>الدرجة النهائية:</strong>
+
+              <span id="maxScore">
+                —
+              </span>
+            </div>
+
+          </div>
+
+
+          <div id="examNoUrl" class="empty-state" style="display:none;">
+
+            <h3>
+              الاختبار غير متاح حاليًا
+            </h3>
+
+            <p>
+              لم يتم إضافة رابط الاختبار من لوحة الإدارة بعد.
+            </p>
+
+          </div>
+
+
+          <div id="examReady" style="display:none;">
+
+            <p class="exam-note">
+              اضغط على الزر بالأسفل لفتح الاختبار.
+            </p>
+
+            <a
+              id="openExamBtn"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn primary-btn"
+            >
+              بدء الاختبار
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="examError"
+        class="empty-state"
+        style="display:none;"
+      >
+        <h3>
+          تعذر تحميل الاختبار
+        </h3>
+
+        <p id="examErrorText">
+          حدث خطأ غير متوقع.
+        </p>
+
+        <a
+          href="student.html"
+          class="btn primary-btn"
+        >
+          العودة للوحة الطالب
+        </a>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+
+    <div class="container">
+
+      <p>
+        © 2026 DR AMIRA SALIM — Nursing Courses
+      </p>
+
+    </div>
+
+  </footer>
+
+</body>
+</html>
