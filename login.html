@@ -1,2 +1,100 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>دخول | أميرة سليم</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
-<body class="auth-page"><div class="auth-card"><a class="brand" href="index.html"><span class="logo">AS</span><span><b>أميرة سليم</b><small>NURSING ACADEMY</small></span></a><h1>أهلاً بيك 👋</h1><p>سجّل دخولك للوصول إلى حسابك والكورسات الخاصة بك.</p><form id="loginForm"><label>البريد الإلكتروني<input id="email" type="email" required placeholder="student@example.com"></label><label>كلمة المرور<input id="password" type="password" required placeholder="••••••••"></label><button class="btn full">تسجيل الدخول</button><div id="msg" class="msg"></div></form><a href="signup.html">ليس لديك حساب؟ إنشاء حساب طالب</a><a class="back" href="index.html">← العودة للموقع</a></div><script src="config.js"></script><script src="auth.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>تسجيل الدخول | DR AMIRA SALIM</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+
+<body>
+
+  <main class="auth-page">
+
+    <div class="auth-wrapper">
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <a href="index.html" class="brand">
+          <span class="brand-main">DR AMIRA SALIM</span>
+          <span class="brand-sub">NURSING COURSES</span>
+        </a>
+      </div>
+
+      <div class="auth-card">
+
+        <h1>تسجيل الدخول</h1>
+
+        <p>
+          سجل دخولك للوصول إلى الكورسات والمحاضرات.
+        </p>
+
+        <div id="msg" class="msg"></div>
+
+        <form id="loginForm">
+
+          <div class="form-group">
+            <label for="email">البريد الإلكتروني</label>
+
+            <input
+              type="email"
+              id="email"
+              placeholder="example@email.com"
+              required
+            >
+          </div>
+
+
+          <div class="form-group">
+            <label for="password">كلمة المرور</label>
+
+            <input
+              type="password"
+              id="password"
+              placeholder="••••••••"
+              required
+            >
+          </div>
+
+
+          <button
+            type="submit"
+            class="btn btn-primary auth-submit"
+          >
+            تسجيل الدخول
+          </button>
+
+        </form>
+
+
+        <div class="auth-footer">
+
+          مش عندك حساب؟
+
+          <a href="signup.html">
+            إنشاء حساب جديد
+          </a>
+
+          <br><br>
+
+          <a href="index.html">
+            ← الرجوع للرئيسية
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <script src="auth.js"></script>
+
+</body>
+</html>
